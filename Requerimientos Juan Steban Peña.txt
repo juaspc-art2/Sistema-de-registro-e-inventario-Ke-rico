@@ -1,0 +1,10 @@
+Cristian David Molano Perez
+-RF5: Auditoria de movimientos de inventario
+-RF6: Gestión de proovedores
+-RF7: Analisis de rentabilidad
+-RF8: Registro de actividad (Logs)
+Juan Steban Peña Cardenas
+-RF1: Gestion de ventas y stock
+-RF2: Emision de comprobantes digitales
+-RF3: Aplicación de descuentos y promociones
+-RF4: Alertas Automaticas de stock minimo
