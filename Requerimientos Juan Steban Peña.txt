@@ -14,6 +14,6 @@ Juan Esteban Avila
 -RF9: Inicio de sesion (Login)
 
 los colores que vamos a usar son:
-- EB5E15
-- FFFFFF
-- EDCA34
+- Primario #EB5E15 
+- Secundario #FFFFFF
+- Terciario #EDCA34
