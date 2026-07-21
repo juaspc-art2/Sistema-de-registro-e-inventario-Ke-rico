@@ -13,3 +13,7 @@ Juan Esteban Avila
 -RF8: Registro de actividad (Logs)
 -RF9: Inicio de sesion (Login)
 
+los colores que vamos a usar son:
+- EB5E15
+- FFFFFF
+- EDCA34
