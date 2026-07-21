@@ -1,9 +1,7 @@
- Cristian David Molano Perez
--RF9: Inicio de sesion (Login)
--RF8: Registro de actividad (Logs)
 Juan Steban Peña Cardenas
 -RF1: Gestion de ventas y stock
 -RF2: Emision de comprobantes digitales
+Andres Rodriguez
 -RF3: Aplicación de descuentos y promociones
 Esteban Torres
 -RF4: Alertas Automaticas de stock
@@ -11,3 +9,7 @@ Esteban Torres
 Juan Esteban Avila
 -RF6: Gestión de proovedores
 -RF7: Analisis de rentabilidad
+ Cristian David Molano Perez
+-RF8: Registro de actividad (Logs)
+-RF9: Inicio de sesion (Login)
+
