@@ -44,7 +44,9 @@ export default function AlertasStock() {
 
   const guardarStock = (id) => {
     if (stockEditado[id] === undefined) return;
-    setProductos(productos.map((p) => p.id === id ? { ...p, stock: parseInt(stockEditado[id]) } : p));
+    const nuevoStock = parseInt(stockEditado[id], 10);
+    if (!Number.isInteger(nuevoStock) || nuevoStock < 0) return;
+    setProductos(productos.map((p) => p.id === id ? { ...p, stock: nuevoStock } : p));
     setEditandoId(null);
   };
 

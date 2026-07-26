@@ -27,12 +27,15 @@ export default function EmisionComprobantes() {
   });
 
   const clienteSeleccionado = clientesMock.find((c) => c.id === parseInt(form.clienteId));
-  const subtotal = form.cantidad * parseFloat(form.precioUnit || 0);
+  const cantidadNum = parseInt(form.cantidad, 10) || 0;
+  const precioNum = parseFloat(form.precioUnit) || 0;
+  const subtotal = cantidadNum * precioNum;
   const iva = subtotal * 0.21;
   const total = subtotal + iva;
 
   const generarComprobante = () => {
     if (!form.clienteId || !form.descripcion || !form.precioUnit) return;
+    if (cantidadNum < 1) return;
     const nuevo = {
       id: `FC-${String(comprobantes.length + 1).padStart(4, "0")}`,
       tipo: form.tipo,
@@ -162,7 +165,7 @@ export default function EmisionComprobantes() {
                     type="number"
                     min="1"
                     value={form.cantidad}
-                    onChange={(e) => setForm({ ...form, cantidad: parseInt(e.target.value) })}
+                    onChange={(e) => setForm({ ...form, cantidad: e.target.value })}
                     className="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-500"
                   />
                 </div>

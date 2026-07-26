@@ -38,7 +38,9 @@ export default function Descuentos() {
 
   const calcularDescuento = () => {
     if (!promoAplicada) return 0;
-    if (promoAplicada.tipo === "porcentaje") return subtotal * (promoAplicada.valor / 100);
+    if (promoAplicada.tipo === "porcentaje") {
+      return Math.min(subtotal * (promoAplicada.valor / 100), subtotal);
+    }
     return Math.min(promoAplicada.valor, subtotal);
   };
 
@@ -65,8 +67,13 @@ export default function Descuentos() {
     setNuevaPromo({ codigo: "", descripcion: "", tipo: "porcentaje", valor: "", activa: true });
   };
 
-  const togglePromo = (id) =>
+  const togglePromo = (id) => {
     setPromociones(promociones.map((p) => p.id === id ? { ...p, activa: !p.activa } : p));
+    // Si se desactiva la promoción actualmente aplicada, dejar de aplicarla.
+    if (promoAplicada && promoAplicada.id === id && promoAplicada.activa) {
+      setPromoAplicada(null);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-fuchsia-950 text-white p-6 font-sans">
