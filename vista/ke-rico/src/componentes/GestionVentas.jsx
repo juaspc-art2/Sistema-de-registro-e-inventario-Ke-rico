@@ -29,21 +29,26 @@ export default function GestionVentas() {
   const registrarVenta = () => {
     const prod = productos.find((p) => p.id === parseInt(nuevaVenta.productoId));
     if (!prod) return;
-    if (nuevaVenta.cantidad > prod.stock) {
+    const cantidad = parseInt(nuevaVenta.cantidad, 10);
+    if (!Number.isInteger(cantidad) || cantidad < 1) {
+      alert("Ingresa una cantidad válida (mínimo 1).");
+      return;
+    }
+    if (cantidad > prod.stock) {
       alert("Stock insuficiente");
       return;
     }
     const venta = {
       id: ventas.length + 1,
       producto: prod.nombre,
-      cantidad: parseInt(nuevaVenta.cantidad),
-      total: prod.precio * parseInt(nuevaVenta.cantidad),
+      cantidad,
+      total: prod.precio * cantidad,
       fecha: new Date().toISOString().split("T")[0],
       estado: "Completada",
     };
     setVentas([venta, ...ventas]);
     setProductos(productos.map((p) =>
-      p.id === prod.id ? { ...p, stock: p.stock - parseInt(nuevaVenta.cantidad) } : p
+      p.id === prod.id ? { ...p, stock: p.stock - cantidad } : p
     ));
     setNuevaVenta({ productoId: "", cantidad: 1 });
     setMensajeExito(`Venta de "${prod.nombre}" registrada con éxito.`);
@@ -216,7 +221,7 @@ export default function GestionVentas() {
                   <span className="text-emerald-400 font-bold text-lg">
                     ${(
                       (productos.find((p) => p.id === parseInt(nuevaVenta.productoId))?.precio || 0) *
-                      nuevaVenta.cantidad
+                      (parseInt(nuevaVenta.cantidad, 10) || 0)
                     ).toLocaleString("es-AR")}
                   </span>
                 </div>
