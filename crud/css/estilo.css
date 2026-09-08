@@ -1,0 +1,184 @@
+/* ===========================================
+   ESTILOS PERSONALIZADOS - CRUD PHP & MySQL
+   Paleta: crema, naranja, mostaza y negro
+   (inspirada en la imagen de referencia)
+   =========================================== */
+
+:root {
+    --crema: #FFF8F4;
+    --crema-suave: #FDEDE3;
+    --naranja: #F0632B;
+    --naranja-oscuro: #D6501E;
+    --mostaza: #EEC930;
+    --mostaza-oscuro: #D6B21F;
+    --negro: #1A1A1A;
+    --gris-texto: #4A4A4A;
+    --blanco: #FFFFFF;
+}
+
+/* Fondo general */
+body {
+    background: linear-gradient(180deg, var(--crema) 0%, var(--crema-suave) 100%);
+    min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding-bottom: 40px;
+    color: var(--negro);
+}
+
+/* Título principal */
+h1 {
+    color: var(--negro);
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+h3 {
+    font-weight: 700;
+}
+
+/* Contenedor general con tarjeta flotante */
+.container-fluid {
+    background: var(--blanco);
+    border-radius: 18px;
+    box-shadow: 0 15px 35px rgba(26, 26, 26, 0.12);
+    padding: 25px !important;
+    max-width: 95%;
+    margin: 20px auto !important;
+    border: 1px solid var(--crema-suave);
+}
+
+/* Formulario */
+form {
+    background: var(--crema);
+    border-radius: 14px;
+    padding: 20px !important;
+    box-shadow: 0 8px 20px rgba(240, 99, 43, 0.08);
+    border: 1px solid var(--crema-suave);
+}
+
+form h3 {
+    color: var(--naranja);
+    border-bottom: 3px solid var(--mostaza);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+/* Labels */
+.form-label {
+    font-weight: 600;
+    color: var(--gris-texto);
+}
+
+/* Inputs */
+.form-control {
+    border-radius: 10px;
+    border: 1.5px solid #f0d9cb;
+    padding: 10px 14px;
+    background: var(--blanco);
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: var(--naranja);
+    box-shadow: 0 0 0 0.2rem rgba(240, 99, 43, 0.2);
+    transform: translateY(-2px);
+}
+
+/* Botón principal (Registrar / Modificar) -> naranja, como "Pide Ahora" */
+.btn-primary {
+    background: var(--naranja);
+    border: none;
+    border-radius: 30px;
+    padding: 10px 28px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--blanco);
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 15px rgba(240, 99, 43, 0.35);
+}
+
+.btn-primary:hover {
+    background: var(--naranja-oscuro);
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 10px 20px rgba(240, 99, 43, 0.45);
+}
+
+/* Tabla */
+.table {
+    background: var(--blanco);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(26, 26, 26, 0.06);
+}
+
+.table thead {
+    background: var(--negro) !important;
+}
+
+.table thead th {
+    color: var(--mostaza) !important;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    border: none;
+    padding: 14px;
+}
+
+.table tbody tr {
+    transition: background 0.25s ease, transform 0.2s ease;
+}
+
+.table tbody tr:hover {
+    background-color: var(--crema-suave);
+    transform: scale(1.01);
+}
+
+.table tbody td {
+    vertical-align: middle;
+    padding: 12px 14px;
+    color: var(--gris-texto);
+}
+
+/* Botones de acciones: editar (mostaza) / eliminar (naranja oscuro) */
+.btn-warning, .btn-danger {
+    border: none;
+    border-radius: 8px;
+    margin-right: 4px;
+    transition: all 0.25s ease;
+    color: var(--negro);
+}
+
+.btn-warning {
+    background-color: var(--mostaza);
+}
+
+.btn-danger {
+    background-color: var(--naranja-oscuro);
+    color: var(--blanco);
+}
+
+.btn-warning:hover {
+    background-color: var(--mostaza-oscuro);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(238, 201, 48, 0.4);
+}
+
+.btn-danger:hover {
+    background-color: #b8410f;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(214, 80, 30, 0.4);
+}
+
+/* Responsive: apilar en pantallas pequeñas */
+@media (max-width: 768px) {
+    .container-fluid {
+        padding: 15px !important;
+    }
+    form, .col-8 {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: 100% !important;
+    }
+}
