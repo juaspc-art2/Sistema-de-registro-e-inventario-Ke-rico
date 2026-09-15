@@ -36,6 +36,18 @@ Si prefiere la consola:
 mysql -u root < database/kerico.sql
 ```
 
+### Volver a sembrar la base
+
+`database/semilla.sql` borra todos los registros y vuelve a insertar los datos de
+arranque, sin tocar el esquema ni las vistas. Sirve para dejar el sistema como recién
+instalado después de hacer pruebas. Se puede ejecutar las veces que haga falta.
+
+```bash
+mysql -u root < database/semilla.sql
+```
+
+Requiere que la base `kerico` ya exista; si no, ejecute antes `kerico.sql`.
+
 ---
 
 ## 3. Publicar el backend
@@ -54,7 +66,7 @@ C:\xampp\htdocs\kerico-api\modelo\
 Compruebe abriendo <http://localhost/kerico-api/>. Debe responder:
 
 ```json
-{"ok":true,"datos":{"nombre":"API del Sistema de Registro e Inventario Ke-Rico!","version":"1.0.0","estado":"en linea"}}
+{"ok":true,"datos":{"nombre":"API del Sistema de Registro e Inventario Ke-Rico!","version":"1.0.0","estado":"en línea"}}
 ```
 
 ### Si su MySQL tiene contraseña
