@@ -77,6 +77,16 @@ seccion('RNF4 Restriccion por perfil');
 const cajeroReportes = await api('GET', '/reportes/rentabilidad', { token: TC });
 ok('RNF4 cajero no accede a rentabilidad', cajeroReportes.status === 403, 'status=' + cajeroReportes.status);
 
+const gerenteReportes = await api('GET', '/reportes/rentabilidad', { token: TG });
+ok('RNF4 solo el administrador accede a reportes', gerenteReportes.status === 403, 'status=' + gerenteReportes.status);
+
+const paraPrecio = await api('GET', '/inventario/productos/1', { token: TA });
+const gerentePrecio = await api('PUT', '/inventario/productos/1', {
+  token: TG,
+  body: { ...paraPrecio.j.datos, precio_venta: Number(paraPrecio.j.datos.precio_venta) + 500 },
+});
+ok('RNF4 solo el administrador edita precios', gerentePrecio.status === 403, 'status=' + gerentePrecio.status);
+
 const cajeroUsuarios = await api('GET', '/sistema/usuarios', { token: TC });
 ok('RNF4 cajero no gestiona usuarios', cajeroUsuarios.status === 403);
 
@@ -335,7 +345,7 @@ ok('RF6 recibe compra pendiente', recibida.status === 200 && recibida.j.datos.es
 
 // ---------- RF7 : Rentabilidad ----------
 seccion('RF7 Analisis de rentabilidad');
-const rent = await api('GET', '/reportes/rentabilidad?desde=2026-09-01&hasta=2026-09-30', { token: TG });
+const rent = await api('GET', '/reportes/rentabilidad?desde=2026-09-01&hasta=2026-09-30', { token: TA });
 ok('RF7 genera reporte de rentabilidad', rent.status === 200);
 ok('RNF2 reporte mensual en menos de 10 s', rent.ms < 10000, rent.ms + ' ms');
 const t = rent.j.datos.totales;
@@ -351,7 +361,7 @@ const prod0 = rent.j.datos.productos[0];
 ok('RF7 margen por producto coherente',
   Math.abs(prod0.utilidad - (prod0.ingresos - prod0.costo)) < 0.05);
 
-const panel = await api('GET', '/reportes/panel', { token: TG });
+const panel = await api('GET', '/reportes/panel', { token: TA });
 ok('RF7 panel principal consolida indicadores', panel.status === 200 && !!panel.j.datos.ventas_hoy && !!panel.j.datos.alertas);
 
 // ---------- RF8 : Bitacora ----------

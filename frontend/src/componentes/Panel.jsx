@@ -66,11 +66,20 @@ export default function Panel({ onAlertasPendientes, irA }) {
           <h1>Panel principal</h1>
           <p>Hola {usuario.nombre}, este es el estado del negocio hoy.</p>
         </div>
-        {puede('ventas.registrar') ? (
-          <div className="acciones">
+        <div className="acciones">
+          {puede('ventas.registrar') ? (
             <Boton variante="primario" onClick={() => irA('ventas')}>+ Nueva venta</Boton>
-          </div>
-        ) : null}
+          ) : null}
+          {puede('productos.gestionar') ? (
+            <Boton onClick={() => irA('inventario')}>+ Nuevo producto</Boton>
+          ) : null}
+          {puede('compras.registrar') ? (
+            <Boton onClick={() => irA('proveedores')}>+ Registrar compra</Boton>
+          ) : null}
+          {puede('reportes.ver') ? (
+            <Boton variante="sutil" onClick={() => irA('rentabilidad')}>Ver reportes</Boton>
+          ) : null}
+        </div>
       </div>
 
       <div className="panel">

@@ -12,8 +12,8 @@ como modelo y controlador, y una aplicación React 19 como vista.
 
 1. Instale [XAMPP](https://www.apachefriends.org/) e inicie **Apache** y **MySQL**.
 2. Abra <http://localhost/phpmyadmin>, pestaña **Importar**, y cargue
-   `database/kerico.sql`. El archivo crea la base `kerico`, todas las tablas, las vistas
-   y los datos de arranque. Es lo único que hay que importar.
+   `database/kerico_seed.sql`. Crea la base `kerico`, las 21 tablas, las 4 vistas y los
+   datos de arranque. Es lo único que hay que importar.
 3. Copie la carpeta `publicar/` dentro de la carpeta `htdocs` de XAMPP. Puede llamarla
    como quiera; `kerico` es lo habitual. No hay nada que editar: la aplicación descubre
    su propia API en la subcarpeta `api/`.
@@ -48,8 +48,8 @@ contraseña `123` y su hash se guarda cifrado con bcrypt en la base de datos.
 
 ```
 ├── database/
-│   ├── kerico.sql              Script único: esquema + vistas + datos de arranque
-│   └── semilla.sql             Opcional: reinicia los datos sin tocar el esquema
+│   ├── kerico_seed.sql         Esquema + vistas + datos de arranque (instalación normal)
+│   └── kerico.sql              Esquema + vistas, sin datos (base en blanco)
 ├── backend/                    API REST en PHP 8 (modelo y controlador)
 │   ├── index.php               Controlador frontal y tabla de rutas
 │   ├── config/config.php       Conexión y parámetros (leídos de variables de entorno)

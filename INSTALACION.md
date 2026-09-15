@@ -18,7 +18,7 @@ activadas por defecto en XAMPP.
 1. Inicie **XAMPP Control Panel** y pulse **Start** en **Apache** y en **MySQL**.
 2. Abra <http://localhost/phpmyadmin>.
 3. Vaya a la pestaña **Importar**.
-4. Pulse **Seleccionar archivo** y elija `database/kerico.sql`.
+4. Pulse **Seleccionar archivo** y elija `database/kerico_seed.sql`.
 5. Pulse **Continuar**.
 
 El script borra la base `kerico` si existe, la vuelve a crear y carga:
@@ -33,22 +33,27 @@ El script borra la base `kerico` si existe, la vuelve a crear y carga:
 Si prefiere la consola:
 
 ```bash
-mysql -u root < database/kerico.sql
+mysql -u root < database/kerico_seed.sql
 ```
 
-### Volver a sembrar la base (opcional)
+### Los dos archivos SQL
 
-No hace falta para instalar. `kerico.sql` ya deja la base con todos los datos.
+| Archivo | Qué hace | Cuándo usarlo |
+|---|---|---|
+| `kerico_seed.sql` | Esquema, vistas y datos de arranque | Instalación normal y para volver al estado de demostración |
+| `kerico.sql` | Solo esquema y vistas, sin una sola fila | Cuando quiera la base en blanco para cargar datos reales |
 
-`database/semilla.sql` es una herramienta aparte: borra los registros y vuelve a insertar
-los datos de arranque, sin tocar el esquema ni las vistas. Sirve para dejar el sistema como
-recién instalado después de estar probando. Se puede ejecutar las veces que haga falta.
+Ambos hacen `DROP DATABASE IF EXISTS kerico` y la vuelven a crear, así que cualquiera de los
+dos se puede ejecutar las veces que haga falta. No se combinan: se usa uno **o** el otro.
 
 ```bash
-mysql -u root < database/semilla.sql
+mysql -u root < database/kerico_seed.sql
 ```
 
-Requiere que la base `kerico` ya exista.
+**Atención con `kerico.sql`:** deja la base sin usuarios, y el sistema no tiene registro
+público ni instalador de primer arranque. Después de importarlo no podrá iniciar sesión
+hasta que cargue al menos un usuario con su contraseña en formato bcrypt. Para la
+sustentación y para probar, use siempre `kerico_seed.sql`.
 
 ---
 
@@ -294,7 +299,7 @@ Requisitos en la máquina destino: **Apache con `mod_rewrite`**, **PHP 8.1 o sup
 las extensiones `pdo_mysql`, `mbstring`, `json`, `fileinfo` y `zip`, y **MySQL o MariaDB**.
 XAMPP trae todo eso de fábrica.
 
-1. Importe `database/kerico.sql`.
+1. Importe `database/kerico_seed.sql`.
 2. Copie la carpeta `publicar/` a `htdocs`, con el nombre que quiera.
 3. Abra `http://localhost/<nombre>/`.
 

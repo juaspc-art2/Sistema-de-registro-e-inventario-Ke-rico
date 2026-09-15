@@ -12,10 +12,10 @@ MySQL para comprobar lo que quedó guardado.
 ## Antes de ejecutar
 
 1. Apache y MySQL encendidos.
-2. Base de datos recién cargada desde `database/kerico.sql`.
+2. Base de datos recién cargada desde `database/kerico_seed.sql`.
 3. Backend publicado y respondiendo.
 
-Las suites modifican datos. Vuelva a importar `database/kerico.sql` antes de cada corrida
+Las suites modifican datos. Vuelva a importar `database/kerico_seed.sql` antes de cada corrida
 para partir siempre del mismo estado.
 
 ## Ejecutar

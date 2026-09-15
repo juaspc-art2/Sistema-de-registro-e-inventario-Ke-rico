@@ -23,11 +23,13 @@ final class DocumentoPdf
     private string $actual = '';
     private float $y = 0.0;
     private int $numeroPagina = 0;
+    private array $emisor;
 
     public function __construct(string $titulo, string $subtitulo = '')
     {
         $this->titulo = $titulo;
         $this->subtitulo = $subtitulo;
+        $this->emisor = Ajustes::emisor();
         $this->nuevaPagina();
     }
 
@@ -44,22 +46,32 @@ final class DocumentoPdf
 
     private function encabezado(): void
     {
-        $this->rectangulo(0, self::ALTO - 58, self::ANCHO, 58, self::NARANJA);
-        $this->rectangulo(0, self::ALTO - 62, self::ANCHO, 4, self::AMARILLO);
-        $this->texto('Ke-Rico!', self::MARGEN, self::ALTO - 30, 18, true, [1, 1, 1]);
-        $this->texto($this->titulo, self::MARGEN, self::ALTO - 48, 11, true, [1, 1, 1]);
+        $this->rectangulo(0, self::ALTO - 74, self::ANCHO, 74, self::NARANJA);
+        $this->rectangulo(0, self::ALTO - 78, self::ANCHO, 4, self::AMARILLO);
+        $this->texto($this->emisor['nombre'], self::MARGEN, self::ALTO - 28, 18, true, [1, 1, 1]);
+
+        $institucional = $this->emisor['razon_social'];
+        if ($this->emisor['nit'] !== '') {
+            $institucional .= '   NIT ' . $this->emisor['nit'];
+        }
+        if ($this->emisor['direccion'] !== '') {
+            $institucional .= '   ' . $this->emisor['direccion'];
+        }
+        $this->texto($institucional, self::MARGEN, self::ALTO - 43, 8, false, [1, 1, 1]);
+        $this->texto($this->titulo, self::MARGEN, self::ALTO - 62, 11, true, [1, 1, 1]);
+
         if ($this->subtitulo !== '') {
-            $this->textoDerecha($this->subtitulo, self::ANCHO - self::MARGEN, self::ALTO - 48, 9, false, [1, 1, 1]);
+            $this->textoDerecha($this->subtitulo, self::ANCHO - self::MARGEN, self::ALTO - 62, 9, false, [1, 1, 1]);
         }
         $this->textoDerecha(
             'Generado el ' . date('d/m/Y H:i'),
             self::ANCHO - self::MARGEN,
-            self::ALTO - 30,
+            self::ALTO - 28,
             9,
             false,
             [1, 1, 1]
         );
-        $this->y = self::ALTO - 86;
+        $this->y = self::ALTO - 102;
     }
 
     public function resumen(array $tarjetas): void

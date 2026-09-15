@@ -111,7 +111,7 @@ if ($conexion !== null) {
             $usuarios > 0,
             $usuarios > 0
                 ? ($usuarios . ' usuarios, ' . $productos . ' productos')
-                : 'la base está vacía: vuelva a importar database/kerico.sql'
+                : 'la base no tiene datos: importe database/kerico_seed.sql'
         );
 
         $juego = (string) $conexion->query("SELECT @@character_set_database")->fetchColumn();
@@ -183,7 +183,7 @@ code{background:#F0E2DA;padding:1px 5px;border-radius:4px}
 </table>
 <footer>
 <?php if ($fallosCriticos > 0): ?>
-Corrija las filas en rojo y recargue. Si falta la base, importe <code>database/kerico.sql</code>.
+Corrija las filas en rojo y recargue. Si falta la base o está vacía, importe <code>database/kerico_seed.sql</code>.
 <?php else: ?>
 Abra <code>../index.html</code> para entrar al sistema.
 <?php endif; ?>
