@@ -50,30 +50,43 @@ Requiere que la base `kerico` ya exista; si no, ejecute antes `kerico.sql`.
 
 ---
 
-## 3. Publicar el backend
+## 3. Publicar el sistema
 
-Copie la carpeta `backend/` a `C:\xampp\htdocs\` y renómbrela `kerico-api`.
+Copie la carpeta `publicar/` dentro de `htdocs` y renómbrela como prefiera. El nombre no
+importa: la aplicación busca su API en la subcarpeta `api/`, siempre relativa a sí misma.
 
 Debe quedar así:
 
 ```
-C:\xampp\htdocs\kerico-api\index.php
-C:\xampp\htdocs\kerico-api\config\
-C:\xampp\htdocs\kerico-api\modelo\
-...
+htdocs\kerico\index.html
+htdocs\kerico\config.js
+htdocs\kerico\assets\
+htdocs\kerico\marca\
+htdocs\kerico\api\index.php
+htdocs\kerico\api\modelo\
+htdocs\kerico\api\nucleo\
 ```
 
-Compruebe abriendo <http://localhost/kerico-api/>. Debe responder:
+Compruebe abriendo <http://localhost/kerico/api/>. Debe responder:
 
 ```json
 {"ok":true,"datos":{"nombre":"API del Sistema de Registro e Inventario Ke-Rico!","version":"1.0.0","estado":"en línea"}}
 ```
 
-### Si su MySQL tiene contraseña
+Entre a <http://localhost/kerico/> con `admin` / `123`.
 
-Por defecto el sistema se conecta como `root` sin contraseña, que es la configuración de
-fábrica de XAMPP. Si su servidor usa otros datos, defina estas variables de entorno antes
-de iniciar Apache:
+`config.js` viene vacío a propósito. Solo hay que tocarlo si pone la API en otro servidor
+o en una ruta que no sea `api/` junto a la aplicación:
+
+```js
+window.KERICO_API = 'https://otro-servidor/ruta/api';
+```
+
+### Si su MySQL tiene contraseña o usa otro puerto
+
+Por defecto el sistema se conecta a `127.0.0.1:3306` como `root` sin contraseña, que es la
+configuración de fábrica de XAMPP. Si su servidor usa otros datos, defina estas variables
+de entorno antes de iniciar Apache:
 
 | Variable | Valor por defecto |
 |---|---|
@@ -94,41 +107,23 @@ Reinicie Apache después de guardar.
 
 ---
 
-## 4. Publicar el frontend
+## 4. Volver a compilar
 
-La carpeta `frontend/dist/` ya viene compilada. Copie **su contenido** a
-`C:\xampp\htdocs\kerico\`:
-
-```
-C:\xampp\htdocs\kerico\index.html
-C:\xampp\htdocs\kerico\config.js
-C:\xampp\htdocs\kerico\assets\
-C:\xampp\htdocs\kerico\marca\
-```
-
-Abra `C:\xampp\htdocs\kerico\config.js` y deje la ruta de la API:
-
-```js
-window.KERICO_API = '/kerico-api/api';
-```
-
-Esa es la única línea que cambia si usted renombra las carpetas.
-
-Entre a <http://localhost/kerico/> e inicie sesión con `admin` / `123`.
-
-### Volver a compilar el frontend
-
-Solo si modifica el código de la vista:
+Solo si modifica el código.
 
 ```bash
 cd frontend
 npm install
 npm run build
+cd ..
+node herramientas/publicar.mjs
 ```
 
-El resultado queda en `frontend/dist/`.
+El primer comando regenera `frontend/dist/`; el segundo rearma `publicar/` con la vista y
+el backend ya combinados.
 
 ---
+
 
 ## 5. Modo desarrollo
 
@@ -181,7 +176,7 @@ php backend/tareas/respaldo.php --forzar
 3. Desencadenador: **Diariamente**, a la hora de cierre del local.
 4. Acción: **Iniciar un programa**
    - Programa: `C:\xampp\php\php.exe`
-   - Argumentos: `C:\xampp\htdocs\kerico-api\tareas\respaldo.php`
+   - Argumentos: `C:\xampp\htdocs\kerico\api\tareas\respaldo.php`
 5. Finalizar.
 
 Los archivos quedan en `backend/respaldos/` y se descargan desde la pantalla de
@@ -247,7 +242,7 @@ propia carpeta. El PHP de XAMPP carga primero su `php.ini` correcto y después e
 PHP, que sobrescribe `extension_dir` con una ruta relativa, y entonces ninguna extensión
 carga.
 
-Compruébelo abriendo `http://localhost/kerico-api/` y, si falla, creando un archivo
+Compruébelo abriendo `http://localhost/kerico/api/` y, si falla, creando un archivo
 temporal `C:\xampp\htdocs\revisar.php`:
 
 ```php
@@ -289,3 +284,33 @@ desbloquearla desde `Administración → Usuarios`, o puede esperar a que venza.
 **Se cerró la sesión sola**
 Es el comportamiento esperado tras 15 minutos sin actividad. El tiempo se cambia en
 `Administración → Configuración`, campo `sesion_minutos_inactividad`.
+
+
+## 8. Llevar el proyecto a otra máquina
+
+Requisitos en la máquina destino: **Apache con `mod_rewrite`**, **PHP 8.1 o superior** con
+las extensiones `pdo_mysql`, `mbstring`, `json`, `fileinfo` y `zip`, y **MySQL o MariaDB**.
+XAMPP trae todo eso de fábrica.
+
+1. Importe `database/kerico.sql`.
+2. Copie la carpeta `publicar/` a `htdocs`, con el nombre que quiera.
+3. Abra `http://localhost/<nombre>/`.
+
+No hay que editar rutas ni recompilar. La aplicación resuelve la dirección de su API a
+partir de su propia ubicación, así que funciona igual en `htdocs/kerico`, en
+`htdocs/proyectos/inventario` o en un subdominio.
+
+### Comprobar el entorno
+
+`http://localhost/<nombre>/api/diagnostico.php` revisa versión de PHP, extensiones,
+`mod_rewrite`, conexión a MySQL, las 21 tablas, las 4 vistas, los datos de arranque y el
+juego de caracteres. Devuelve HTTP 500 mientras haya algo crítico sin resolver.
+
+### Comprobar que publicar/ está al día
+
+`publicar/` se arma desde `frontend/dist` y `backend/`. Si tocó código y no la regeneró,
+esto lo detecta:
+
+```bash
+node herramientas/publicar.mjs --verificar
+```

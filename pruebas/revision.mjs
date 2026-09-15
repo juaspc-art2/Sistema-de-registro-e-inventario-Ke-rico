@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 
-const BASE = (process.env.KERICO_API || 'http://localhost/kerico-api') + '/api';
+const BASE = process.env.KERICO_API || 'http://localhost/kerico/api';
 const RAIZ = process.env.KERICO_RAIZ || path.resolve(import.meta.dirname, '..');
 const MARIADB = process.env.KERICO_MYSQL || 'C:/xampp/mysql/bin/mysql.exe';
 

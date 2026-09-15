@@ -16,13 +16,14 @@ como modelo y controlador, y una aplicación React 19 como vista.
    y los datos de arranque.
    Para devolver la base a su estado inicial más adelante, sin recrear el esquema,
    ejecute `database/semilla.sql`.
-3. Copie la carpeta `backend/` dentro de `C:\xampp\htdocs\` y renómbrela `kerico-api`.
-4. Copie el contenido de `frontend/dist/` dentro de `C:\xampp\htdocs\kerico\`.
-5. Edite `C:\xampp\htdocs\kerico\config.js` y deje:
-   ```js
-   window.KERICO_API = '/kerico-api/api';
-   ```
-6. Entre a <http://localhost/kerico/>.
+3. Copie la carpeta `publicar/` dentro de la carpeta `htdocs` de XAMPP. Puede llamarla
+   como quiera; `kerico` es lo habitual. No hay nada que editar: la aplicación descubre
+   su propia API en la subcarpeta `api/`.
+4. Entre a <http://localhost/kerico/>.
+
+Si algo no arranca, abra <http://localhost/kerico/api/diagnostico.php>: revisa la versión
+de PHP, las extensiones, `mod_rewrite`, la conexión a MySQL, las 21 tablas, las 4 vistas y
+el juego de caracteres, y dice exactamente qué falta.
 
 **Usuario:** `admin` · **Contraseña:** `123`
 
@@ -57,6 +58,7 @@ contraseña `123` y su hash se guarda cifrado con bcrypt en la base de datos.
 │   ├── nucleo/                 Autenticación, enrutador, validación, exportadores, PDF
 │   ├── modelo/                 Lógica de negocio y acceso a datos
 │   ├── controlador/            Un controlador por módulo
+│   ├── diagnostico.php         Revisión del entorno: PHP, extensiones, base de datos
 │   ├── tareas/respaldo.php     Respaldo automático programable
 │   └── respaldos/              Destino de los archivos .sql generados
 ├── frontend/                   Aplicación React 19 + Vite 8 (vista)
@@ -65,6 +67,8 @@ contraseña `123` y su hash se guarda cifrado con bcrypt en la base de datos.
 │   ├── src/contexto/Sesion.jsx Sesión, permisos y cierre por inactividad
 │   ├── src/ganchos/            Listados con paginación, filtros y orden
 │   └── src/api.js              Cliente HTTP con token y CSRF
+├── publicar/                   Carpeta lista para copiar a htdocs (frontend + api/)
+├── herramientas/publicar.mjs   Regenera publicar/ desde frontend/dist y backend/
 ├── docs/                       Requerimientos, matriz del proyecto y manual de identidad
 └── diseno/                     Tablero de referencia y landing de la marca
 ```

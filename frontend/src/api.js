@@ -5,6 +5,9 @@ const BASE = (() => {
   if (import.meta.env.VITE_API_URL) {
     return String(import.meta.env.VITE_API_URL).replace(/\/+$/, '');
   }
+  if (typeof document !== 'undefined' && document.baseURI) {
+    return new URL('api', document.baseURI).pathname;
+  }
   return '/api';
 })();
 

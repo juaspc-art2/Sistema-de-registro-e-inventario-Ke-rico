@@ -1,4 +1,4 @@
-const BASE = (process.env.KERICO_API || 'http://localhost/kerico-api') + '/api';
+const BASE = process.env.KERICO_API || 'http://localhost/kerico/api';
 let pasadas = 0, fallidas = 0;
 const fallos = [];
 

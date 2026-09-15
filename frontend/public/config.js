@@ -1,1 +1,1 @@
-window.KERICO_API = '/api';
+window.KERICO_API = '';
