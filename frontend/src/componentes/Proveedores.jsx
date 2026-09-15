@@ -88,7 +88,7 @@ function Formulario({ proveedor, onCerrar, onGuardado, avisar }) {
           onChange={(e) => poner('nombre_empresa', e.target.value)} error={errores.nombre_empresa} />
         <Entrada etiqueta="NIT" value={datos.nit}
           onChange={(e) => poner('nit', e.target.value)} error={errores.nit} placeholder="900.100.001-1" />
-        <Entrada etiqueta="Telefono" value={datos.telefono}
+        <Entrada etiqueta="Teléfono" value={datos.telefono}
           onChange={(e) => poner('telefono', e.target.value)} />
         <Entrada etiqueta="Correo" type="email" value={datos.correo}
           onChange={(e) => poner('correo', e.target.value)} error={errores.correo} />
@@ -97,10 +97,10 @@ function Formulario({ proveedor, onCerrar, onGuardado, avisar }) {
         <Seleccion etiqueta="Estado" value={datos.estado}
           onChange={(e) => poner('estado', e.target.value)}
           opciones={opcionesEstado(ESTADOS)} />
-        <Entrada etiqueta="Calificacion (0 a 5)" type="number" min="0" max="5" step="0.1"
+        <Entrada etiqueta="Calificación (0 a 5)" type="number" min="0" max="5" step="0.1"
           value={datos.calificacion} onChange={(e) => poner('calificacion', e.target.value)}
           error={errores.calificacion} />
-        <Entrada etiqueta="Direccion" value={datos.direccion}
+        <Entrada etiqueta="Dirección" value={datos.direccion}
           onChange={(e) => poner('direccion', e.target.value)} />
       </div>
 
@@ -263,9 +263,9 @@ function Directorio() {
           <div className="totales">
             <div className="fila"><span>NIT</span><span className="tabular">{detalle.nit}</span></div>
             <div className="fila"><span>Contacto</span><span>{detalle.contacto_nombre || 'Sin contacto'}</span></div>
-            <div className="fila"><span>Telefono</span><span className="tabular">{detalle.telefono || '—'}</span></div>
+            <div className="fila"><span>Teléfono</span><span className="tabular">{detalle.telefono || '—'}</span></div>
             <div className="fila"><span>Correo</span><span>{detalle.correo || '—'}</span></div>
-            <div className="fila"><span>Direccion</span><span>{detalle.direccion || '—'}</span></div>
+            <div className="fila"><span>Dirección</span><span>{detalle.direccion || '—'}</span></div>
             <div className="fila"><span>Suministra</span><span>{detalle.tipo_productos}</span></div>
             <div className="fila"><span>Estado</span><span><EtiquetaEstado valor={detalle.estado} /></span></div>
           </div>
@@ -423,7 +423,7 @@ function Compras() {
           <Tabla
             columnas={[
               { texto: 'Número' }, { texto: 'Proveedor' }, { texto: 'Fecha' }, { texto: 'Registro' },
-              { texto: 'Lineas', derecha: true }, { texto: 'Total', derecha: true }, { texto: 'Estado' }, { texto: '' },
+              { texto: 'Líneas', derecha: true }, { texto: 'Total', derecha: true }, { texto: 'Estado' }, { texto: '' },
             ]}
             filas={compras}
             clave={(c) => c.id}

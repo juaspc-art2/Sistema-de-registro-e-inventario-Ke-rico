@@ -10,6 +10,7 @@ use Kerico\Nucleo\Bd;
 use Kerico\Nucleo\Bitacora;
 use Kerico\Nucleo\ErrorHttp;
 use Kerico\Nucleo\Paginador;
+use Kerico\Nucleo\Vocabulario;
 
 final class Sistema
 {
@@ -84,8 +85,10 @@ final class Sistema
             'id'          => (int) $b['id'],
             'usuario_id'  => $b['usuario_id'] === null ? null : (int) $b['usuario_id'],
             'usuario'     => (string) $b['usuario_nombre'],
-            'accion'      => (string) $b['accion'],
-            'modulo'      => (string) $b['modulo'],
+            'accion'        => (string) $b['accion'],
+            'accion_nombre' => Vocabulario::accion((string) $b['accion']),
+            'modulo'        => (string) $b['modulo'],
+            'modulo_nombre' => Vocabulario::modulo((string) $b['modulo']),
             'descripcion' => (string) $b['descripcion'],
             'nivel'       => (string) $b['nivel'],
             'entidad'     => (string) $b['entidad'],

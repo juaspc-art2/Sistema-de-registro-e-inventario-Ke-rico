@@ -3,7 +3,7 @@ import { useSesion } from '../contexto/Sesion.jsx';
 import { useListado } from '../ganchos/useListado.js';
 import {
   Anillo, Aviso, Boton, Cargando, EncabezadoOrden, Entrada, EtiquetaEstado, Metrica,
-  Paginacion, Seleccion, Tarjeta,
+  Paginacion, Seleccion, Tarjeta, nombreModulo,
 } from '../ui/Componentes.jsx';
 
 const NIVELES = ['Info', 'Advertencia', 'Error', 'Sistema'];
@@ -104,9 +104,9 @@ export default function Bitacora() {
           <Seleccion etiqueta="Nivel" value={lista.filtros.nivel}
             onChange={(e) => lista.cambiarFiltro('nivel', e.target.value)} vacio="Todos"
             opciones={NIVELES.map((n) => ({ valor: n, texto: n }))} />
-          <Seleccion etiqueta="Modulo" value={lista.filtros.modulo}
+          <Seleccion etiqueta="Módulo" value={lista.filtros.modulo}
             onChange={(e) => lista.cambiarFiltro('modulo', e.target.value)} vacio="Todos"
-            opciones={(resumen ? resumen.modulos : []).map((m) => ({ valor: m, texto: m }))} />
+            opciones={(resumen ? resumen.modulos : []).map((m) => ({ valor: m, texto: nombreModulo(m) }))} />
         </div>
 
         <Tarjeta plana>
@@ -119,8 +119,8 @@ export default function Bitacora() {
                     <tr>
                       <EncabezadoOrden texto="Fecha y hora" campo="fecha" orden={lista.orden} direccion={lista.direccion} onOrdenar={lista.ordenar} />
                       <EncabezadoOrden texto="Usuario" campo="usuario" orden={lista.orden} direccion={lista.direccion} onOrdenar={lista.ordenar} />
-                      <EncabezadoOrden texto="Modulo" campo="modulo" orden={lista.orden} direccion={lista.direccion} onOrdenar={lista.ordenar} />
-                      <EncabezadoOrden texto="Accion" campo="accion" orden={lista.orden} direccion={lista.direccion} onOrdenar={lista.ordenar} />
+                      <EncabezadoOrden texto="Módulo" campo="modulo" orden={lista.orden} direccion={lista.direccion} onOrdenar={lista.ordenar} />
+                      <EncabezadoOrden texto="Acción" campo="accion" orden={lista.orden} direccion={lista.direccion} onOrdenar={lista.ordenar} />
                       <th>Descripción</th>
                       <EncabezadoOrden texto="Nivel" campo="nivel" orden={lista.orden} direccion={lista.direccion} onOrdenar={lista.ordenar} />
                       <th>Origen</th>
@@ -133,10 +133,10 @@ export default function Bitacora() {
                       <tr key={r.id}>
                         <td className="tenue tabular">{fechaHora(r.fecha)}</td>
                         <td className="principal">{r.usuario}</td>
-                        <td className="tenue">{r.modulo}</td>
+                        <td className="tenue">{r.modulo_nombre || r.modulo}</td>
                         <td className="tabular" style={{ fontSize: 12 }}>
                           <span aria-hidden="true" style={{ marginRight: 6 }}>{ICONO[r.accion] || '•'}</span>
-                          {r.accion}
+                          {r.accion_nombre || r.accion}
                         </td>
                         <td>{r.descripcion}</td>
                         <td><EtiquetaEstado valor={r.nivel} /></td>

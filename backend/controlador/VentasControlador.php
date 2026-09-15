@@ -53,7 +53,7 @@ final class VentasControlador
         Autenticacion::exigir('ventas.anular');
 
         $validador = new Validador($peticion->cuerpo());
-        $motivo = $validador->texto('motivo', 'El motivo de la anulacion', true, 255, 5);
+        $motivo = $validador->texto('motivo', 'El motivo de la anulación', true, 255, 5);
         $validador->validar();
 
         $venta = Venta::anular((int) $peticion->parametro('id'), $motivo);
@@ -109,7 +109,7 @@ final class VentasControlador
 
         $ventas = Venta::listar(['desde' => $desde, 'hasta' => $hasta, 'estado' => $peticion->consulta('estado', '')]);
 
-        $encabezados = ['Folio', 'Fecha', 'Cajero', 'Cliente', 'Items', 'Descuento', 'Impuesto', 'Total', 'Pago', 'Estado'];
+        $encabezados = ['Folio', 'Fecha', 'Cajero', 'Cliente', 'Ítems', 'Descuento', 'Impuesto', 'Total', 'Pago', 'Estado'];
         $filas = array_map(static fn (array $v): array => [
             $v['folio'],
             $v['fecha'],

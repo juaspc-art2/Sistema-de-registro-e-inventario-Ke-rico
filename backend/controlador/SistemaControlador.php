@@ -47,12 +47,12 @@ final class SistemaControlador
             'limite' => 2000,
         ]);
 
-        $encabezados = ['Fecha', 'Usuario', 'Modulo', 'Accion', 'Nivel', 'Descripcion', 'IP'];
+        $encabezados = ['Fecha', 'Usuario', 'Módulo', 'Acción', 'Nivel', 'Descripción', 'IP'];
         $filas = array_map(static fn (array $r): array => [
             $r['fecha'],
             $r['usuario'],
-            $r['modulo'],
-            $r['accion'],
+            $r['modulo_nombre'],
+            $r['accion_nombre'],
             $r['nivel'],
             $r['descripcion'],
             $r['ip'],

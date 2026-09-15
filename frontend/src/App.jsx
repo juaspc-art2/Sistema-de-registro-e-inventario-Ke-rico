@@ -58,7 +58,7 @@ function Aplicacion() {
           <Isotipo tamano={38} />
           <div>
             <div className="nombre">Ke-Rico!</div>
-            <div className="claim">Tradicion en cada bocado</div>
+            <div className="claim">Tradición en cada bocado</div>
           </div>
         </div>
 

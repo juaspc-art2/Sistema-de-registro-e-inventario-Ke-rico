@@ -124,7 +124,7 @@ function Formulario({ producto, categorias, proveedores, onCerrar, onGuardado, a
           onChange={(e) => poner('sku', e.target.value.toUpperCase())} error={errores.sku} />
         <Entrada etiqueta="Nombre" value={datos.nombre}
           onChange={(e) => poner('nombre', e.target.value)} error={errores.nombre} />
-        <Seleccion etiqueta="Categoria" value={datos.categoria_id}
+        <Seleccion etiqueta="Categoría" value={datos.categoria_id}
           onChange={(e) => poner('categoria_id', e.target.value)} error={errores.categoria_id}
           vacio="Seleccione" opciones={categorias.map((c) => ({ valor: c.id, texto: c.nombre }))} />
         <Seleccion etiqueta="Proveedor" value={datos.proveedor_id}
@@ -153,7 +153,7 @@ function Formulario({ producto, categorias, proveedores, onCerrar, onGuardado, a
           placeholder="marca/productos/empanaditas.jpg" />
       </div>
 
-      <Entrada etiqueta="Descripcion" value={datos.descripcion}
+      <Entrada etiqueta="Descripción" value={datos.descripcion}
         onChange={(e) => poner('descripcion', e.target.value)} ancho />
 
       <label style={{ display: 'flex', gap: 8, alignItems: 'center', fontSize: 14 }}>
@@ -280,7 +280,7 @@ export default function Inventario() {
         <div className="rejilla-metricas">
           <Metrica etiqueta="Referencias" valor={String(lista.total)} />
           <Metrica etiqueta="Valor en pantalla" valor={dinero(valorTotal)} tono="amarillo" />
-          <Metrica etiqueta="Categorias" valor={String(categorias.length)} tono="info" />
+          <Metrica etiqueta="Categorías" valor={String(categorias.length)} tono="info" />
           <Metrica
             etiqueta="En alerta"
             valor={String(lista.items.filter((p) => p.estado_stock !== 'Disponible').length)}
@@ -297,7 +297,7 @@ export default function Inventario() {
         <div className="filtros">
           <Entrada etiqueta="Buscar" placeholder="Nombre, SKU o categoría" value={lista.filtros.busqueda}
             onChange={(e) => lista.cambiarFiltro('busqueda', e.target.value)} />
-          <Seleccion etiqueta="Categoria" value={lista.filtros.categoria_id}
+          <Seleccion etiqueta="Categoría" value={lista.filtros.categoria_id}
             onChange={(e) => lista.cambiarFiltro('categoria_id', e.target.value)} vacio="Todas"
             opciones={categorias.map((c) => ({ valor: c.id, texto: c.nombre }))} />
           <Seleccion etiqueta="Estado de stock" value={lista.filtros.estado}
@@ -316,9 +316,9 @@ export default function Inventario() {
                 <table className="tabla">
                   <thead>
                     <tr>
-                      <EncabezadoOrden texto="Codigo" campo="sku" orden={lista.orden} direccion={lista.direccion} onOrdenar={lista.ordenar} />
+                      <EncabezadoOrden texto="Código" campo="sku" orden={lista.orden} direccion={lista.direccion} onOrdenar={lista.ordenar} />
                       <EncabezadoOrden texto="Producto" campo="nombre" orden={lista.orden} direccion={lista.direccion} onOrdenar={lista.ordenar} />
-                      <EncabezadoOrden texto="Categoria" campo="categoria" orden={lista.orden} direccion={lista.direccion} onOrdenar={lista.ordenar} />
+                      <EncabezadoOrden texto="Categoría" campo="categoria" orden={lista.orden} direccion={lista.direccion} onOrdenar={lista.ordenar} />
                       <th>Proveedor</th>
                       <EncabezadoOrden texto="Stock" campo="stock" orden={lista.orden} direccion={lista.direccion} onOrdenar={lista.ordenar} derecha />
                       <th className="derecha">Reorden</th>

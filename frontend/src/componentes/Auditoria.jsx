@@ -139,12 +139,12 @@ export default function Auditoria() {
                   <thead>
                     <tr>
                       <EncabezadoOrden texto="Fecha y hora" campo="fecha" orden={lista.orden} direccion={lista.direccion} onOrdenar={lista.ordenar} />
-                      <EncabezadoOrden texto="Codigo" campo="sku" orden={lista.orden} direccion={lista.direccion} onOrdenar={lista.ordenar} />
+                      <EncabezadoOrden texto="Código" campo="sku" orden={lista.orden} direccion={lista.direccion} onOrdenar={lista.ordenar} />
                       <EncabezadoOrden texto="Producto" campo="producto" orden={lista.orden} direccion={lista.direccion} onOrdenar={lista.ordenar} />
                       <EncabezadoOrden texto="Tipo" campo="tipo" orden={lista.orden} direccion={lista.direccion} onOrdenar={lista.ordenar} />
                       <EncabezadoOrden texto="Cantidad" campo="cantidad" orden={lista.orden} direccion={lista.direccion} onOrdenar={lista.ordenar} derecha />
                       <th className="derecha">Antes</th>
-                      <th className="derecha">Despues</th>
+                      <th className="derecha">Después</th>
                       <EncabezadoOrden texto="Usuario" campo="usuario" orden={lista.orden} direccion={lista.direccion} onOrdenar={lista.ordenar} />
                       <th>Motivo</th>
                       <th />

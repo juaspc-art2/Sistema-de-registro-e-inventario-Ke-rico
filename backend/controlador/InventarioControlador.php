@@ -52,7 +52,7 @@ final class InventarioControlador
             'precio_venta'   => $validador->decimal('precio_venta', 'El precio de venta', true, 0),
             'iva_porcentaje' => $validador->decimal('iva_porcentaje', 'El impuesto', false, 0, 100) ?? 0.0,
             'punto_reorden'  => $validador->decimal('punto_reorden', 'El punto de reorden', false, 0) ?? 0.0,
-            'stock_maximo'   => $validador->decimal('stock_maximo', 'El stock maximo', false, 0) ?? 0.0,
+            'stock_maximo'   => $validador->decimal('stock_maximo', 'El stock máximo', false, 0) ?? 0.0,
             'es_insumo'      => $validador->booleano('es_insumo', false),
             'imagen'         => $validador->texto('imagen', 'La imagen', false, 180),
             'activo'         => $validador->booleano('activo', true),
@@ -202,7 +202,7 @@ final class InventarioControlador
         $formato = (string) $peticion->consulta('formato', 'pdf');
         $productos = Inventario::listar([]);
 
-        $encabezados = ['SKU', 'Producto', 'Categoria', 'Proveedor', 'Unidad', 'Stock', 'Reorden', 'Costo', 'Venta', 'Valor', 'Estado'];
+        $encabezados = ['SKU', 'Producto', 'Categoría', 'Proveedor', 'Unidad', 'Stock', 'Reorden', 'Costo', 'Venta', 'Valor', 'Estado'];
         $filas = array_map(static fn (array $p): array => [
             $p['sku'],
             $p['nombre'],
@@ -229,7 +229,7 @@ final class InventarioControlador
             [
                 'Referencias' => (string) count($productos),
                 'Agotados'    => (string) ($resumen['Agotado'] ?? 0),
-                'Criticos'    => (string) ($resumen['Critico'] ?? 0),
+                'Críticos'    => (string) ($resumen['Critico'] ?? 0),
                 'Stock bajo'  => (string) ($resumen['Bajo'] ?? 0),
                 'Valorizado'  => '$' . number_format($resumen['valor_inventario'] ?? 0, 0, ',', '.'),
             ]

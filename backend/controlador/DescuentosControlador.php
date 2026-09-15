@@ -41,7 +41,7 @@ final class DescuentosControlador
             'alcance'               => $validador->opcion('alcance', 'El alcance', ['venta', 'producto', 'categoria'], false, 'venta'),
             'producto_id'           => $validador->entero('producto_id', 'El producto', false, 1),
             'categoria_id'          => $validador->entero('categoria_id', 'La categoria', false, 1),
-            'monto_minimo'          => $validador->decimal('monto_minimo', 'El monto minimo', false, 0) ?? 0.0,
+            'monto_minimo'          => $validador->decimal('monto_minimo', 'El monto mínimo', false, 0) ?? 0.0,
             'fecha_inicio'          => $validador->fecha('fecha_inicio', 'La fecha de inicio', false),
             'fecha_fin'             => $validador->fecha('fecha_fin', 'La fecha de fin', false),
             'usos_maximos'          => $validador->entero('usos_maximos', 'Los usos maximos', false, 0) ?? 0,
@@ -190,7 +190,7 @@ final class DescuentosControlador
         $hasta = (string) $peticion->consulta('hasta', date('Y-m-d'));
         $historial = Promocion::historial(['desde' => $desde, 'hasta' => $hasta]);
 
-        $encabezados = ['Fecha', 'Folio', 'Codigo', 'Tipo', 'Valor original', 'Descuento', 'Valor final', 'Motivo', 'Autorizado por'];
+        $encabezados = ['Fecha', 'Folio', 'Código', 'Tipo', 'Valor original', 'Descuento', 'Valor final', 'Motivo', 'Autorizado por'];
         $filas = array_map(static fn (array $d): array => [
             $d['fecha'],
             $d['folio'],

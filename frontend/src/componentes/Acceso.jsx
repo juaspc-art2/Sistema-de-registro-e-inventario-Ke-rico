@@ -83,7 +83,7 @@ export default function Acceso() {
           </p>
         </div>
         <div style={{ fontSize: 13, opacity: 0.9 }}>
-          Cra. 59 # 132A - 7, Suba, Bogota D.C.
+          Cra. 59 # 132A - 7, Suba, Bogotá D.C.
         </div>
       </section>
 
@@ -107,7 +107,7 @@ export default function Acceso() {
           />
 
           <Entrada
-            etiqueta="Contrasena"
+            etiqueta="Contraseña"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}

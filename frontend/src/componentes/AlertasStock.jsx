@@ -154,7 +154,7 @@ export default function AlertasStock({ onAlertasPendientes }) {
           <Tarjeta titulo="Cómo funciona" sub="Regla de evaluación">
             <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13.5, color: 'var(--cacao)', lineHeight: 1.9 }}>
               <li><strong>Agotado:</strong> la referencia llegó a cero unidades.</li>
-              <li><strong>Critico:</strong> el stock cayó a la mitad del punto de reorden o menos.</li>
+              <li><strong>Crítico:</strong> el stock cayó a la mitad del punto de reorden o menos.</li>
               <li><strong>Stock bajo:</strong> el stock está en el punto de reorden o por debajo.</li>
               <li><strong>Normal:</strong> hay existencias por encima del punto de reorden.</li>
             </ul>
@@ -175,7 +175,7 @@ export default function AlertasStock({ onAlertasPendientes }) {
             columnas={[
               { texto: 'Producto' }, { texto: 'Categoría' }, { texto: 'Proveedor' },
               { texto: 'Stock', derecha: true }, { texto: 'Reorden', derecha: true },
-              { texto: 'Estado' }, { texto: 'Generada' }, { texto: 'Revision' }, { texto: '' },
+              { texto: 'Estado' }, { texto: 'Generada' }, { texto: 'Revisión' }, { texto: '' },
             ]}
             filas={visibles}
             clave={(a) => a.id}

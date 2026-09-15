@@ -52,7 +52,7 @@ final class ComprobantesControlador
         $comprobante = Comprobante::porId((int) $peticion->parametro('id'));
         $formato = strtolower((string) $peticion->consulta('formato', 'pdf'));
 
-        $encabezados = ['Codigo', 'Descripcion', 'Cant.', 'Precio', 'Imp. %', 'Base', 'Impuesto', 'Total'];
+        $encabezados = ['Código', 'Descripción', 'Cant.', 'Precio', 'Imp. %', 'Base', 'Impuesto', 'Total'];
         $filas = array_map(static fn (array $d): array => [
             $d['sku'],
             $d['nombre'],
@@ -114,7 +114,7 @@ final class ComprobantesControlador
         $hasta = (string) $peticion->consulta('hasta', date('Y-m-d'));
         $comprobantes = Comprobante::listar(['desde' => $desde, 'hasta' => $hasta]);
 
-        $encabezados = ['Numero', 'Tipo', 'Folio venta', 'Fecha', 'Cliente', 'Base', 'Impuesto', 'Total', 'Estado'];
+        $encabezados = ['Número', 'Tipo', 'Folio venta', 'Fecha', 'Cliente', 'Base', 'Impuesto', 'Total', 'Estado'];
         $filas = array_map(static fn (array $c): array => [
             $c['numero'],
             $c['tipo'],

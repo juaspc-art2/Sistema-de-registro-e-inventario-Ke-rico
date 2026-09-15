@@ -113,7 +113,7 @@ final class ProveedoresControlador
         $formato = (string) $peticion->consulta('formato', 'pdf');
         $proveedores = Proveedor::listar(['estado' => $peticion->consulta('estado', '')]);
 
-        $encabezados = ['Empresa', 'NIT', 'Contacto', 'Telefono', 'Correo', 'Suministra', 'Estado', 'Calif.', 'Compras', 'Monto'];
+        $encabezados = ['Empresa', 'NIT', 'Contacto', 'Teléfono', 'Correo', 'Suministra', 'Estado', 'Calif.', 'Compras', 'Monto'];
         $filas = array_map(static fn (array $p): array => [
             $p['nombre_empresa'],
             $p['nit'],

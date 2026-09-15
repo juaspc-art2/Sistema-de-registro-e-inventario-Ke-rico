@@ -246,7 +246,7 @@ function Punto({ avisar, alRegistrar }) {
                     <span>{l.cantidad}</span>
                     <button type="button" onClick={() => cambiarCantidad(l.id, 1)} aria-label="Agregar uno">+</button>
                   </span>
-                  <Boton variante="sutil" pequeno onClick={() => quitar(l.id)} aria-label="Quitar linea">✕</Boton>
+                  <Boton variante="sutil" pequeno onClick={() => quitar(l.id)} aria-label="Quitar línea">✕</Boton>
                 </div>
               </div>
             ))}
@@ -509,7 +509,7 @@ function Historial() {
                     <EncabezadoOrden texto="Fecha" campo="fecha" orden={lista.orden} direccion={lista.direccion} onOrdenar={lista.ordenar} />
                     <EncabezadoOrden texto="Cajero" campo="cajero" orden={lista.orden} direccion={lista.direccion} onOrdenar={lista.ordenar} />
                     <EncabezadoOrden texto="Cliente" campo="cliente" orden={lista.orden} direccion={lista.direccion} onOrdenar={lista.ordenar} />
-                    <th className="derecha">Items</th>
+                    <th className="derecha">Ítems</th>
                     <th className="derecha">Descuento</th>
                     <EncabezadoOrden texto="Total" campo="total" orden={lista.orden} direccion={lista.direccion} onOrdenar={lista.ordenar} derecha />
                     <EncabezadoOrden texto="Pago" campo="pago" orden={lista.orden} direccion={lista.direccion} onOrdenar={lista.ordenar} />

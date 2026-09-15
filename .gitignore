@@ -13,10 +13,10 @@ backend/respaldos/*.sql
 backend/respaldos/*.zip
 
 .claude/
-package.json
-package-lock.json
-remote-control.ps1
-remote-control.sh
+/package.json
+/package-lock.json
+/remote-control.ps1
+/remote-control.sh
 docs/REMOTE_CONTROL.md
 
 .vscode/*

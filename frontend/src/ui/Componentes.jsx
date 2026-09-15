@@ -129,6 +129,14 @@ const NOMBRES_ESTADO = {
   Bajo: 'Stock bajo',
 };
 
+const NOMBRES_MODULO = {
+  Autenticacion: 'Autenticación',
+};
+
+export function nombreModulo(valor) {
+  return NOMBRES_MODULO[valor] || valor;
+}
+
 export function nombreEstado(valor) {
   return NOMBRES_ESTADO[valor] || valor;
 }

@@ -47,7 +47,7 @@ final class ReportesControlador
         $hasta = (string) $peticion->consulta('hasta', date('Y-m-d'));
         $datos = Reporte::rentabilidad(['desde' => $desde, 'hasta' => $hasta]);
 
-        $encabezados = ['SKU', 'Producto', 'Categoria', 'Unidades', 'Ingresos', 'Costo', 'Utilidad', 'Margen %'];
+        $encabezados = ['SKU', 'Producto', 'Categoría', 'Unidades', 'Ingresos', 'Costo', 'Utilidad', 'Margen %'];
         $filas = array_map(static fn (array $p): array => [
             $p['sku'],
             $p['nombre'],

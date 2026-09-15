@@ -22,7 +22,7 @@ export default defineConfig([
         'error',
         {
           allowConstantExport: true,
-          allowExportNames: ['useSesion', 'useListado', 'nombreEstado', 'opcionesEstado'],
+          allowExportNames: ['useSesion', 'useListado', 'nombreEstado', 'opcionesEstado', 'nombreModulo'],
         },
       ],
     },

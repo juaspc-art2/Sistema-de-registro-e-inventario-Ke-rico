@@ -159,7 +159,7 @@ export default function Rentabilidad() {
             <Tarjeta titulo="Resumen diario" plana>
               <Tabla
                 columnas={[
-                  { texto: 'Dia' }, { texto: 'Transacciones', derecha: true },
+                  { texto: 'Día' }, { texto: 'Transacciones', derecha: true },
                   { texto: 'Facturado', derecha: true }, { texto: 'Base', derecha: true },
                   { texto: 'Costo', derecha: true }, { texto: 'Utilidad', derecha: true },
                 ]}

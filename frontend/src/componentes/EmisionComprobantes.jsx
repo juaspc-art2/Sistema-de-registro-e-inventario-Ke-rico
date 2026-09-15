@@ -126,7 +126,7 @@ export default function EmisionComprobantes() {
                 <table className="tabla">
                   <thead>
                     <tr>
-                      <EncabezadoOrden texto="Numero" campo="numero" orden={lista.orden} direccion={lista.direccion} onOrdenar={lista.ordenar} />
+                      <EncabezadoOrden texto="Número" campo="numero" orden={lista.orden} direccion={lista.direccion} onOrdenar={lista.ordenar} />
                       <EncabezadoOrden texto="Tipo" campo="tipo" orden={lista.orden} direccion={lista.direccion} onOrdenar={lista.ordenar} />
                       <EncabezadoOrden texto="Venta" campo="folio" orden={lista.orden} direccion={lista.direccion} onOrdenar={lista.ordenar} />
                       <EncabezadoOrden texto="Fecha" campo="fecha" orden={lista.orden} direccion={lista.direccion} onOrdenar={lista.ordenar} />

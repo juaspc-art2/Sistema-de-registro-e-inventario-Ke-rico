@@ -11,7 +11,7 @@ final class Ajustes
     private static function cargar(): array
     {
         if (self::$cache === []) {
-            foreach (Bd::consultar('SELECT clave, valor, tipo FROM configuracion') as $fila) {
+            foreach (Bd::consultar('SELECT clave, valor, tipo, descripcion FROM configuracion') as $fila) {
                 self::$cache[$fila['clave']] = $fila;
             }
         }
@@ -51,6 +51,7 @@ final class Ajustes
                 'clave'       => $clave,
                 'valor'       => $fila['valor'],
                 'tipo'        => $fila['tipo'],
+                'descripcion' => (string) ($fila['descripcion'] ?? ''),
             ];
         }
         return $salida;

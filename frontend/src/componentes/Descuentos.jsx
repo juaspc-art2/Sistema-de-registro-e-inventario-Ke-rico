@@ -93,7 +93,7 @@ function Formulario({ promocion, categorias, productos, onCerrar, onGuardado, av
       {error ? <Aviso tipo="error">{error}</Aviso> : null}
 
       <div className="rejilla-formulario">
-        <Entrada etiqueta="Codigo" value={datos.codigo}
+        <Entrada etiqueta="Código" value={datos.codigo}
           onChange={(e) => poner('codigo', e.target.value.toUpperCase())} error={errores.codigo} />
         <Seleccion etiqueta="Tipo" value={datos.tipo} onChange={(e) => poner('tipo', e.target.value)}
           opciones={[{ valor: 'porcentaje', texto: 'Porcentaje (%)' }, { valor: 'fijo', texto: 'Monto fijo ($)' }]} />
@@ -113,7 +113,7 @@ function Formulario({ promocion, categorias, productos, onCerrar, onGuardado, av
         ) : null}
 
         {datos.alcance === 'categoria' ? (
-          <Seleccion etiqueta="Categoria" value={datos.categoria_id}
+          <Seleccion etiqueta="Categoría" value={datos.categoria_id}
             onChange={(e) => poner('categoria_id', e.target.value)} error={errores.categoria_id}
             vacio="Seleccione" opciones={categorias.map((c) => ({ valor: c.id, texto: c.nombre }))} />
         ) : null}
@@ -201,7 +201,7 @@ function Promociones() {
               <table className="tabla">
                 <thead>
                   <tr>
-                    <EncabezadoOrden texto="Codigo" campo="codigo" orden={lista.orden} direccion={lista.direccion} onOrdenar={lista.ordenar} />
+                    <EncabezadoOrden texto="Código" campo="codigo" orden={lista.orden} direccion={lista.direccion} onOrdenar={lista.ordenar} />
                     <th>Descripción</th>
                     <th>Alcance</th>
                     <EncabezadoOrden texto="Valor" campo="valor" orden={lista.orden} direccion={lista.direccion} onOrdenar={lista.ordenar} derecha />
@@ -226,7 +226,7 @@ function Promociones() {
                       <td className="tenue">
                         {p.alcance === 'venta' ? 'Toda la venta'
                           : p.alcance === 'producto' ? 'Producto: ' + p.producto_nombre
-                          : 'Categoria: ' + p.categoria_nombre}
+                          : 'Categoría: ' + p.categoria_nombre}
                       </td>
                       <td className="derecha tabular principal">
                         {p.tipo === 'porcentaje' ? p.valor + ' %' : dinero(p.valor)}
@@ -313,7 +313,7 @@ function Historial() {
           onChange={(e) => lista.cambiarFiltro('desde', e.target.value)} />
         <Entrada etiqueta="Hasta" type="date" value={lista.filtros.hasta}
           onChange={(e) => lista.cambiarFiltro('hasta', e.target.value)} />
-        <Entrada etiqueta="Codigo" value={lista.filtros.codigo}
+        <Entrada etiqueta="Código" value={lista.filtros.codigo}
           onChange={(e) => lista.cambiarFiltro('codigo', e.target.value.toUpperCase())} />
         <Boton onClick={() => descargar(
           '/descuentos/exportar' + consulta({ formato: 'pdf', desde: lista.filtros.desde, hasta: lista.filtros.hasta }),
@@ -331,7 +331,7 @@ function Historial() {
             columnas={[
               { texto: 'Fecha' }, { texto: 'Venta' }, { texto: 'Código' }, { texto: 'Motivo' },
               { texto: 'Valor original', derecha: true }, { texto: 'Descuento', derecha: true },
-              { texto: 'Valor final', derecha: true }, { texto: 'Autorizo' },
+              { texto: 'Valor final', derecha: true }, { texto: 'Autorizó' },
             ]}
             filas={registros}
             clave={(d) => d.id}
@@ -345,7 +345,7 @@ function Historial() {
                 <td className="derecha tabular">{dinero(d.valor_original)}</td>
                 <td className="derecha tabular" style={{ color: 'var(--exito)' }}>- {dinero(d.valor_descuento)}</td>
                 <td className="derecha tabular principal">{dinero(d.valor_final)}</td>
-                <td className="tenue">{d.autorizado_por || 'Automatico'}</td>
+                <td className="tenue">{d.autorizado_por || 'Automático'}</td>
               </>
             )}
           />

@@ -4,7 +4,7 @@ import { useSesion } from '../contexto/Sesion.jsx';
 import { useListado } from '../ganchos/useListado.js';
 import {
   Aviso, Boton, Cargando, EncabezadoOrden, Entrada, EtiquetaEstado, Metrica, Modal,
-  Paginacion, Pestanas, Seleccion, Tabla, Tarjeta,
+  Paginacion, Pestanas, Seleccion, Tabla, Tarjeta, nombreEstado,
 } from '../ui/Componentes.jsx';
 
 const DOCUMENTOS = ['CC', 'TI', 'CE', 'PA', 'NIT'];
@@ -104,7 +104,7 @@ function FormularioUsuario({ usuario, roles, onCerrar, onGuardado, avisar }) {
           onChange={(e) => poner('fecha_nac', e.target.value)} />
         <Entrada etiqueta="Correo" type="email" value={datos.correo}
           onChange={(e) => poner('correo', e.target.value)} error={errores.correo} />
-        <Entrada etiqueta="Telefono" value={datos.telefono}
+        <Entrada etiqueta="Teléfono" value={datos.telefono}
           onChange={(e) => poner('telefono', e.target.value)} />
         <Entrada etiqueta="Cargo" value={datos.cargo}
           onChange={(e) => poner('cargo', e.target.value)} />
@@ -413,7 +413,7 @@ function Respaldos() {
         {datos === null ? <Cargando /> : (
           <Tabla
             columnas={[
-              { texto: 'Archivo' }, { texto: 'Tipo' }, { texto: 'Tamano', derecha: true },
+              { texto: 'Archivo' }, { texto: 'Tipo' }, { texto: 'Tamaño', derecha: true },
               { texto: 'Inicio' }, { texto: 'Fin' }, { texto: 'Estado' }, { texto: '' },
             ]}
             filas={datos.respaldos}
@@ -422,7 +422,7 @@ function Respaldos() {
             render={(r) => (
               <>
                 <td className="principal tabular">{r.nombre_archivo}</td>
-                <td className="tenue">{r.tipo}</td>
+                <td className="tenue">{nombreEstado(r.tipo)}</td>
                 <td className="derecha tabular">{tamano(r.tamano_bytes)}</td>
                 <td className="tenue tabular">{fechaHora(r.iniciado_en)}</td>
                 <td className="tenue tabular">{r.finalizado_en ? fechaHora(r.finalizado_en) : '—'}</td>
@@ -484,7 +484,7 @@ function Configuracion() {
 
   const grupos = {
     'Datos de la empresa': valores.filter((v) => v.clave.startsWith('empresa_')),
-    'Facturacion': valores.filter((v) => v.clave.startsWith('comprobante_') || v.clave === 'resolucion_dian' || v.clave.startsWith('impuesto_')),
+    'Facturación': valores.filter((v) => v.clave.startsWith('comprobante_') || v.clave === 'resolucion_dian' || v.clave.startsWith('impuesto_')),
     'Seguridad y sesiones': valores.filter((v) => v.clave.startsWith('sesion_') || v.clave.startsWith('intentos_') || v.clave.startsWith('bloqueo_')),
     'Inventario y respaldos': valores.filter((v) => v.clave.startsWith('alerta_') || v.clave.startsWith('respaldo_')),
     'Moneda': valores.filter((v) => v.clave.startsWith('moneda_')),
@@ -508,7 +508,7 @@ function Configuracion() {
               {campos.map((c) => (
                 <Entrada
                   key={c.clave}
-                  etiqueta={c.clave.replace(/_/g, ' ')}
+                  etiqueta={c.descripcion || c.clave.replace(/_/g, ' ')}
                   value={editados[c.clave] !== undefined ? editados[c.clave] : c.valor}
                   onChange={(e) => setEditados((v) => ({ ...v, [c.clave]: e.target.value }))}
                   type={c.tipo === 'entero' || c.tipo === 'decimal' ? 'number' : 'text'}
