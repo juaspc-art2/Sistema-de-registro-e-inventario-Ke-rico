@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" role="img" aria-label="Isotipo Ke-Rico! en recuadro">
+  <title>Ke-Rico! - Isotipo en recuadro</title>
+  <rect width="120" height="120" rx="26" fill="#EB5E15"/>
+  <g transform="translate(9.60,9.60) scale(0.84)">
+    <g transform="translate(78,40) rotate(20)"><path d="M-16,0 L-16,-16 L-8,-7 L0,-18 L8,-7 L16,-16 L16,0 Z" fill="#EDCA34"/></g>
+    <g transform="translate(99,26) scale(0.85)"><path d="M0,-7 C0.9,-2.5 2.5,-0.9 7,0 C2.5,0.9 0.9,2.5 0,7 C-0.9,2.5 -2.5,0.9 -7,0 C-2.5,-0.9 -0.9,-2.5 0,-7 Z" fill="#EDCA34"/></g>
+    <g transform="translate(96,54) scale(0.6)"><path d="M0,-7 C0.9,-2.5 2.5,-0.9 7,0 C2.5,0.9 0.9,2.5 0,7 C-0.9,2.5 -2.5,0.9 -7,0 C-2.5,-0.9 -0.9,-2.5 0,-7 Z" fill="#EDCA34"/></g>
+    <path d="M56,70 m-36,0 a36,36 0 1 0 72,0 a36,36 0 1 0 -72,0 Z" fill="#FFF8F5"/>
+    <path d="M31,74 C37,102 75,100 82,70 C67,81 46,81 31,74 Z" fill="#EB5E15"/>
+    <path d="M47,89 C51,99 67,97 69,86 C61,90 53,90 47,89 Z" fill="#EDCA34"/>
+    <path d="M35,62 C39,54 47,54 51,62" fill="none" stroke="#EB5E15" stroke-width="6.5" stroke-linecap="round"/>
+    <path d="M63,60 C67,52 75,52 79,60" fill="none" stroke="#EB5E15" stroke-width="6.5" stroke-linecap="round"/>
+  </g>
+</svg>

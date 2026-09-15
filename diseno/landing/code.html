@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Ke-Rico! - Tradición en cada bocado</title>
+<!-- Favicon: isotipo plano a una tinta (Manual de Identidad, A.06 / B.13) -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cg fill='%23EB5E15'%3E%3Cg transform='translate(78,40) rotate(20)'%3E%3Cpath d='M-16,0 L-16,-16 L-8,-7 L0,-18 L8,-7 L16,-16 L16,0 Z'/%3E%3C/g%3E%3Cpath d='M56,70 m-36,0 a36,36 0 1 0 72,0 a36,36 0 1 0 -72,0 Z'/%3E%3C/g%3E%3C/svg%3E"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts: Baloo 2 (logotipo) · Plus Jakarta Sans (titulares) · Work Sans (cuerpo) -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Work+Sans:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration — tokens del Manual de Identidad Corporativa Ke-Rico! v1.0 -->
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      /* B.01 · Colores corporativos */
+                      "primary": "#eb5e15",
+                      "on-primary": "#ffffff",
+                      "primary-container": "#c94a08",
+                      "on-primary-container": "#fffbff",
+                      "surface-tint": "#eb5e15",
+                      "inverse-primary": "#ffb598",
+                      "primary-fixed": "#ffdbce",
+                      "primary-fixed-dim": "#ffb598",
+                      "on-primary-fixed": "#370e00",
+                      "on-primary-fixed-variant": "#7e2c00",
+                      "tertiary": "#705d00",
+                      "on-tertiary": "#ffffff",
+                      "tertiary-container": "#c9a904",
+                      "on-tertiary-container": "#4c3e00",
+                      "tertiary-fixed": "#edca34",
+                      "tertiary-fixed-dim": "#edca34",
+                      "on-tertiary-fixed": "#221b00",
+                      "on-tertiary-fixed-variant": "#544600",
+                      /* B.02 · Neutros de superficie */
+                      "background": "#fff8f5",
+                      "on-background": "#1e1b18",
+                      "surface": "#fff8f5",
+                      "surface-bright": "#fff8f5",
+                      "surface-dim": "#e1d8d4",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-container-low": "#fbf2ed",
+                      "surface-container": "#f5ece7",
+                      "surface-container-high": "#efe6e2",
+                      "surface-container-highest": "#efe6e2",
+                      "surface-variant": "#efe6e2",
+                      "on-surface": "#1e1b18",
+                      "on-surface-variant": "#594138",
+                      "inverse-surface": "#34302c",
+                      "inverse-on-surface": "#f8efea",
+                      "outline": "#8d7166",
+                      "outline-variant": "#e1bfb3",
+                      "secondary": "#5d5f5f",
+                      "on-secondary": "#ffffff",
+                      "secondary-container": "#e2e3e2",
+                      "on-secondary-container": "#636565",
+                      "secondary-fixed": "#e2e2e2",
+                      "secondary-fixed-dim": "#c6c6c7",
+                      "on-secondary-fixed": "#1a1c1c",
+                      "on-secondary-fixed-variant": "#454747",
+                      /* B.03 · Colores funcionales */
+                      "error": "#ba1a1a",
+                      "on-error": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "on-error-container": "#93000a",
+                      "success": "#2e7d32",
+                      "warning": "#c9a904",
+                      "info": "#00629b"
+              },
+              /* B.10 · Formas y radios */
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "2xl": "1rem",
+                      "full": "9999px"
+              },
+              /* B.09 · Escala de espaciado, base 4 px */
+              "spacing": {
+                      "xs": "4px",
+                      "base": "8px",
+                      "sm": "12px",
+                      "margin-mobile": "16px",
+                      "gutter": "20px",
+                      "md": "24px",
+                      "lg": "40px",
+                      "margin-desktop": "48px",
+                      "xl": "64px"
+              },
+              /* B.05–B.08 · Familias tipográficas */
+              "fontFamily": {
+                      "logo": ["Baloo 2", "cursive"],
+                      "display-lg": ["Plus Jakarta Sans", "Calibri", "Arial", "sans-serif"],
+                      "headline-lg": ["Plus Jakarta Sans", "Calibri", "Arial", "sans-serif"],
+                      "headline-lg-mobile": ["Plus Jakarta Sans", "Calibri", "Arial", "sans-serif"],
+                      "headline-md": ["Plus Jakarta Sans", "Calibri", "Arial", "sans-serif"],
+                      "label-bold": ["Plus Jakarta Sans", "Calibri", "Arial", "sans-serif"],
+                      "body-lg": ["Work Sans", "Calibri", "Arial", "sans-serif"],
+                      "body-md": ["Work Sans", "Calibri", "Arial", "sans-serif"],
+                      "caption": ["Work Sans", "Calibri", "Arial", "sans-serif"]
+              },
+              /* B.08 · Escala tipográfica de la marca */
+              "fontSize": {
+                      "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                      "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "700" }],
+                      "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "700" }],
+                      "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                      "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                      "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                      "label-bold": ["14px", { "lineHeight": "20px", "fontWeight": "700" }],
+                      "caption": ["12px", { "lineHeight": "18px", "fontWeight": "400" }],
+                      /* B.04 · Blanco sobre Naranja = 3,4:1 → solo texto grande (>=18px/700) */
+                      "cta": ["18px", { "lineHeight": "24px", "fontWeight": "700" }]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        /* B.11 · Trama de puntos — Naranja Ke-Rico! al 3 %, paso 20 px */
+        .texture-overlay {
+            background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23EB5E15' fill-opacity='0.03' fill-rule='evenodd'%3E%3Ccircle cx='3' cy='3' r='3'/%3E%3Ccircle cx='13' cy='13' r='3'/%3E%3C/g%3E%3C/svg%3E");
+        }
+        /* A.02 · Logotipo — el nombre se compone siempre en Baloo 2 ExtraBold */
+        .kr-wordmark { font-family: 'Baloo 2', cursive; font-weight: 800; letter-spacing: -0.012em; line-height: 0.95; }
+        .kr-claim { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 0.30em; letter-spacing: 0.30em; text-transform: uppercase; }
+        /* El claim es parte del logotipo (manual A.04: 0,9X), no texto de interfaz: escala con la palabra, no con la escala tipográfica. */
+        /* Tabulares para precios (B.07) */
+        .tabular { font-variant-numeric: tabular-nums; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md text-body-md antialiased overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container">
+
+<!-- ═══ Sprite del isotipo · Manual A.03 ════════════════════════════════════ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <g id="kr-corona">
+    <g transform="translate(78,40) rotate(20)"><path d="M-16,0 L-16,-16 L-8,-7 L0,-18 L8,-7 L16,-16 L16,0 Z"></path></g>
+    <g transform="translate(99,26) scale(0.85)"><path d="M0,-7 C0.9,-2.5 2.5,-0.9 7,0 C2.5,0.9 0.9,2.5 0,7 C-0.9,2.5 -2.5,0.9 -7,0 C-2.5,-0.9 -0.9,-2.5 0,-7 Z"></path></g>
+    <g transform="translate(96,54) scale(0.6)"><path d="M0,-7 C0.9,-2.5 2.5,-0.9 7,0 C2.5,0.9 0.9,2.5 0,7 C-0.9,2.5 -2.5,0.9 -7,0 C-2.5,-0.9 -0.9,-2.5 0,-7 Z"></path></g>
+  </g>
+  <path id="kr-cara" d="M56,70 m-36,0 a36,36 0 1 0 72,0 a36,36 0 1 0 -72,0 Z"></path>
+  <path id="kr-boca" d="M31,74 C37,102 75,100 82,70 C67,81 46,81 31,74 Z"></path>
+  <path id="kr-lengua" d="M47,89 C51,99 67,97 69,86 C61,90 53,90 47,89 Z"></path>
+  <path id="kr-ojoI" d="M35,62 C39,54 47,54 51,62"></path>
+  <path id="kr-ojoD" d="M63,60 C67,52 75,52 79,60"></path>
+</defs>
+<symbol id="kr-iso" viewBox="0 0 120 120">
+  <use href="#kr-corona" fill="#eb5e15"></use>
+  <use href="#kr-cara" fill="#edca34"></use>
+  <use href="#kr-boca" fill="#eb5e15"></use>
+  <use href="#kr-lengua" fill="#fff8f5"></use>
+  <use href="#kr-ojoI" fill="none" stroke="#eb5e15" stroke-width="6.5" stroke-linecap="round"></use>
+  <use href="#kr-ojoD" fill="none" stroke="#eb5e15" stroke-width="6.5" stroke-linecap="round"></use>
+</symbol>
+<symbol id="kr-iso-mono" viewBox="0 0 120 120">
+  <use href="#kr-corona" fill="currentColor"></use>
+  <use href="#kr-cara" fill="none" stroke="currentColor" stroke-width="6"></use>
+  <use href="#kr-boca" fill="currentColor"></use>
+  <use href="#kr-ojoI" fill="none" stroke="currentColor" stroke-width="6.5" stroke-linecap="round"></use>
+  <use href="#kr-ojoD" fill="none" stroke="currentColor" stroke-width="6.5" stroke-linecap="round"></use>
+</symbol>
+</svg>
+
+<!-- TopNavBar -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-mobile md:px-margin-desktop h-20 max-w-[1280px] mx-auto bg-surface/90 backdrop-blur-md shadow-sm dark:bg-inverse-surface/90">
+<a class="flex items-center gap-base cursor-pointer hover:-translate-y-0.5 transition-transform duration-200" href="#inicio" aria-label="Ke-Rico! - Inicio">
+<svg class="h-11 w-11" aria-hidden="true"><use href="#kr-iso"></use></svg>
+<span class="kr-wordmark text-headline-md text-primary hidden sm:block">Ke-Rico!</span>
+</a>
+<nav class="hidden md:flex items-center gap-lg">
+<a class="text-primary font-label-bold text-label-bold border-b-2 border-primary pb-1 transition-colors" href="#inicio">Inicio</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-label-bold text-label-bold" href="#menu">Menú</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-label-bold text-label-bold" href="#historia">Nuestra Historia</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-label-bold text-label-bold" href="#contacto">Contacto</a>
+</nav>
+<button class="hidden md:inline-flex bg-primary text-on-primary font-label-bold text-cta px-md py-sm rounded-lg hover:bg-primary-container transition-all shadow-[0px_10px_30px_rgba(235,94,21,0.12)] hover:shadow-[0px_12px_35px_rgba(235,94,21,0.2)] hover:-translate-y-1 duration-200">
+            Pide Ahora
+        </button>
+<button class="md:hidden text-primary p-sm" aria-label="Abrir menú">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+</header>
+<!-- Main Content Canvas -->
+<main class="pt-20">
+<!-- Hero Section -->
+<section class="relative w-full min-h-[90vh] flex items-center justify-center px-margin-mobile md:px-margin-desktop overflow-hidden bg-surface-container-low texture-overlay py-xl" id="inicio">
+<div class="absolute inset-0 z-0">
+<div class="bg-cover bg-center w-full h-full opacity-60 mix-blend-multiply" data-alt="A highly appetizing, close-up hero shot of diverse golden fried snacks like empanadas and arepas piled generously on a rustic wooden board. The lighting is warm and directional, emphasizing the crispy texture and glistening hot surface of the food. Small wisps of steam rise delicately, evoking a fresh-from-the-fryer sensation. The background is a soft, out-of-focus modern kitchen setting with warm tones of #EB5E15 and #EDCA34, perfectly complementing a bright, clean, light-mode modern UI aesthetic." style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCQNH1KEqvSIBVKLYRKGMzCHegyCpf-sXwGcmXmkW7cs21cn7tWXXfFlq_FajTy2irgDr1aiwIJQ5qoew8zJcDwbIbd23KkTeNHlI5sQuYFRxUYfQW9nQk_kJFZeo35TEJjaSGn2edRjwz-8QJQ8zCjJqwpdgXkBYmbCrmhSpV4cT2CFps_pt9CIWlHyRjLrXbnY40Pr0TggR1iv7d1vhXWVrjrVqUwfOjQO6mib4-tqMkUIiCYXckM");'></div>
+<div class="absolute inset-0 bg-gradient-to-t from-surface via-surface/80 to-transparent"></div>
+</div>
+<div class="relative z-10 w-full max-w-[1280px] mx-auto grid grid-cols-1 md:grid-cols-12 gap-gutter items-center">
+<div class="md:col-span-8 lg:col-span-6 flex flex-col gap-md text-center md:text-left">
+<span class="inline-block px-sm py-xs bg-tertiary-fixed-dim/25 text-on-tertiary-container font-label-bold text-label-bold rounded-full w-max mx-auto md:mx-0 shadow-sm">🔥 Recién Salidos</span>
+<h1 class="font-display-lg text-headline-lg md:text-display-lg text-on-surface">Tradición que <span class="text-primary relative inline-block">cruje<svg class="absolute -bottom-2 left-0 w-full h-4 text-tertiary-fixed-dim" preserveAspectRatio="none" viewBox="0 0 100 20"><path d="M0 10 Q 50 20 100 10" fill="none" stroke="currentColor" stroke-width="4"></path></svg></span> en cada bocado</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-lg mx-auto md:mx-0">
+                        Disfruta de la auténtica experiencia de la comida callejera gourmet. Sabores intensos, texturas perfectas y la calidez de nuestras recetas familiares.
+                    </p>
+<div class="flex flex-col sm:flex-row gap-sm justify-center md:justify-start mt-sm">
+<button class="bg-primary text-on-primary font-label-bold text-cta px-lg py-sm rounded-lg hover:bg-primary-container transition-all shadow-[0px_10px_30px_rgba(235,94,21,0.12)] hover:shadow-[0px_12px_35px_rgba(235,94,21,0.25)] hover:-translate-y-1 duration-200 flex items-center justify-center gap-base">
+<span class="material-symbols-outlined" data-icon="storefront">storefront</span> Visítanos
+                        </button>
+<button class="bg-tertiary-fixed-dim text-on-tertiary-container font-label-bold text-cta px-lg py-sm rounded-lg hover:bg-tertiary-container transition-all shadow-sm hover:shadow-md hover:-translate-y-1 duration-200 flex items-center justify-center gap-base">
+<span class="material-symbols-outlined" data-icon="two_wheeler">two_wheeler</span> Pide a domicilio
+                        </button>
+</div>
+</div>
+<div class="md:col-span-4 lg:col-span-6 relative hidden md:block">
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-primary/5 rounded-full blur-3xl -z-10"></div>
+<img class="w-full h-auto object-contain drop-shadow-[0_20px_40px_rgba(235,94,21,0.15)]" data-alt="A stylized, top-down photograph of a single, perfectly golden-brown empanada resting on a piece of white parchment paper over a sleek, modern #fff8f5 surface. The empanada is broken in half, revealing a steaming, rich meat filling. The lighting is studio-quality, casting a soft, warm-orange ambient glow (matching #EB5E15) around the edges. High contrast, clean, appetizing, and perfectly aligned with a premium modern-tactile UI design style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuABp7RiRqy-x-wM1P20nCJu77j1Yxi1jKqPkUXcEcZBkRzDJWzak5ftPJd2oFLWKh_mTP3x6b8Fw53w-fe0b4NtF3I2VsLxCCQgfnG1K8_w8rDTWM4Rsi8TtbOc0wE68oEhYofMecm8x7j8YJeJ3yyAY1y9mjkX5oX7NnBlj2-6xpowbyTtzfRe7voVv1ycfecRd2LtBX3SO_446CtJYPvfYiHwmZNulnFIucKpLWVpjJG3gY5EZPgrXj02FcbqhpuY7atWe4uHOhkb_A"/>
+</div>
+</div>
+</section>
+<!-- Menu Section -->
+<section class="py-xl px-margin-mobile md:px-margin-desktop max-w-[1280px] mx-auto" id="menu">
+<div class="text-center mb-lg">
+<h2 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface mb-xs">Nuestro Menú</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Los favoritos que siempre te hacen volver.</p>
+</div>
+<!-- Bento Grid Layout for Menu -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-md">
+<!-- Category 1: Empanadas (Large Featured) -->
+<div class="md:col-span-2 group relative overflow-hidden rounded-xl bg-surface-container shadow-[0px_10px_30px_rgba(235,94,21,0.05)] hover:shadow-[0px_15px_40px_rgba(235,94,21,0.15)] transition-all duration-300 min-h-[320px]">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105 h-3/5 md:h-full" data-alt="A vibrant, overhead shot of a wooden platter filled with an assortment of beautifully fried empanadas. The crusts are a deep golden-yellow (#EDCA34) and crispy. Served alongside them are small ceramic bowls filled with bright green aji sauce and rich red hot sauce. The scene is brightly lit, evoking a lively, premium street-food experience suitable for a modern web interface. Soft, warm shadows ground the items." style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCjN-oHq8oJus2hd5GQqMZ9ADl3ep8X-alPP_rgYgVVDYWCY68nhbbJM3EE3w83YBnjne0GP8kwYgODSXGSmmDcxnILxsKXsUHLkDAolHSmGML868kERkz_aSDhjHtdAsXV4l0ulKrVemhbMjvep9pEWOarr_zj2CqTOKVl1KICXCo7nJt7Qz2RmroZXB7FPw4UTE_7i8_GFlvAFSnv0HMdjvrzPbxxGz3n7Vv1mh9t8PwW016i3azGep89uCLabZPu4bqIr_pZNcjsow");'></div>
+<div class="absolute inset-0 bg-gradient-to-t from-surface via-surface/90 md:via-surface/40 to-transparent md:bg-gradient-to-r md:from-surface md:via-surface/90 md:to-transparent flex flex-col justify-end md:justify-center p-md">
+<div class="md:max-w-xs relative z-10">
+<span class="inline-block px-sm py-xs bg-primary-container text-on-primary font-label-bold text-label-bold rounded-full mb-sm shadow-sm">Estrella</span>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-xs">Empanadas Clásicas</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-sm">Nuestra receta insignia. Masa de maíz crujiente rellena de carne mechada, pollo o queso.</p>
+<p class="font-label-bold text-label-bold text-primary tabular">Desde $3.900</p>
+</div>
+</div>
+</div>
+<!-- Category 2: Acompañantes -->
+<div class="group relative overflow-hidden rounded-xl bg-surface-container flex flex-col shadow-[0px_10px_30px_rgba(235,94,21,0.05)] hover:shadow-[0px_15px_40px_rgba(235,94,21,0.15)] transition-all duration-300 min-h-[300px]">
+<div class="h-3/5 bg-cover bg-center transition-transform duration-700 group-hover:scale-105 rounded-t-xl" data-alt="A close-up, highly textured photo of golden-fried plantains (tostones/patacones) stacked neatly next to a portion of crispy yucca fries. The focus is sharp on the crunchy edges. The background is a clean, warm grey (#F9F8F6) surface to pop the colors. Lighting is bright and appetizing, enhancing the golden tones without harsh black shadows, fitting a modern, fresh UI." style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBqBKQuOh6uHWeKw4Srn0jXEMuGC_K5vEOU3ieFdwC4l9aJ8iOOW-wmGHGhUWWHHaoXZSFuyxqLToZ6_1nFnJR1B0FRxNKeczQHECjA41hbL93IVi1RZGpi1I45vDmyGj1d-RlzgyYFNRcPWbKGVCKDOFM2sxd1ddDSGNR76DZFlzgGxivsEhFqvLpW8PlSU25kIBntn4eWo1cIXGaQc1FeA04zGwcM02EAF7YXnVOlCQdnkZCQp6bZ");'></div>
+<div class="p-md flex-1 flex flex-col justify-between bg-surface relative z-10 rounded-b-xl border-t border-outline-variant/30">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-xs">Acompañantes</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Patacones, yuca frita y papas rústicas.</p>
+</div>
+<button class="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center self-end hover:bg-primary hover:text-on-primary transition-colors mt-sm" aria-label="Ver acompañantes">
+<span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Category 3: Bebidas -->
+<div class="group relative overflow-hidden rounded-xl bg-surface-container flex flex-col shadow-[0px_10px_30px_rgba(235,94,21,0.05)] hover:shadow-[0px_15px_40px_rgba(235,94,21,0.15)] transition-all duration-300 min-h-[300px]">
+<div class="h-3/5 bg-cover bg-center transition-transform duration-700 group-hover:scale-105 rounded-t-xl" data-alt="A refreshing, brightly lit shot of cold, colorful beverages in tall, condensation-covered glasses. One glass features a deep red fruit juice (like mora or hibiscus), another a bright yellow passionfruit juice, and a classic glass bottle of soda. The background is a crisp white/off-white (#fff8f5) to ensure the vibrant liquid colors stand out in a premium, modern web layout." style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBYHmXfpevgHtwyLfbpvntbQ5erbGJmw5URHeJ2pxE_MaUV5SLkVLApOJiU6rdhfM-6XWLzpP-DEhk0mAidHkMxMcG_uEtfZYhQ1xXt9r1NSMxeqrlCcToWOkLO-dJetxJjdyTQ8Cbjm10xm1fHPDnMu1cY3bjhlLgjmAf8LfQt1QCOc0kswrPeGzpzmPPRMqEwP1QFT-23-uN43i7aMHnCLJTipppmw7aRQNnVpWvTsPMxuY0Zgnmc");'></div>
+<div class="p-md flex-1 flex flex-col justify-between bg-surface relative z-10 rounded-b-xl border-t border-outline-variant/30">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-xs">Bebidas</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Jugos naturales y refrescos helados.</p>
+</div>
+<button class="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center self-end hover:bg-primary hover:text-on-primary transition-colors mt-sm" aria-label="Ver bebidas">
+<span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- List View Sample -->
+<div class="md:col-span-2 bg-surface-container-lowest rounded-xl p-md shadow-sm border border-outline-variant/50">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-sm flex items-center gap-base">
+<span class="material-symbols-outlined text-primary" data-icon="local_fire_department">local_fire_department</span> Más Vendidos
+                    </h3>
+<ul class="flex flex-col">
+<li class="py-sm border-b border-outline-variant/30 flex justify-between items-center group cursor-pointer hover:bg-surface-container-low px-xs rounded transition-colors">
+<div>
+<span class="font-label-bold text-label-bold text-on-surface block">Arepa Rellena</span>
+<span class="font-body-md text-body-md text-on-surface-variant">Queso y chicharrón crujiente</span>
+</div>
+<span class="font-label-bold text-label-bold text-primary tabular group-hover:scale-110 transition-transform">$3.900</span>
+</li>
+<li class="py-sm border-b border-outline-variant/30 flex justify-between items-center group cursor-pointer hover:bg-surface-container-low px-xs rounded transition-colors">
+<div>
+<span class="font-label-bold text-label-bold text-on-surface block">Combo Familiar</span>
+<span class="font-body-md text-body-md text-on-surface-variant">10 empanadas + 1 Bebida 2L</span>
+</div>
+<span class="font-label-bold text-label-bold text-primary tabular group-hover:scale-110 transition-transform">$30.000</span>
+</li>
+</ul>
+</div>
+<!-- Combo destacado -->
+<div class="md:col-span-3 bg-primary-container text-on-primary rounded-xl p-md flex flex-col md:flex-row md:items-center justify-between gap-md relative overflow-hidden shadow-[0px_10px_30px_rgba(235,94,21,0.18)] texture-overlay">
+<svg class="absolute -right-8 -bottom-10 h-48 w-48 text-on-primary/10" aria-hidden="true"><use href="#kr-iso-mono"></use></svg>
+<div class="relative z-10">
+<span class="inline-block px-sm py-xs bg-tertiary-fixed-dim text-on-tertiary-container font-label-bold text-label-bold rounded-full mb-sm">Combo del día</span>
+<h3 class="font-headline-md text-headline-md mb-xs">10 empanadas + bebida 2L</h3>
+<p class="font-body-md text-body-md text-on-primary">Incluye ají de la casa. Para compartir en familia.</p>
+</div>
+<div class="relative z-10 flex items-center gap-md">
+<p class="font-display-lg text-headline-lg tabular">$30.000</p>
+<button class="bg-tertiary-fixed-dim text-on-tertiary-container font-label-bold text-cta px-lg py-sm rounded-lg hover:bg-tertiary-container transition-all hover:-translate-y-1 duration-200 whitespace-nowrap">Lo quiero</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Story Section -->
+<section class="py-xl bg-surface-container-highest px-margin-mobile md:px-margin-desktop texture-overlay relative" id="historia">
+<div class="max-w-[1280px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-xl items-center relative z-10">
+<div class="relative">
+<div class="absolute -inset-4 bg-tertiary-fixed-dim/20 rounded-xl transform rotate-3 -z-10"></div>
+<img class="rounded-xl shadow-[0px_15px_40px_rgba(89,65,56,0.15)] w-full h-auto object-cover aspect-square md:aspect-[4/5]" data-alt="A warm, nostalgic yet high-quality modern photograph showing a pair of hands (perhaps an older generation) carefully folding the dough for an empanada on a flour-dusted wooden table. The scene implies heritage and craftsmanship. The lighting is soft and golden, with deep rich tones that feel tactile and artisanal. The background is softly blurred to maintain focus on the hands and the fresh dough. Designed to fit a 'heritage' section of a sleek UI." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCyI2QvoLrB_JiekDJz9bgf863Fw-dLqgwcM2QPDyOY-2SqiagBhJyYadBqY4HjbzscI0cDenThio12Hb4oIL0rWCN2vUSZFGSgbcjRY5Md9iz8u-9wJnQpK0Us89GAMrYJDo4IoC1twkXsMA2s0KhWYMtbbavZQoLufuRqVm6wK9mjc0LQ0LXmzP5CgASMAq9iOsQEN712Y9ppk_OS9HDJoL4PllXglh7KsMuSR3J_5LrqedYI4AJRKf6OpCCA3hvz9mMrpiN-z-4kaQ"/>
+</div>
+<div class="flex flex-col gap-sm">
+<span class="font-label-bold text-label-bold text-primary uppercase tracking-widest">Nuestra Herencia</span>
+<h2 class="font-display-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">Recetas que cuentan historias.</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-sm">En Ke-Rico!, no solo freímos comida; preservamos un legado. Cada arepa y cada empanada que servimos está hecha siguiendo las recetas que la abuela perfeccionó hace más de tres décadas.</p>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                        Creemos en los ingredientes frescos, en el sonido del aceite caliente al recibir la masa perfecta, y en la sonrisa de quien muerde algo verdaderamente delicioso por primera vez.
+                    </p>
+</div>
+</div>
+</section>
+<!-- Contact Section -->
+<section class="py-xl px-margin-mobile md:px-margin-desktop max-w-[1280px] mx-auto" id="contacto">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter items-start">
+<div class="md:col-span-5 flex flex-col gap-sm">
+<span class="font-label-bold text-label-bold text-primary uppercase tracking-widest">Contacto</span>
+<h2 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">Pasa por el local</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Te esperamos con el aceite caliente y la masa lista. También llevamos a domicilio en toda la zona.</p>
+<button class="mt-sm w-max bg-primary text-on-primary font-label-bold text-cta px-lg py-sm rounded-lg hover:bg-primary-container transition-all shadow-[0px_10px_30px_rgba(235,94,21,0.12)] hover:shadow-[0px_12px_35px_rgba(235,94,21,0.25)] hover:-translate-y-1 duration-200 flex items-center gap-base">
+<span class="material-symbols-outlined" data-icon="two_wheeler">two_wheeler</span> Pide a domicilio
+</button>
+</div>
+<div class="md:col-span-7 grid grid-cols-1 sm:grid-cols-3 gap-md">
+<div class="bg-surface-container-lowest rounded-xl p-md border border-outline-variant/50 shadow-sm">
+<span class="material-symbols-outlined text-primary" data-icon="storefront">storefront</span>
+<h3 class="font-label-bold text-label-bold text-on-surface mt-base mb-xs">Dirección</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Cra. 59 # 132A - 7<br/>Suba, Bogotá D.C.</p>
+</div>
+<div class="bg-surface-container-lowest rounded-xl p-md border border-outline-variant/50 shadow-sm">
+<span class="material-symbols-outlined text-primary" data-icon="schedule">schedule</span>
+<h3 class="font-label-bold text-label-bold text-on-surface mt-base mb-xs">Horario</h3>
+<p class="font-body-md text-body-md text-on-surface-variant tabular">Lun a sáb<br/>10:00 a. m. – 9:00 p. m.</p>
+</div>
+<div class="bg-surface-container-lowest rounded-xl p-md border border-outline-variant/50 shadow-sm">
+<span class="material-symbols-outlined text-primary" data-icon="call">call</span>
+<h3 class="font-label-bold text-label-bold text-on-surface mt-base mb-xs">Contacto</h3>
+<p class="font-body-md text-body-md text-on-surface-variant tabular">(+57) 317 796 5569</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-highest dark:bg-surface-dim border-t border-outline-variant w-full py-lg px-margin-mobile md:px-margin-desktop flex flex-col md:flex-row justify-between items-center gap-md mt-auto relative z-10">
+<div class="flex items-center gap-base">
+<svg class="h-10 w-10" aria-hidden="true"><use href="#kr-iso"></use></svg>
+<div>
+<div class="kr-wordmark text-headline-md text-primary">Ke-Rico!</div>
+<div class="kr-claim text-on-surface-variant">Tradición en cada bocado</div>
+</div>
+</div>
+<nav class="flex flex-wrap justify-center gap-md">
+<a class="font-label-bold text-label-bold text-on-surface-variant hover:text-primary transition-colors" href="#">Privacidad</a>
+<a class="font-label-bold text-label-bold text-on-surface-variant hover:text-primary transition-colors" href="#">Términos</a>
+<a class="font-label-bold text-label-bold text-on-surface-variant hover:text-primary transition-colors" href="#">Soporte</a>
+<a class="font-label-bold text-label-bold text-on-surface-variant hover:text-primary transition-colors" href="#">Franquicias</a>
+</nav>
+<div class="font-caption text-caption text-on-surface-variant text-center md:text-right">Cra. 59 # 132A - 7, Suba, Bogotá D.C.<br/>© 2026 Ke-Rico!. Tradición en cada bocado.</div>
+</footer>
+</body></html>
