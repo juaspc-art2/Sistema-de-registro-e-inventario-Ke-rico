@@ -111,7 +111,7 @@ if ($conexion !== null) {
             $usuarios > 0,
             $usuarios > 0
                 ? ($usuarios . ' usuarios, ' . $productos . ' productos')
-                : 'la base está vacía: ejecute database/semilla.sql'
+                : 'la base está vacía: vuelva a importar database/kerico.sql'
         );
 
         $juego = (string) $conexion->query("SELECT @@character_set_database")->fetchColumn();

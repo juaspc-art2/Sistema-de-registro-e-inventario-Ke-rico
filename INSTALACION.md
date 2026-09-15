@@ -36,17 +36,19 @@ Si prefiere la consola:
 mysql -u root < database/kerico.sql
 ```
 
-### Volver a sembrar la base
+### Volver a sembrar la base (opcional)
 
-`database/semilla.sql` borra todos los registros y vuelve a insertar los datos de
-arranque, sin tocar el esquema ni las vistas. Sirve para dejar el sistema como recién
-instalado después de hacer pruebas. Se puede ejecutar las veces que haga falta.
+No hace falta para instalar. `kerico.sql` ya deja la base con todos los datos.
+
+`database/semilla.sql` es una herramienta aparte: borra los registros y vuelve a insertar
+los datos de arranque, sin tocar el esquema ni las vistas. Sirve para dejar el sistema como
+recién instalado después de estar probando. Se puede ejecutar las veces que haga falta.
 
 ```bash
 mysql -u root < database/semilla.sql
 ```
 
-Requiere que la base `kerico` ya exista; si no, ejecute antes `kerico.sql`.
+Requiere que la base `kerico` ya exista.
 
 ---
 
