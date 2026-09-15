@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ProveedorSesion, useSesion } from './contexto/Sesion.jsx';
+import { alCambiarRuta, escribirRuta, rutaActual } from './rutas.js';
 import { Boton, Cargando, Isotipo } from './ui/Componentes.jsx';
 import Acceso from './componentes/Acceso.jsx';
 import Panel from './componentes/Panel.jsx';
@@ -30,13 +31,39 @@ const MODULOS = [
 
 function Aplicacion() {
   const { usuario, cargando, puede, salir, notificacion, porExpirar, minutosSesion, empresa } = useSesion();
-  const [activo, setActivo] = useState('panel');
+  const [activo, setActivo] = useState(() => rutaActual() || 'panel');
   const [alertasPendientes, setAlertasPendientes] = useState(0);
+  const [negadoDescartado, setNegadoDescartado] = useState('');
+
+  const abrir = useCallback((id) => {
+    setNegadoDescartado('');
+    setActivo(id);
+  }, []);
+
+  useEffect(() => alCambiarRuta(() => {
+    setNegadoDescartado('');
+    setActivo(rutaActual() || 'panel');
+  }), []);
 
   const disponibles = useMemo(
     () => MODULOS.filter((m) => m.permiso === null || puede(m.permiso)),
     [puede]
   );
+
+  const solicitado = MODULOS.find((m) => m.id === activo);
+  const permitido = !!solicitado && (solicitado.permiso === null || puede(solicitado.permiso));
+  const idEfectivo = permitido ? activo : 'panel';
+
+  useEffect(() => {
+    if (!usuario) return;
+    escribirRuta(idEfectivo, !permitido);
+  }, [usuario, idEfectivo, permitido]);
+
+  useEffect(() => {
+    if (permitido || negadoDescartado === activo) return undefined;
+    const t = setTimeout(() => setNegadoDescartado(activo), 6000);
+    return () => clearTimeout(t);
+  }, [permitido, negadoDescartado, activo]);
 
   if (cargando) {
     return (
@@ -48,8 +75,14 @@ function Aplicacion() {
 
   if (!usuario) return <Acceso />;
 
-  const moduloActivo = disponibles.find((m) => m.id === activo) || disponibles[0];
+  const moduloActivo = permitido ? solicitado : disponibles[0];
   const Vista = moduloActivo.componente;
+
+  const rutaNegada = (permitido || negadoDescartado === activo)
+    ? ''
+    : (solicitado
+      ? 'Su rol no tiene permiso para abrir ' + solicitado.etiqueta
+      : 'La dirección solicitada no corresponde a ningún módulo');
 
   return (
     <div className="app">
@@ -69,7 +102,7 @@ function Aplicacion() {
               key={m.id}
               type="button"
               className={moduloActivo.id === m.id ? 'activo' : ''}
-              onClick={() => setActivo(m.id)}
+              onClick={() => abrir(m.id)}
             >
               <span className="icono" aria-hidden="true">{m.icono}</span>
               {m.etiqueta}
@@ -93,9 +126,24 @@ function Aplicacion() {
         <Vista
           onAlertasPendientes={setAlertasPendientes}
           empresa={empresa}
-          irA={setActivo}
+          irA={abrir}
         />
       </main>
+
+      {rutaNegada ? (
+        <div className="notificacion aviso error" role="alert">
+          <span className="icono" aria-hidden="true">⚠</span>
+          <span>{rutaNegada}</span>
+          <button
+            type="button"
+            className="cerrar-aviso"
+            onClick={() => setNegadoDescartado(activo)}
+            aria-label="Cerrar aviso"
+          >
+            ✕
+          </button>
+        </div>
+      ) : null}
 
       {notificacion ? (
         <div className={'notificacion aviso ' + (notificacion.tipo === 'error' ? 'error' : 'exito')}>
