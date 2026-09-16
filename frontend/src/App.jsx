@@ -161,10 +161,15 @@ function Aplicacion() {
   );
 }
 
+function Contenedor() {
+  const { usuario } = useSesion();
+  return <Aplicacion key={usuario ? usuario.id : 'anonimo'} />;
+}
+
 export default function App() {
   return (
     <ProveedorSesion>
-      <Aplicacion />
+      <Contenedor />
     </ProveedorSesion>
   );
 }

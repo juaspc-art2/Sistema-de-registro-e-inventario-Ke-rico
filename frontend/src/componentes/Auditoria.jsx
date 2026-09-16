@@ -35,13 +35,14 @@ export default function Auditoria() {
   const [errores, setErrores] = useState({});
   const [errorForm, setErrorForm] = useState('');
   const [guardando, setGuardando] = useState(false);
+  const [refresco, setRefresco] = useState(0);
 
   useEffect(() => {
     api.get('/inventario/movimientos/resumen').then(setResumen).catch(() => setResumen(null));
     api.get('/inventario/productos?por_pagina=200')
       .then((r) => setProductos(r.items || []))
       .catch(() => setProductos([]));
-  }, [lista.respuesta]);
+  }, [refresco]);
 
   const poner = (clave, valor) => setForm((f) => ({ ...f, [clave]: valor }));
 
@@ -70,6 +71,7 @@ export default function Auditoria() {
       setRegistrando(false);
       setForm({ producto_id: '', tipo: 'Ajuste', cantidad: '', motivo: MOTIVOS[0], observaciones: '' });
       lista.recargar();
+      setRefresco((v) => v + 1);
     } catch (e) {
       setErrorForm(e.message);
       if (e.errores) setErrores(e.errores);

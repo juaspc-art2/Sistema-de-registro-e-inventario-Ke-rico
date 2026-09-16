@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { alExpirarSesion, api, guardarCsrf, guardarToken, leerToken } from '../api.js';
+import { escribirRuta } from '../rutas.js';
 
 const ContextoSesion = createContext(null);
 
@@ -22,6 +23,7 @@ export function ProveedorSesion({ children }) {
     setUsuario(null);
     setPermisos([]);
     setPorExpirar(false);
+    escribirRuta('panel', true);
     if (mensaje) setMensajeSalida(mensaje);
   }, []);
 

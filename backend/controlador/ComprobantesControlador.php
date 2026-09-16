@@ -10,6 +10,7 @@ use Kerico\Nucleo\Exportador;
 use Kerico\Nucleo\Paginador;
 use Kerico\Nucleo\Peticion;
 use Kerico\Nucleo\Respuesta;
+use Kerico\Nucleo\TirillaPdf;
 use Kerico\Nucleo\Validador;
 
 final class ComprobantesControlador
@@ -52,56 +53,79 @@ final class ComprobantesControlador
         $comprobante = Comprobante::porId((int) $peticion->parametro('id'));
         $formato = strtolower((string) $peticion->consulta('formato', 'pdf'));
 
-        $encabezados = ['Código', 'Descripción', 'Cant.', 'Precio', 'Imp. %', 'Base', 'Impuesto', 'Total'];
-        $filas = array_map(static fn (array $d): array => [
-            $d['sku'],
-            $d['nombre'],
-            rtrim(rtrim(number_format((float) $d['cantidad'], 3, '.', ''), '0'), '.'),
-            number_format((float) $d['precio_unitario'], 0, ',', '.'),
-            number_format((float) $d['iva_porcentaje'], 2, ',', '.'),
-            number_format((float) $d['subtotal'], 0, ',', '.'),
-            number_format((float) $d['impuesto'], 0, ',', '.'),
-            number_format((float) $d['total'], 0, ',', '.'),
-        ], $comprobante['detalle']);
-
-        $cliente = $comprobante['cliente'];
-        $emisor = $comprobante['emisor'];
-
-        $resumen = [
-            'Comprobante' => $comprobante['numero'],
-            'Fecha'       => $comprobante['fecha_emision'],
-            'Cliente'     => (string) ($cliente['nombre'] ?? 'Consumidor final'),
-            'Documento'   => trim((string) ($cliente['tipo_documento'] ?? '') . ' ' . (string) ($cliente['documento'] ?? '')),
-            'Subtotal'    => '$' . number_format($comprobante['subtotal'], 0, ',', '.'),
-            'Descuento'   => '$' . number_format($comprobante['descuento'], 0, ',', '.'),
-            'Impuesto'    => '$' . number_format($comprobante['impuesto'], 0, ',', '.'),
-            'Total'       => '$' . number_format($comprobante['total'], 0, ',', '.'),
-        ];
-
         if ($formato === 'pdf') {
-            $subtitulo = trim((string) ($emisor['razon_social'] ?? 'Ke-Rico!') . '  NIT ' . (string) ($emisor['nit'] ?? ''));
             Respuesta::archivo(
-                Exportador::pdf(
-                    $comprobante['tipo'] . ' ' . $comprobante['numero'],
-                    $subtitulo,
-                    $encabezados,
-                    $filas,
-                    $resumen
-                ),
+                (new TirillaPdf($comprobante))->generar(),
                 'comprobante-' . $comprobante['numero'] . '.pdf',
                 'application/pdf'
             );
             return;
         }
 
+        $emisor = $comprobante['emisor'] ?? [];
+        $cliente = $comprobante['cliente'] ?? [];
+        $peso = static fn ($valor): string => '$' . number_format((float) $valor, 0, ',', '.');
+
+        $filas = [
+            [(string) ($emisor['nombre'] ?? 'Ke-Rico!'), '', '', ''],
+            [(string) ($emisor['razon_social'] ?? ''), '', '', ''],
+            ['NIT ' . (string) ($emisor['nit'] ?? ''), '', '', ''],
+            [(string) ($emisor['direccion'] ?? ''), '', '', ''],
+            [(string) ($emisor['telefono'] ?? ''), '', '', ''],
+            ['', '', '', ''],
+            [(string) $comprobante['tipo'], 'N.º ' . (string) $comprobante['numero'], '', ''],
+            ['Fecha', (string) $comprobante['fecha_emision'], '', ''],
+            ['Venta', (string) ($comprobante['folio'] ?? ''), '', ''],
+            ['Cajero', (string) ($comprobante['cajero'] ?? ''), '', ''],
+            ['Cliente', (string) ($cliente['nombre'] ?? 'Consumidor final'), '', ''],
+        ];
+
+        if (trim((string) ($cliente['documento'] ?? '')) !== '') {
+            $filas[] = [
+                'Documento',
+                trim((string) ($cliente['tipo_documento'] ?? '') . ' ' . (string) $cliente['documento']),
+                '',
+                '',
+            ];
+        }
+
+        $filas[] = ['', '', '', ''];
+        $filas[] = ['Producto', 'Cantidad', 'Precio unitario', 'Total'];
+
+        foreach ($comprobante['detalle'] as $d) {
+            $filas[] = [
+                (string) $d['nombre'],
+                rtrim(rtrim(number_format((float) $d['cantidad'], 3, '.', ''), '0'), '.'),
+                $peso($d['precio_unitario']),
+                $peso($d['total']),
+            ];
+        }
+
+        $filas[] = ['', '', '', ''];
+        $filas[] = ['Subtotal', '', '', $peso($comprobante['subtotal'])];
+        if ((float) $comprobante['descuento'] > 0) {
+            $filas[] = ['Descuento', '', '', '(' . $peso($comprobante['descuento']) . ')'];
+        }
+        $filas[] = ['Base gravable', '', '', $peso($comprobante['base_gravable'])];
+        $filas[] = ['Impuesto', '', '', $peso($comprobante['impuesto'])];
+        $filas[] = ['TOTAL', '', '', $peso($comprobante['total'])];
+
+        if (($comprobante['estado'] ?? '') === 'Anulado') {
+            $filas[] = ['', '', '', ''];
+            $filas[] = ['COMPROBANTE ANULADO', '', '', ''];
+        }
+
+        $filas[] = ['', '', '', ''];
+        $filas[] = [(string) ($comprobante['resolucion_dian'] ?? ''), '', '', ''];
+        $filas[] = ['Gracias por su compra', '', '', ''];
+
         Exportacion::enviar(
             $formato,
             'comprobante-' . $comprobante['numero'],
-            'Comprobante ' . $comprobante['numero'],
-            $comprobante['tipo'],
-            $encabezados,
-            $filas,
-            $resumen
+            (string) $comprobante['tipo'] . ' ' . (string) $comprobante['numero'],
+            (string) ($emisor['razon_social'] ?? ''),
+            ['Concepto', 'Detalle', 'Precio unitario', 'Valor'],
+            $filas
         );
     }
 

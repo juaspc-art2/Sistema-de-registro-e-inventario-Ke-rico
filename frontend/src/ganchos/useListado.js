@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { api, consulta } from '../api.js';
 
 const INICIAL = { clave: null, items: [], total: 0, paginas: 1, error: '', respuesta: null };
@@ -13,6 +13,12 @@ export function useListado(ruta, filtrosIniciales = {}, opciones = {}) {
   const [direccion, setDireccion] = useState(direccionInicial);
   const [version, setVersion] = useState(0);
   const [estado, setEstado] = useState(INICIAL);
+
+  const extraerRef = useRef(extraer);
+
+  useEffect(() => {
+    extraerRef.current = extraer;
+  }, [extraer]);
 
   const direccionUsada = direccion === 'ASC' ? 'ASC' : 'DESC';
 
@@ -33,7 +39,7 @@ export function useListado(ruta, filtrosIniciales = {}, opciones = {}) {
     api.get(url)
       .then((respuesta) => {
         if (!vigente) return;
-        const bloque = extraer ? extraer(respuesta) : respuesta;
+        const bloque = extraerRef.current ? extraerRef.current(respuesta) : respuesta;
         setEstado({
           clave,
           items: (bloque && bloque.items) || [],
@@ -49,7 +55,7 @@ export function useListado(ruta, filtrosIniciales = {}, opciones = {}) {
       });
 
     return () => { vigente = false; };
-  }, [url, clave, extraer]);
+  }, [url, clave]);
 
   const cambiarFiltro = useCallback((nombre, valor) => {
     setFiltros((previos) => ({ ...previos, [nombre]: valor }));
