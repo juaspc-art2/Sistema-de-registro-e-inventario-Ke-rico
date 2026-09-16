@@ -101,9 +101,7 @@ final class DocumentoPdf
         }
 
         $disponible = self::ANCHO - self::MARGEN * 2;
-        $pesos = $this->calcularPesos($encabezados, $filas);
-        $suma = array_sum($pesos);
-        $anchos = array_map(static fn (float $p): float => $disponible * ($p / $suma), $pesos);
+        $anchos = $this->repartir($this->calcularPesos($encabezados, $filas), $disponible);
 
         $alturaFila = 17.0;
         $this->filaEncabezado($encabezados, $anchos, $alturaFila);
@@ -126,11 +124,7 @@ final class DocumentoPdf
                 if ($i >= $columnas) {
                     break;
                 }
-                $texto = (string) $valor;
-                $limite = (int) max(6, ($anchos[$i] - 10) / 4.6);
-                if (mb_strlen($texto) > $limite) {
-                    $texto = mb_substr($texto, 0, $limite - 1) . '.';
-                }
+                $texto = $this->recortar((string) $valor, $anchos[$i] - 12, 8.5);
                 if ($this->esNumero((string) $valor)) {
                     $this->textoDerecha($texto, $x + $anchos[$i] - 6, $this->y - 12, 8.5, false, self::CARBON);
                 } else {
@@ -152,23 +146,57 @@ final class DocumentoPdf
         $this->pie();
     }
 
+    private function repartir(array $necesarios, float $disponible): array
+    {
+        $total = array_sum($necesarios);
+        if ($total <= 0.0) {
+            return $necesarios;
+        }
+
+        if ($total <= $disponible) {
+            $sobra = $disponible - $total;
+            return array_map(
+                static fn (float $n): float => $n + $sobra * ($n / $total),
+                $necesarios
+            );
+        }
+
+        $orden = $necesarios;
+        asort($orden);
+
+        $anchos = [];
+        $restante = $disponible;
+        $quedan = count($orden);
+
+        foreach ($orden as $indice => $necesario) {
+            $cuota = $restante / $quedan;
+            $asignado = $necesario <= $cuota ? $necesario : $cuota;
+            $anchos[$indice] = $asignado;
+            $restante -= $asignado;
+            $quedan--;
+        }
+
+        ksort($anchos);
+        return array_values($anchos);
+    }
+
     private function calcularPesos(array $encabezados, array $filas): array
     {
         $pesos = [];
         $muestra = array_slice($filas, 0, 60);
         foreach (array_values($encabezados) as $i => $titulo) {
-            $maximo = mb_strlen((string) $titulo);
+            $maximo = $this->medir(mb_strtoupper((string) $titulo), 8.0, true) + 14;
             foreach ($muestra as $fila) {
                 $valores = array_values($fila);
                 if (!isset($valores[$i])) {
                     continue;
                 }
-                $largo = mb_strlen((string) $valores[$i]);
+                $largo = $this->medir((string) $valores[$i], 8.5, false) + 12;
                 if ($largo > $maximo) {
                     $maximo = $largo;
                 }
             }
-            $pesos[] = (float) min(max($maximo, 6), 40);
+            $pesos[] = (float) max($maximo, 34.0);
         }
         return $pesos;
     }
@@ -179,7 +207,11 @@ final class DocumentoPdf
         $this->rectangulo(self::MARGEN, $this->y - $altura, $disponible, $altura, self::NARANJA);
         $x = self::MARGEN;
         foreach (array_values($encabezados) as $i => $titulo) {
-            $this->texto(mb_strtoupper((string) $titulo), $x + 6, $this->y - 12, 8, true, [1, 1, 1]);
+            $encabezado = mb_strtoupper((string) $titulo);
+            while ($encabezado !== '' && $this->medir($encabezado, 8.0, true) > $anchos[$i] - 10) {
+                $encabezado = mb_substr($encabezado, 0, mb_strlen($encabezado) - 1);
+            }
+            $this->texto($encabezado, $x + 6, $this->y - 12, 8, true, [1, 1, 1]);
             $x += $anchos[$i];
         }
         $this->y -= $altura;
@@ -204,6 +236,47 @@ final class DocumentoPdf
             false,
             self::PIEDRA
         );
+    }
+
+    private const ANCHOS = [
+        ' ' => 278, '!' => 278, '"' => 355, '#' => 556, '$' => 556, '%' => 889, '&' => 667,
+        "'" => 191, '(' => 333, ')' => 333, '*' => 389, '+' => 584, ',' => 278, '-' => 333,
+        '.' => 278, '/' => 278, ':' => 278, ';' => 278, '<' => 584, '=' => 584, '>' => 584,
+        '?' => 556, '@' => 1015, '[' => 278, ']' => 278, '_' => 556, '|' => 260, '…' => 1000,
+        '0' => 556, '1' => 556, '2' => 556, '3' => 556, '4' => 556,
+        '5' => 556, '6' => 556, '7' => 556, '8' => 556, '9' => 556,
+        'A' => 667, 'B' => 667, 'C' => 722, 'D' => 722, 'E' => 667, 'F' => 611, 'G' => 778,
+        'H' => 722, 'I' => 278, 'J' => 500, 'K' => 667, 'L' => 556, 'M' => 833, 'N' => 722,
+        'O' => 778, 'P' => 667, 'Q' => 778, 'R' => 722, 'S' => 667, 'T' => 611, 'U' => 722,
+        'V' => 667, 'W' => 944, 'X' => 667, 'Y' => 667, 'Z' => 611,
+        'a' => 556, 'b' => 556, 'c' => 500, 'd' => 556, 'e' => 556, 'f' => 278, 'g' => 556,
+        'h' => 556, 'i' => 222, 'j' => 222, 'k' => 500, 'l' => 222, 'm' => 833, 'n' => 556,
+        'o' => 556, 'p' => 556, 'q' => 556, 'r' => 333, 's' => 500, 't' => 278, 'u' => 556,
+        'v' => 500, 'w' => 722, 'x' => 500, 'y' => 500, 'z' => 500,
+        'á' => 556, 'é' => 556, 'í' => 222, 'ó' => 556, 'ú' => 556, 'ñ' => 556, 'ü' => 556,
+        'Á' => 667, 'É' => 667, 'Í' => 278, 'Ó' => 778, 'Ú' => 722, 'Ñ' => 722, 'º' => 365,
+    ];
+
+    private function medir(string $texto, float $tamano, bool $negrita): float
+    {
+        $total = 0;
+        $largo = mb_strlen($texto);
+        for ($i = 0; $i < $largo; $i++) {
+            $total += self::ANCHOS[mb_substr($texto, $i, 1)] ?? 556;
+        }
+        return $total / 1000 * $tamano * ($negrita ? 1.08 : 1.0);
+    }
+
+    private function recortar(string $texto, float $disponible, float $tamano): string
+    {
+        if ($disponible <= 0 || $this->medir($texto, $tamano, false) <= $disponible + 0.5) {
+            return $texto;
+        }
+        $corte = $texto;
+        while ($corte !== '' && $this->medir($corte . '…', $tamano, false) > $disponible) {
+            $corte = mb_substr($corte, 0, mb_strlen($corte) - 1);
+        }
+        return $corte === '' ? '' : $corte . '…';
     }
 
     private function esNumero(string $valor): bool
@@ -241,7 +314,7 @@ final class DocumentoPdf
 
     private function textoDerecha(string $texto, float $x, float $y, float $tamano, bool $negrita, array $color): void
     {
-        $ancho = mb_strlen($texto) * $tamano * ($negrita ? 0.56 : 0.5);
+        $ancho = $this->medir($texto, $tamano, $negrita);
         $this->texto($texto, $x - $ancho, $y, $tamano, $negrita, $color);
     }
 
