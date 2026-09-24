@@ -55,7 +55,7 @@ export default function Acceso() {
       setAvisoRecuperacion(
         datos && datos.token
           ? 'Enlace generado. Token de recuperación: ' + datos.token
-          : 'Si el correo está registrado recibirá un enlace de recuperación.'
+          : 'Si el correo está registrado, el administrador verá el token en el registro de actividad.'
       );
     } catch (err) {
       setAvisoRecuperacion(err.message);
