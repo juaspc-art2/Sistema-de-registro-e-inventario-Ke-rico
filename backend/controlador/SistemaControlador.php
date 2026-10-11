@@ -40,11 +40,11 @@ final class SistemaControlador
         $hasta = (string) $peticion->consulta('hasta', date('Y-m-d'));
 
         $registros = Sistema::bitacora([
-            'desde'  => $desde,
-            'hasta'  => $hasta,
-            'nivel'  => $peticion->consulta('nivel', ''),
-            'modulo' => $peticion->consulta('modulo', ''),
-            'limite' => 2000,
+            'desde'    => $desde,
+            'hasta'    => $hasta,
+            'busqueda' => $peticion->consulta('busqueda', ''),
+            'nivel'    => $peticion->consulta('nivel', ''),
+            'modulo'   => $peticion->consulta('modulo', ''),
         ]);
 
         $encabezados = ['Fecha', 'Usuario', 'Módulo', 'Acción', 'Nivel', 'Descripción', 'IP'];
@@ -99,7 +99,7 @@ final class SistemaControlador
             'activo'         => $validador->booleano('activo', true),
         ];
 
-        $password = $validador->texto('password', 'La contraseña', $creando, 120, $creando ? 3 : 0);
+        $password = $validador->texto('password', 'La contraseña', $creando, 120, $creando ? 3 : 0, true);
         if ($password !== '' && strlen($password) < 3) {
             $validador->agregarError('password', 'La contraseña debe tener al menos 3 caracteres');
         }
@@ -139,6 +139,7 @@ final class SistemaControlador
 
     public static function estado(Peticion $peticion): void
     {
+        Autenticacion::exigir('configuracion.editar');
         Respuesta::exito(Sistema::estado());
     }
 
@@ -174,7 +175,7 @@ final class SistemaControlador
     {
         Autenticacion::exigir('respaldos.gestionar');
         $archivo = Sistema::descargarRespaldo((int) $peticion->parametro('id'));
-        Respuesta::archivo($archivo['contenido'], $archivo['nombre'], 'application/sql');
+        Respuesta::archivo($archivo['contenido'], $archivo['nombre'], 'application/sql', 'Respaldo de la base de datos');
     }
 
     public static function eliminarUsuario(Peticion $peticion): void

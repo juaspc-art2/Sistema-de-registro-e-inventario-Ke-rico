@@ -9,8 +9,10 @@ use Kerico\Nucleo\Autenticacion;
 use Kerico\Nucleo\Bd;
 use Kerico\Nucleo\Bitacora;
 use Kerico\Nucleo\ErrorHttp;
+use Kerico\Nucleo\Exportador;
 use Kerico\Nucleo\Paginador;
 use Kerico\Nucleo\Vocabulario;
+use PDO;
 
 final class Sistema
 {
@@ -20,6 +22,8 @@ final class Sistema
         'descuentos_aplicados', 'comprobantes', 'compras', 'compra_detalle',
         'movimientos_inventario', 'alertas_stock', 'bitacora', 'respaldos',
     ];
+
+    private const CARPETA_RESPALDOS = 'respaldos';
 
     private const ORDEN_BITACORA = [
         'fecha'   => 'creado_en',
@@ -100,40 +104,8 @@ final class Sistema
 
     public static function bitacora(array $filtros = []): array
     {
-        $sql = 'SELECT * FROM bitacora WHERE 1 = 1';
-        $parametros = [];
-
-        if (!empty($filtros['busqueda'])) {
-            $sql .= ' AND (descripcion LIKE ? OR usuario_nombre LIKE ? OR accion LIKE ?)';
-            $termino = '%' . $filtros['busqueda'] . '%';
-            $parametros[] = $termino;
-            $parametros[] = $termino;
-            $parametros[] = $termino;
-        }
-        if (!empty($filtros['nivel'])) {
-            $sql .= ' AND nivel = ?';
-            $parametros[] = $filtros['nivel'];
-        }
-        if (!empty($filtros['modulo'])) {
-            $sql .= ' AND modulo = ?';
-            $parametros[] = $filtros['modulo'];
-        }
-        if (!empty($filtros['usuario_id'])) {
-            $sql .= ' AND usuario_id = ?';
-            $parametros[] = (int) $filtros['usuario_id'];
-        }
-        if (!empty($filtros['desde'])) {
-            $sql .= ' AND creado_en >= ?';
-            $parametros[] = $filtros['desde'] . ' 00:00:00';
-        }
-        if (!empty($filtros['hasta'])) {
-            $sql .= ' AND creado_en <= ?';
-            $parametros[] = $filtros['hasta'] . ' 23:59:59';
-        }
-
-        $sql .= ' ORDER BY creado_en DESC, id DESC';
-        $limite = (int) ($filtros['limite'] ?? 300);
-        $sql .= ' LIMIT ' . max(1, min($limite, 2000));
+        [$desde, $parametros] = self::filtrarBitacora($filtros);
+        $sql = 'SELECT *' . $desde . ' ORDER BY creado_en DESC, id DESC LIMIT ' . (Exportador::MAXIMO_FILAS + 1);
 
         return array_map([self::class, 'normalizarBitacora'], Bd::consultar($sql, $parametros));
     }
@@ -190,8 +162,7 @@ final class Sistema
 
     public static function generarRespaldo(string $tipo = 'Manual', ?array $usuario = null): array
     {
-        $directorio = (string) Ajustes::obtener('respaldo_directorio', 'respaldos');
-        $rutaBase = __DIR__ . '/../' . $directorio;
+        $rutaBase = __DIR__ . '/../' . self::CARPETA_RESPALDOS;
         if (!is_dir($rutaBase) && !mkdir($rutaBase, 0775, true) && !is_dir($rutaBase)) {
             throw new ErrorHttp('No fue posible crear la carpeta de respaldos', 500);
         }
@@ -201,15 +172,11 @@ final class Sistema
 
         $respaldoId = Bd::insertar(
             'INSERT INTO respaldos (nombre_archivo, ruta, tipo, estado) VALUES (?,?,?,?)',
-            [$nombre, $directorio . '/' . $nombre, $tipo, 'En proceso']
+            [$nombre, self::CARPETA_RESPALDOS . '/' . $nombre, $tipo, 'En proceso']
         );
 
         try {
-            $contenido = self::volcado();
-            $escritos = file_put_contents($ruta, $contenido);
-            if ($escritos === false) {
-                throw new ErrorHttp('No fue posible escribir el archivo de respaldo', 500);
-            }
+            $escritos = self::volcado($ruta);
 
             Bd::ejecutar(
                 "UPDATE respaldos SET estado = 'Completado', finalizado_en = NOW(), tamano_bytes = ?, mensaje = ?
@@ -229,6 +196,10 @@ final class Sistema
                 $usuario
             );
         } catch (\Throwable $e) {
+            // Un volcado a medias vacía las tablas al restaurarlo: no puede quedar en disco
+            if (is_file($ruta)) {
+                unlink($ruta);
+            }
             Bd::ejecutar(
                 "UPDATE respaldos SET estado = 'Fallido', finalizado_en = NOW(), mensaje = ? WHERE id = ?",
                 [mb_substr($e->getMessage(), 0, 255), $respaldoId]
@@ -249,32 +220,47 @@ final class Sistema
         ];
     }
 
-    private static function volcado(): string
+    // Escribe el volcado fila a fila, así la memoria no crece con el tamaño de la base.
+    // Todo se lee en una sola transacción: la copia es coherente aunque entren ventas mientras tanto.
+    private static function volcado(string $ruta): int
     {
-        $pdo = Bd::conexion();
-        $salida = "SET NAMES utf8mb4;\nSET FOREIGN_KEY_CHECKS = 0;\n\n";
-
-        foreach (self::TABLAS as $tabla) {
-            $salida .= 'TRUNCATE TABLE `' . $tabla . "`;\n";
+        $archivo = fopen($ruta, 'wb');
+        if ($archivo === false) {
+            throw new ErrorHttp('No fue posible escribir el archivo de respaldo', 500);
         }
-        $salida .= "\n";
 
-        foreach (self::TABLAS as $tabla) {
-            $filas = Bd::consultar('SELECT * FROM `' . $tabla . '`');
-            if ($filas === []) {
-                continue;
+        $bytes = 0;
+        $escribir = static function (string $texto) use ($archivo, &$bytes): void {
+            $escritos = fwrite($archivo, $texto);
+            if ($escritos !== strlen($texto)) {
+                throw new ErrorHttp('No fue posible escribir el archivo de respaldo', 500);
             }
+            $bytes += $escritos;
+        };
 
-            $columnas = array_keys($filas[0]);
-            $listaColumnas = '`' . implode('`, `', $columnas) . '`';
+        $pdo = Bd::conexion();
+        $pdo->beginTransaction();
+        $pdo->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
+        $sentencia = null;
 
-            $lotes = array_chunk($filas, 100);
-            foreach ($lotes as $lote) {
+        try {
+            $escribir("SET NAMES utf8mb4;\nSET FOREIGN_KEY_CHECKS = 0;\n\n");
+            foreach (self::TABLAS as $tabla) {
+                $escribir('TRUNCATE TABLE `' . $tabla . "`;\n");
+            }
+            $escribir("\n");
+
+            foreach (self::TABLAS as $tabla) {
+                $sentencia = $pdo->query('SELECT * FROM `' . $tabla . '`');
+                $encabezado = '';
                 $valores = [];
-                foreach ($lote as $fila) {
+
+                foreach ($sentencia as $fila) {
+                    if ($encabezado === '') {
+                        $encabezado = 'INSERT INTO `' . $tabla . '` (`' . implode('`, `', array_keys($fila)) . "`) VALUES\n";
+                    }
                     $celdas = [];
-                    foreach ($columnas as $columna) {
-                        $valor = $fila[$columna];
+                    foreach ($fila as $valor) {
                         if ($valor === null) {
                             $celdas[] = 'NULL';
                         } elseif (is_int($valor) || is_float($valor)) {
@@ -284,15 +270,32 @@ final class Sistema
                         }
                     }
                     $valores[] = '(' . implode(',', $celdas) . ')';
-                }
-                $salida .= 'INSERT INTO `' . $tabla . '` (' . $listaColumnas . ") VALUES\n"
-                    . implode(",\n", $valores) . ";\n";
-            }
-            $salida .= "\n";
-        }
 
-        $salida .= "SET FOREIGN_KEY_CHECKS = 1;\n";
-        return $salida;
+                    if (count($valores) === 100) {
+                        $escribir($encabezado . implode(",\n", $valores) . ";\n");
+                        $valores = [];
+                    }
+                }
+                $sentencia = null;
+
+                if ($valores !== []) {
+                    $escribir($encabezado . implode(",\n", $valores) . ";\n");
+                }
+                if ($encabezado !== '') {
+                    $escribir("\n");
+                }
+            }
+
+            $escribir("SET FOREIGN_KEY_CHECKS = 1;\n");
+            return $bytes;
+        } finally {
+            if ($sentencia !== null) {
+                $sentencia->closeCursor();
+            }
+            $pdo->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);
+            $pdo->rollBack();
+            fclose($archivo);
+        }
     }
 
     public static function descargarRespaldo(int $id): array
@@ -332,13 +335,52 @@ final class Sistema
 
     public static function actualizarConfiguracion(array $valores): array
     {
-        $permitidas = array_column(Ajustes::todos(), 'clave');
+        $actuales = array_column(Ajustes::todos(), null, 'clave');
+        $cambios = [];
+
         foreach ($valores as $clave => $valor) {
-            if (!in_array($clave, $permitidas, true)) {
+            if (!isset($actuales[$clave]) || !is_scalar($valor)) {
                 continue;
             }
-            Ajustes::definir((string) $clave, (string) $valor);
+            $valor = trim((string) $valor);
+            // Todos los ajustes enteros son conteos o duraciones: un cero deja sin sesión o sin consecutivo al sistema
+            if ($actuales[$clave]['tipo'] === 'entero' && preg_match('/^[1-9]\d{0,8}$/', $valor) !== 1) {
+                $etiqueta = $actuales[$clave]['descripcion'] ?: $clave;
+                throw ErrorHttp::validacion(
+                    $etiqueta . ': debe ser un número entero mayor que cero',
+                    [$clave => 'Debe ser un número entero mayor que cero']
+                );
+            }
+            if ($clave === 'notificaciones_correo') {
+                foreach (preg_split('/[\s,;]+/', $valor, -1, PREG_SPLIT_NO_EMPTY) ?: [] as $direccion) {
+                    if (filter_var($direccion, FILTER_VALIDATE_EMAIL) === false) {
+                        throw ErrorHttp::validacion(
+                            'El correo de notificaciones ' . $direccion . ' no tiene un formato válido',
+                            [$clave => 'Formato inválido']
+                        );
+                    }
+                }
+            }
+            $cambios[(string) $clave] = $valor;
         }
+
+        Bd::transaccion(static function () use ($cambios): void {
+            if (isset($cambios['comprobante_consecutivo']) || isset($cambios['comprobante_prefijo'])) {
+                $fila = Bd::primero("SELECT valor FROM configuracion WHERE clave = 'comprobante_consecutivo' FOR UPDATE");
+                $prefijo = $cambios['comprobante_prefijo'] ?? (string) Ajustes::obtener('comprobante_prefijo', 'KR');
+                $consecutivo = (int) ($cambios['comprobante_consecutivo'] ?? $fila['valor'] ?? 1);
+                $usado = (int) Bd::valor('SELECT COALESCE(MAX(consecutivo), 0) FROM comprobantes WHERE prefijo = ?', [$prefijo]);
+                if ($consecutivo <= $usado) {
+                    throw ErrorHttp::validacion(
+                        'El consecutivo debe ser mayor que ' . $usado . ', el último comprobante emitido con el prefijo ' . $prefijo,
+                        ['comprobante_consecutivo' => 'Debe ser mayor que ' . $usado]
+                    );
+                }
+            }
+            foreach ($cambios as $clave => $valor) {
+                Ajustes::definir($clave, $valor);
+            }
+        });
 
         Bitacora::registrar(
             'CONFIGURACION_ACTUALIZAR',
@@ -348,7 +390,7 @@ final class Sistema
             'configuracion',
             '',
             null,
-            $valores
+            $cambios
         );
 
         return Ajustes::todos();
