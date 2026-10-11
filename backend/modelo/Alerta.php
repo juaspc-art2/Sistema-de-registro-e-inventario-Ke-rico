@@ -32,8 +32,9 @@ final class Alerta
             $sql .= ' AND a.tipo = ?';
             $parametros[] = $filtros['tipo'];
         }
-        if (isset($filtros['pendientes']) && $filtros['pendientes']) {
-            $sql .= " AND a.estado <> 'Resuelta'";
+        if (!empty($filtros['id'])) {
+            $sql .= ' AND a.id = ?';
+            $parametros[] = (int) $filtros['id'];
         }
 
         $sql .= " ORDER BY FIELD(a.tipo, 'Agotado', 'Critico', 'Bajo'), a.generada_en DESC LIMIT 300";
@@ -87,13 +88,7 @@ final class Alerta
                 [Autenticacion::idUsuario(), $id]
             );
         }
-        $filas = self::listar([]);
-        foreach ($filas as $fila) {
-            if ($fila['id'] === $id) {
-                return $fila;
-            }
-        }
-        return [];
+        return self::listar(['id' => $id])[0] ?? [];
     }
 
     public static function marcarTodasVistas(): int

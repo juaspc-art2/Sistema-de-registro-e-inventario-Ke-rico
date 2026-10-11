@@ -245,10 +245,10 @@ final class InventarioControlador
         $hasta = (string) $peticion->consulta('hasta', date('Y-m-d'));
 
         $movimientos = Inventario::movimientos([
-            'desde'  => $desde,
-            'hasta'  => $hasta,
-            'tipo'   => $peticion->consulta('tipo', ''),
-            'limite' => 2000,
+            'desde'    => $desde,
+            'hasta'    => $hasta,
+            'busqueda' => $peticion->consulta('busqueda', ''),
+            'tipo'     => $peticion->consulta('tipo', ''),
         ]);
 
         $encabezados = ['Fecha', 'SKU', 'Producto', 'Tipo', 'Cantidad', 'Anterior', 'Nuevo', 'Usuario', 'Motivo'];
