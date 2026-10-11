@@ -1,17 +1,19 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const raiz = path.resolve(path.dirname(new URL(import.meta.url).pathname.slice(1)), '..');
+const raiz = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const destino = path.join(raiz, 'publicar');
 const origenFront = path.join(raiz, 'frontend', 'dist');
 const origenApi = path.join(raiz, 'backend');
 
-const EXCLUIDOS = new Set(['respaldos', '.bak', 'node_modules', '.git']);
+const EXCLUIDOS = new Set(['.bak', 'node_modules', '.git']);
+const esRespaldo = (nombre) => /\.(sql|zip)$/.test(nombre);
 
 function copiar(desde, hacia, filtro) {
   fs.mkdirSync(hacia, { recursive: true });
   for (const entrada of fs.readdirSync(desde, { withFileTypes: true })) {
-    if (EXCLUIDOS.has(entrada.name)) {
+    if (EXCLUIDOS.has(entrada.name) || esRespaldo(entrada.name)) {
       continue;
     }
     if (filtro && !filtro(entrada.name)) {
@@ -56,8 +58,6 @@ if (verificar) {
   fs.rmSync(temporal, { recursive: true, force: true });
   copiar(origenFront, temporal, null);
   copiar(origenApi, path.join(temporal, 'api'), null);
-  fs.mkdirSync(path.join(temporal, 'api', 'respaldos'), { recursive: true });
-  fs.writeFileSync(path.join(temporal, 'api', 'respaldos', '.gitkeep'), '');
 
   const actuales = listar(destino);
   const esperados = listar(temporal);
@@ -97,8 +97,6 @@ if (verificar) {
 fs.rmSync(destino, { recursive: true, force: true });
 copiar(origenFront, destino, null);
 copiar(origenApi, path.join(destino, 'api'), null);
-fs.mkdirSync(path.join(destino, 'api', 'respaldos'), { recursive: true });
-fs.writeFileSync(path.join(destino, 'api', 'respaldos', '.gitkeep'), '');
 
 const archivos = listar(destino);
 console.log('Carpeta publicar/ generada con ' + archivos.length + ' archivos.');
