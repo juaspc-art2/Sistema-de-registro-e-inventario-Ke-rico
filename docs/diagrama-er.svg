@@ -1,0 +1,1072 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2070 1414" width="2070" height="1414" font-family="'Segoe UI', Arial, Helvetica, sans-serif">
+<title>Diagrama entidad-relación del Sistema de Registro e Inventario Ke-Rico!</title>
+<rect width="100%" height="100%" fill="#fff8f5"/>
+<text x="40" y="34" font-size="22" font-weight="800" fill="#1e1b18">Diagrama entidad–relación · Sistema de Registro e Inventario Ke-Rico!</text>
+<text x="40" y="54" font-size="12.5" fill="#8d7166">21 tablas · 236 columnas · 27 relaciones · generado desde database/kerico.sql</text>
+<rect x="26" y="62" width="278" height="778" rx="12" fill="#8d7166" fill-opacity="0.06" stroke="#8d7166" stroke-opacity="0.35" stroke-dasharray="4 4"/>
+<text x="38" y="82" font-size="13" font-weight="700" fill="#8d7166" letter-spacing="0.6">SISTEMA</text>
+<rect x="346" y="62" width="278" height="1218" rx="12" fill="#594138" fill-opacity="0.06" stroke="#594138" stroke-opacity="0.35" stroke-dasharray="4 4"/>
+<text x="358" y="82" font-size="13" font-weight="700" fill="#594138" letter-spacing="0.6">SEGURIDAD Y ACCESO</text>
+<rect x="666" y="62" width="618" height="1158" rx="12" fill="#eb5e15" fill-opacity="0.06" stroke="#eb5e15" stroke-opacity="0.35" stroke-dasharray="4 4"/>
+<text x="678" y="82" font-size="13" font-weight="700" fill="#eb5e15" letter-spacing="0.6">VENTAS</text>
+<rect x="1356" y="62" width="278" height="1278" rx="12" fill="#2e7d32" fill-opacity="0.06" stroke="#2e7d32" stroke-opacity="0.35" stroke-dasharray="4 4"/>
+<text x="1368" y="82" font-size="13" font-weight="700" fill="#2e7d32" letter-spacing="0.6">CATÁLOGO E INVENTARIO</text>
+<rect x="1706" y="62" width="278" height="858" rx="12" fill="#00629b" fill-opacity="0.06" stroke="#00629b" stroke-opacity="0.35" stroke-dasharray="4 4"/>
+<text x="1718" y="82" font-size="13" font-weight="700" fill="#00629b" letter-spacing="0.6">COMPRAS</text>
+<path d="M645 1370H2006" fill="none" stroke="#7e57c2" stroke-width="1.4" />
+<path d="M325 156V576" fill="none" stroke="#7e57c2" stroke-width="1.4" />
+<path d="M360 576H325" fill="none" stroke="#7e57c2" stroke-width="1.4" />
+<path d="M353 571L353 581" fill="none" stroke="#7e57c2" stroke-width="1.4" />
+<path d="M290 156H325" fill="none" stroke="#7e57c2" stroke-width="1.4" />
+<path d="M301 156L290 161M301 156L290 151" fill="none" stroke="#7e57c2" stroke-width="1.4" />
+<path d="M645 436V1370" fill="none" stroke="#7e57c2" stroke-width="1.4" />
+<path d="M610 576H645" fill="none" stroke="#7e57c2" stroke-width="1.4" />
+<path d="M617 581L617 571" fill="none" stroke="#7e57c2" stroke-width="1.4" />
+<circle cx="645" cy="576" r="2.6" fill="#7e57c2"/>
+<path d="M680 436H645" fill="none" stroke="#7e57c2" stroke-width="1.4" />
+<path d="M669 436L680 431M669 436L680 441" fill="none" stroke="#7e57c2" stroke-width="1.4" />
+<path d="M680 696H645" fill="none" stroke="#7e57c2" stroke-width="1.4" />
+<path d="M669 696L680 691M669 696L680 701" fill="none" stroke="#7e57c2" stroke-width="1.4" />
+<circle cx="645" cy="696" r="2.6" fill="#7e57c2"/>
+<path d="M961.5 156V496" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M930 396H961.5" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M937 401L937 391" fill="none" stroke="#594138" stroke-width="1.4" />
+<circle cx="961.5" cy="396" r="2.6" fill="#594138"/>
+<path d="M1020 156H961.5" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M1009 156L1020 151M1009 156L1020 161" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M1020 496H961.5" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M1009 496L1020 491M1009 496L1020 501" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M991.2 676V1370" fill="none" stroke="#7e57c2" stroke-width="1.4" />
+<path d="M1020 676H991.2" fill="none" stroke="#7e57c2" stroke-width="1.4" />
+<path d="M1009 676L1020 671M1009 676L1020 681" fill="none" stroke="#7e57c2" stroke-width="1.4" />
+<path d="M1020 1096H991.2" fill="none" stroke="#7e57c2" stroke-width="1.4" />
+<path d="M1009 1096L1020 1091M1009 1096L1020 1101" fill="none" stroke="#7e57c2" stroke-width="1.4" />
+<circle cx="991.2" cy="1096" r="2.6" fill="#7e57c2"/>
+<circle cx="991.2" cy="1370" r="2.6" fill="#7e57c2"/>
+<path d="M1304 136V936" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M1370 136H1304" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M1363 131L1363 141" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M1270 936H1304" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M1281 936L1270 941M1281 936L1270 931" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M1336 176V1136" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M1370 316H1336" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M1363 311L1363 321" fill="none" stroke="#594138" stroke-width="1.4" />
+<circle cx="1336" cy="316" r="2.6" fill="#594138"/>
+<path d="M1270 176H1336" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M1281 176L1270 181M1281 176L1270 171" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M1270 916H1336" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M1281 916L1270 921M1281 916L1270 911" fill="none" stroke="#594138" stroke-width="1.4" />
+<circle cx="1336" cy="916" r="2.6" fill="#594138"/>
+<path d="M1370 1136H1336" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M1359 1136L1370 1131M1359 1136L1370 1141" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M1650 176V316" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M1620 316H1650" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M1627 321L1627 311" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M1720 176H1650" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M1709 176L1720 171M1709 176L1720 181" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M1650 416V636" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M1720 636H1650" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M1713 631L1713 641" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M1620 416H1650" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M1631 416L1620 421M1631 416L1620 411" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M1686 976V1370" fill="none" stroke="#7e57c2" stroke-width="1.4" />
+<path d="M1620 976H1686" fill="none" stroke="#7e57c2" stroke-width="1.4" />
+<path d="M1631 976L1620 981M1631 976L1620 971" fill="none" stroke="#7e57c2" stroke-width="1.4" />
+<path d="M1620 1296H1686" fill="none" stroke="#7e57c2" stroke-width="1.4" />
+<path d="M1631 1296L1620 1301M1631 1296L1620 1291" fill="none" stroke="#7e57c2" stroke-width="1.4" />
+<circle cx="1686" cy="1296" r="2.6" fill="#7e57c2"/>
+<circle cx="1686" cy="1370" r="2.6" fill="#7e57c2"/>
+<path d="M2006 396V1370" fill="none" stroke="#7e57c2" stroke-width="1.4" />
+<path d="M1970 396H2006" fill="none" stroke="#7e57c2" stroke-width="1.4" />
+<path d="M1981 396L1970 401M1981 396L1970 391" fill="none" stroke="#7e57c2" stroke-width="1.4" />
+<path d="M485 326V376" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M485 337L490 326M485 337L480 326" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M480 369L490 369" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M485 256V206" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M485 245L480 256M485 245L490 256" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M490 213L480 213" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M485 536V486" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M485 525L480 536M485 525L490 536" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M490 493L480 493" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M485 1036V986" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M485 1025L480 1036M485 1025L490 1036" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M490 993L480 993" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M1495 276V226" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M1495 265L1490 276M1495 265L1500 276" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M1500 233L1490 233" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M805 356V306" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M805 345L800 356M805 345L810 356" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M810 313L800 313" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M1145 706V756" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M1145 717L1150 706M1145 717L1140 706" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M1140 749L1150 749" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M805 816V766" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M805 805L800 816M805 805L810 816" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M810 773L800 773" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M1845 546V596" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M1845 557L1850 546M1845 557L1840 546" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M1840 589L1850 589" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M1845 246V296" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M1845 257L1850 246M1845 257L1840 246" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M1840 289L1850 289" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M1495 736V686" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M1495 725L1490 736M1495 725L1500 736" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M1500 693L1490 693" fill="none" stroke="#594138" stroke-width="1.4" />
+<g>
+<rect x="360" y="376" width="250" height="110" rx="7" fill="#ffffff" stroke="#594138" stroke-width="1.3"/>
+<path d="M360 406V383a7 7 0 0 1 7 -7H603a7 7 0 0 1 7 7V406Z" fill="#594138"/>
+<text x="372" y="396" font-size="13.5" font-weight="700" fill="#ffffff">roles</text>
+<text x="600" y="396" font-size="10" fill="#ffffff" fill-opacity="0.8" text-anchor="end">4 columnas</text>
+<rect x="367" y="410" width="22" height="12" rx="3" fill="#c9a904"/>
+<text x="378" y="419.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">PK</text>
+<text x="396" y="420" font-size="11.5" font-weight="700" fill="#1e1b18">id</text>
+<text x="601" y="420" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M361 426H609" stroke="#efe6e2" stroke-width="1"/>
+<rect x="367" y="430" width="22" height="12" rx="3" fill="#8d7166"/>
+<text x="378" y="439.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">UQ</text>
+<text x="396" y="440" font-size="11.5" font-weight="400" fill="#1e1b18">nombre</text>
+<text x="601" y="440" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(40)</text>
+<path d="M361 446H609" stroke="#efe6e2" stroke-width="1"/>
+<text x="396" y="460" font-size="11.5" font-weight="400" fill="#1e1b18">descripcion</text>
+<text x="601" y="460" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(180)</text>
+<path d="M361 466H609" stroke="#efe6e2" stroke-width="1"/>
+<text x="396" y="480" font-size="11.5" font-weight="400" fill="#1e1b18">activo</text>
+<text x="601" y="480" font-size="9.5" fill="#8d7166" text-anchor="end">TINYINT(1)</text>
+</g>
+<g>
+<rect x="360" y="96" width="250" height="110" rx="7" fill="#ffffff" stroke="#594138" stroke-width="1.3"/>
+<path d="M360 126V103a7 7 0 0 1 7 -7H603a7 7 0 0 1 7 7V126Z" fill="#594138"/>
+<text x="372" y="116" font-size="13.5" font-weight="700" fill="#ffffff">permisos</text>
+<text x="600" y="116" font-size="10" fill="#ffffff" fill-opacity="0.8" text-anchor="end">4 columnas</text>
+<rect x="367" y="130" width="22" height="12" rx="3" fill="#c9a904"/>
+<text x="378" y="139.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">PK</text>
+<text x="396" y="140" font-size="11.5" font-weight="700" fill="#1e1b18">id</text>
+<text x="601" y="140" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M361 146H609" stroke="#efe6e2" stroke-width="1"/>
+<rect x="367" y="150" width="22" height="12" rx="3" fill="#8d7166"/>
+<text x="378" y="159.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">UQ</text>
+<text x="396" y="160" font-size="11.5" font-weight="400" fill="#1e1b18">codigo</text>
+<text x="601" y="160" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(60)</text>
+<path d="M361 166H609" stroke="#efe6e2" stroke-width="1"/>
+<text x="396" y="180" font-size="11.5" font-weight="400" fill="#1e1b18">modulo</text>
+<text x="601" y="180" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(40)</text>
+<path d="M361 186H609" stroke="#efe6e2" stroke-width="1"/>
+<text x="396" y="200" font-size="11.5" font-weight="400" fill="#1e1b18">descripcion</text>
+<text x="601" y="200" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(180)</text>
+</g>
+<g>
+<rect x="360" y="256" width="250" height="70" rx="7" fill="#ffffff" stroke="#594138" stroke-width="1.3"/>
+<path d="M360 286V263a7 7 0 0 1 7 -7H603a7 7 0 0 1 7 7V286Z" fill="#594138"/>
+<text x="372" y="276" font-size="13.5" font-weight="700" fill="#ffffff">rol_permisos</text>
+<text x="600" y="276" font-size="10" fill="#ffffff" fill-opacity="0.8" text-anchor="end">2 columnas</text>
+<rect x="367" y="290" width="22" height="12" rx="3" fill="#c9a904"/>
+<text x="378" y="299.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">PK</text>
+<rect x="393" y="290" width="22" height="12" rx="3" fill="#00629b"/>
+<text x="404" y="299.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">FK</text>
+<text x="422" y="300" font-size="11.5" font-weight="700" fill="#1e1b18">rol_id</text>
+<text x="601" y="300" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M361 306H609" stroke="#efe6e2" stroke-width="1"/>
+<rect x="367" y="310" width="22" height="12" rx="3" fill="#c9a904"/>
+<text x="378" y="319.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">PK</text>
+<rect x="393" y="310" width="22" height="12" rx="3" fill="#00629b"/>
+<text x="404" y="319.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">FK</text>
+<text x="422" y="320" font-size="11.5" font-weight="700" fill="#1e1b18">permiso_id</text>
+<text x="601" y="320" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+</g>
+<g>
+<rect x="360" y="536" width="250" height="450" rx="7" fill="#ffffff" stroke="#594138" stroke-width="1.3"/>
+<path d="M360 566V543a7 7 0 0 1 7 -7H603a7 7 0 0 1 7 7V566Z" fill="#594138"/>
+<text x="372" y="556" font-size="13.5" font-weight="700" fill="#ffffff">usuarios</text>
+<text x="600" y="556" font-size="10" fill="#ffffff" fill-opacity="0.8" text-anchor="end">21 columnas</text>
+<rect x="367" y="570" width="22" height="12" rx="3" fill="#c9a904"/>
+<text x="378" y="579.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">PK</text>
+<text x="396" y="580" font-size="11.5" font-weight="700" fill="#1e1b18">id</text>
+<text x="601" y="580" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M361 586H609" stroke="#efe6e2" stroke-width="1"/>
+<rect x="367" y="590" width="22" height="12" rx="3" fill="#8d7166"/>
+<text x="378" y="599.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">UQ</text>
+<text x="396" y="600" font-size="11.5" font-weight="400" fill="#1e1b18">usuario</text>
+<text x="601" y="600" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(40)</text>
+<path d="M361 606H609" stroke="#efe6e2" stroke-width="1"/>
+<text x="396" y="620" font-size="11.5" font-weight="400" fill="#1e1b18">password_hash</text>
+<text x="601" y="620" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(255)</text>
+<path d="M361 626H609" stroke="#efe6e2" stroke-width="1"/>
+<text x="396" y="640" font-size="11.5" font-weight="400" fill="#1e1b18">nombre</text>
+<text x="601" y="640" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(80)</text>
+<path d="M361 646H609" stroke="#efe6e2" stroke-width="1"/>
+<text x="396" y="660" font-size="11.5" font-weight="400" fill="#1e1b18">apellido</text>
+<text x="601" y="660" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(80)</text>
+<path d="M361 666H609" stroke="#efe6e2" stroke-width="1"/>
+<text x="396" y="680" font-size="11.5" font-weight="400" fill="#1e1b18">tipo_documento</text>
+<text x="601" y="680" font-size="9.5" fill="#8d7166" text-anchor="end">ENUM</text>
+<path d="M361 686H609" stroke="#efe6e2" stroke-width="1"/>
+<rect x="367" y="690" width="22" height="12" rx="3" fill="#8d7166"/>
+<text x="378" y="699.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">UQ</text>
+<text x="396" y="700" font-size="11.5" font-weight="400" fill="#1e1b18">documento</text>
+<text x="601" y="700" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(30)</text>
+<path d="M361 706H609" stroke="#efe6e2" stroke-width="1"/>
+<text x="396" y="720" font-size="11.5" font-weight="400" fill="#1e1b18">fecha_nac</text>
+<text x="601" y="720" font-size="9.5" fill="#8d7166" text-anchor="end">DATE</text>
+<path d="M361 726H609" stroke="#efe6e2" stroke-width="1"/>
+<rect x="367" y="730" width="22" height="12" rx="3" fill="#8d7166"/>
+<text x="378" y="739.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">UQ</text>
+<text x="396" y="740" font-size="11.5" font-weight="400" fill="#1e1b18">correo</text>
+<text x="601" y="740" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(120)</text>
+<path d="M361 746H609" stroke="#efe6e2" stroke-width="1"/>
+<text x="396" y="760" font-size="11.5" font-weight="400" fill="#1e1b18">telefono</text>
+<text x="601" y="760" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(30)</text>
+<path d="M361 766H609" stroke="#efe6e2" stroke-width="1"/>
+<text x="396" y="780" font-size="11.5" font-weight="400" fill="#1e1b18">cargo</text>
+<text x="601" y="780" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(80)</text>
+<path d="M361 786H609" stroke="#efe6e2" stroke-width="1"/>
+<rect x="367" y="790" width="22" height="12" rx="3" fill="#00629b"/>
+<text x="378" y="799.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">FK</text>
+<text x="396" y="800" font-size="11.5" font-weight="400" fill="#1e1b18">rol_id</text>
+<text x="601" y="800" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M361 806H609" stroke="#efe6e2" stroke-width="1"/>
+<text x="396" y="820" font-size="11.5" font-weight="400" fill="#1e1b18">activo</text>
+<text x="601" y="820" font-size="9.5" fill="#8d7166" text-anchor="end">TINYINT(1)</text>
+<path d="M361 826H609" stroke="#efe6e2" stroke-width="1"/>
+<text x="396" y="840" font-size="11.5" font-weight="400" fill="#1e1b18">intentos_fallidos</text>
+<text x="601" y="840" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M361 846H609" stroke="#efe6e2" stroke-width="1"/>
+<text x="396" y="860" font-size="11.5" font-weight="400" fill="#1e1b18">bloqueado_hasta</text>
+<text x="601" y="860" font-size="9.5" fill="#8d7166" text-anchor="end">DATETIME</text>
+<path d="M361 866H609" stroke="#efe6e2" stroke-width="1"/>
+<text x="396" y="880" font-size="11.5" font-weight="400" fill="#1e1b18">ultimo_acceso</text>
+<text x="601" y="880" font-size="9.5" fill="#8d7166" text-anchor="end">DATETIME</text>
+<path d="M361 886H609" stroke="#efe6e2" stroke-width="1"/>
+<text x="396" y="900" font-size="11.5" font-weight="400" fill="#1e1b18">token_recuperacion</text>
+<text x="601" y="900" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(64)</text>
+<path d="M361 906H609" stroke="#efe6e2" stroke-width="1"/>
+<text x="396" y="920" font-size="11.5" font-weight="400" fill="#1e1b18">token_expira</text>
+<text x="601" y="920" font-size="9.5" fill="#8d7166" text-anchor="end">DATETIME</text>
+<path d="M361 926H609" stroke="#efe6e2" stroke-width="1"/>
+<text x="396" y="940" font-size="11.5" font-weight="400" fill="#1e1b18">creado_en</text>
+<text x="601" y="940" font-size="9.5" fill="#8d7166" text-anchor="end">DATETIME</text>
+<path d="M361 946H609" stroke="#efe6e2" stroke-width="1"/>
+<text x="396" y="960" font-size="11.5" font-weight="400" fill="#1e1b18">actualizado_en</text>
+<text x="601" y="960" font-size="9.5" fill="#8d7166" text-anchor="end">DATETIME</text>
+<path d="M361 966H609" stroke="#efe6e2" stroke-width="1"/>
+<text x="396" y="980" font-size="11.5" font-weight="400" fill="#1e1b18">deleted_at</text>
+<text x="601" y="980" font-size="9.5" fill="#8d7166" text-anchor="end">DATETIME</text>
+</g>
+<g>
+<rect x="360" y="1036" width="250" height="230" rx="7" fill="#ffffff" stroke="#594138" stroke-width="1.3"/>
+<path d="M360 1066V1043a7 7 0 0 1 7 -7H603a7 7 0 0 1 7 7V1066Z" fill="#594138"/>
+<text x="372" y="1056" font-size="13.5" font-weight="700" fill="#ffffff">sesiones</text>
+<text x="600" y="1056" font-size="10" fill="#ffffff" fill-opacity="0.8" text-anchor="end">10 columnas</text>
+<rect x="367" y="1070" width="22" height="12" rx="3" fill="#c9a904"/>
+<text x="378" y="1079.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">PK</text>
+<text x="396" y="1080" font-size="11.5" font-weight="700" fill="#1e1b18">id</text>
+<text x="601" y="1080" font-size="9.5" fill="#8d7166" text-anchor="end">CHAR(64)</text>
+<path d="M361 1086H609" stroke="#efe6e2" stroke-width="1"/>
+<rect x="367" y="1090" width="22" height="12" rx="3" fill="#00629b"/>
+<text x="378" y="1099.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">FK</text>
+<text x="396" y="1100" font-size="11.5" font-weight="400" fill="#1e1b18">usuario_id</text>
+<text x="601" y="1100" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M361 1106H609" stroke="#efe6e2" stroke-width="1"/>
+<text x="396" y="1120" font-size="11.5" font-weight="400" fill="#1e1b18">ip</text>
+<text x="601" y="1120" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(45)</text>
+<path d="M361 1126H609" stroke="#efe6e2" stroke-width="1"/>
+<text x="396" y="1140" font-size="11.5" font-weight="400" fill="#1e1b18">user_agent</text>
+<text x="601" y="1140" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(255)</text>
+<path d="M361 1146H609" stroke="#efe6e2" stroke-width="1"/>
+<text x="396" y="1160" font-size="11.5" font-weight="400" fill="#1e1b18">creada_en</text>
+<text x="601" y="1160" font-size="9.5" fill="#8d7166" text-anchor="end">DATETIME</text>
+<path d="M361 1166H609" stroke="#efe6e2" stroke-width="1"/>
+<text x="396" y="1180" font-size="11.5" font-weight="400" fill="#1e1b18">ultima_actividad</text>
+<text x="601" y="1180" font-size="9.5" fill="#8d7166" text-anchor="end">DATETIME</text>
+<path d="M361 1186H609" stroke="#efe6e2" stroke-width="1"/>
+<text x="396" y="1200" font-size="11.5" font-weight="400" fill="#1e1b18">expira_en</text>
+<text x="601" y="1200" font-size="9.5" fill="#8d7166" text-anchor="end">DATETIME</text>
+<path d="M361 1206H609" stroke="#efe6e2" stroke-width="1"/>
+<text x="396" y="1220" font-size="11.5" font-weight="400" fill="#1e1b18">cerrada_en</text>
+<text x="601" y="1220" font-size="9.5" fill="#8d7166" text-anchor="end">DATETIME</text>
+<path d="M361 1226H609" stroke="#efe6e2" stroke-width="1"/>
+<text x="396" y="1240" font-size="11.5" font-weight="400" fill="#1e1b18">motivo_cierre</text>
+<text x="601" y="1240" font-size="9.5" fill="#8d7166" text-anchor="end">ENUM</text>
+<path d="M361 1246H609" stroke="#efe6e2" stroke-width="1"/>
+<text x="396" y="1260" font-size="11.5" font-weight="400" fill="#1e1b18">csrf_token</text>
+<text x="601" y="1260" font-size="9.5" fill="#8d7166" text-anchor="end">CHAR(64)</text>
+</g>
+<g>
+<rect x="40" y="716" width="250" height="110" rx="7" fill="#ffffff" stroke="#8d7166" stroke-width="1.3"/>
+<path d="M40 746V723a7 7 0 0 1 7 -7H283a7 7 0 0 1 7 7V746Z" fill="#8d7166"/>
+<text x="52" y="736" font-size="13.5" font-weight="700" fill="#ffffff">configuracion</text>
+<text x="280" y="736" font-size="10" fill="#ffffff" fill-opacity="0.8" text-anchor="end">4 columnas</text>
+<rect x="47" y="750" width="22" height="12" rx="3" fill="#c9a904"/>
+<text x="58" y="759.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">PK</text>
+<text x="76" y="760" font-size="11.5" font-weight="700" fill="#1e1b18">clave</text>
+<text x="281" y="760" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(60)</text>
+<path d="M41 766H289" stroke="#efe6e2" stroke-width="1"/>
+<text x="76" y="780" font-size="11.5" font-weight="400" fill="#1e1b18">valor</text>
+<text x="281" y="780" font-size="9.5" fill="#8d7166" text-anchor="end">TEXT</text>
+<path d="M41 786H289" stroke="#efe6e2" stroke-width="1"/>
+<text x="76" y="800" font-size="11.5" font-weight="400" fill="#1e1b18">tipo</text>
+<text x="281" y="800" font-size="9.5" fill="#8d7166" text-anchor="end">ENUM</text>
+<path d="M41 806H289" stroke="#efe6e2" stroke-width="1"/>
+<text x="76" y="820" font-size="11.5" font-weight="400" fill="#1e1b18">descripcion</text>
+<text x="281" y="820" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(200)</text>
+</g>
+<g>
+<rect x="1370" y="96" width="250" height="130" rx="7" fill="#ffffff" stroke="#2e7d32" stroke-width="1.3"/>
+<path d="M1370 126V103a7 7 0 0 1 7 -7H1613a7 7 0 0 1 7 7V126Z" fill="#2e7d32"/>
+<text x="1382" y="116" font-size="13.5" font-weight="700" fill="#ffffff">categorias</text>
+<text x="1610" y="116" font-size="10" fill="#ffffff" fill-opacity="0.8" text-anchor="end">5 columnas</text>
+<rect x="1377" y="130" width="22" height="12" rx="3" fill="#c9a904"/>
+<text x="1388" y="139.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">PK</text>
+<text x="1406" y="140" font-size="11.5" font-weight="700" fill="#1e1b18">id</text>
+<text x="1611" y="140" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M1371 146H1619" stroke="#efe6e2" stroke-width="1"/>
+<rect x="1377" y="150" width="22" height="12" rx="3" fill="#8d7166"/>
+<text x="1388" y="159.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">UQ</text>
+<text x="1406" y="160" font-size="11.5" font-weight="400" fill="#1e1b18">nombre</text>
+<text x="1611" y="160" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(60)</text>
+<path d="M1371 166H1619" stroke="#efe6e2" stroke-width="1"/>
+<text x="1406" y="180" font-size="11.5" font-weight="400" fill="#1e1b18">descripcion</text>
+<text x="1611" y="180" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(180)</text>
+<path d="M1371 186H1619" stroke="#efe6e2" stroke-width="1"/>
+<text x="1406" y="200" font-size="11.5" font-weight="400" fill="#1e1b18">activo</text>
+<text x="1611" y="200" font-size="9.5" fill="#8d7166" text-anchor="end">TINYINT(1)</text>
+<path d="M1371 206H1619" stroke="#efe6e2" stroke-width="1"/>
+<text x="1406" y="220" font-size="11.5" font-weight="400" fill="#1e1b18">deleted_at</text>
+<text x="1611" y="220" font-size="9.5" fill="#8d7166" text-anchor="end">DATETIME</text>
+</g>
+<g>
+<rect x="1720" y="596" width="250" height="310" rx="7" fill="#ffffff" stroke="#00629b" stroke-width="1.3"/>
+<path d="M1720 626V603a7 7 0 0 1 7 -7H1963a7 7 0 0 1 7 7V626Z" fill="#00629b"/>
+<text x="1732" y="616" font-size="13.5" font-weight="700" fill="#ffffff">proveedores</text>
+<text x="1960" y="616" font-size="10" fill="#ffffff" fill-opacity="0.8" text-anchor="end">14 columnas</text>
+<rect x="1727" y="630" width="22" height="12" rx="3" fill="#c9a904"/>
+<text x="1738" y="639.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">PK</text>
+<text x="1756" y="640" font-size="11.5" font-weight="700" fill="#1e1b18">id</text>
+<text x="1961" y="640" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M1721 646H1969" stroke="#efe6e2" stroke-width="1"/>
+<text x="1756" y="660" font-size="11.5" font-weight="400" fill="#1e1b18">nombre_empresa</text>
+<text x="1961" y="660" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(120)</text>
+<path d="M1721 666H1969" stroke="#efe6e2" stroke-width="1"/>
+<rect x="1727" y="670" width="22" height="12" rx="3" fill="#8d7166"/>
+<text x="1738" y="679.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">UQ</text>
+<text x="1756" y="680" font-size="11.5" font-weight="400" fill="#1e1b18">nit</text>
+<text x="1961" y="680" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(30)</text>
+<path d="M1721 686H1969" stroke="#efe6e2" stroke-width="1"/>
+<text x="1756" y="700" font-size="11.5" font-weight="400" fill="#1e1b18">telefono</text>
+<text x="1961" y="700" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(30)</text>
+<path d="M1721 706H1969" stroke="#efe6e2" stroke-width="1"/>
+<text x="1756" y="720" font-size="11.5" font-weight="400" fill="#1e1b18">correo</text>
+<text x="1961" y="720" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(120)</text>
+<path d="M1721 726H1969" stroke="#efe6e2" stroke-width="1"/>
+<text x="1756" y="740" font-size="11.5" font-weight="400" fill="#1e1b18">direccion</text>
+<text x="1961" y="740" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(180)</text>
+<path d="M1721 746H1969" stroke="#efe6e2" stroke-width="1"/>
+<text x="1756" y="760" font-size="11.5" font-weight="400" fill="#1e1b18">contacto_nombre</text>
+<text x="1961" y="760" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(120)</text>
+<path d="M1721 766H1969" stroke="#efe6e2" stroke-width="1"/>
+<text x="1756" y="780" font-size="11.5" font-weight="400" fill="#1e1b18">tipo_productos</text>
+<text x="1961" y="780" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(180)</text>
+<path d="M1721 786H1969" stroke="#efe6e2" stroke-width="1"/>
+<text x="1756" y="800" font-size="11.5" font-weight="400" fill="#1e1b18">estado</text>
+<text x="1961" y="800" font-size="9.5" fill="#8d7166" text-anchor="end">ENUM</text>
+<path d="M1721 806H1969" stroke="#efe6e2" stroke-width="1"/>
+<text x="1756" y="820" font-size="11.5" font-weight="400" fill="#1e1b18">calificacion</text>
+<text x="1961" y="820" font-size="9.5" fill="#8d7166" text-anchor="end">DECIMAL(3,2)</text>
+<path d="M1721 826H1969" stroke="#efe6e2" stroke-width="1"/>
+<text x="1756" y="840" font-size="11.5" font-weight="400" fill="#1e1b18">notas</text>
+<text x="1961" y="840" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(255)</text>
+<path d="M1721 846H1969" stroke="#efe6e2" stroke-width="1"/>
+<text x="1756" y="860" font-size="11.5" font-weight="400" fill="#1e1b18">creado_en</text>
+<text x="1961" y="860" font-size="9.5" fill="#8d7166" text-anchor="end">DATETIME</text>
+<path d="M1721 866H1969" stroke="#efe6e2" stroke-width="1"/>
+<text x="1756" y="880" font-size="11.5" font-weight="400" fill="#1e1b18">actualizado_en</text>
+<text x="1961" y="880" font-size="9.5" fill="#8d7166" text-anchor="end">DATETIME</text>
+<path d="M1721 886H1969" stroke="#efe6e2" stroke-width="1"/>
+<text x="1756" y="900" font-size="11.5" font-weight="400" fill="#1e1b18">deleted_at</text>
+<text x="1961" y="900" font-size="9.5" fill="#8d7166" text-anchor="end">DATETIME</text>
+</g>
+<g>
+<rect x="1370" y="276" width="250" height="410" rx="7" fill="#ffffff" stroke="#2e7d32" stroke-width="1.3"/>
+<path d="M1370 306V283a7 7 0 0 1 7 -7H1613a7 7 0 0 1 7 7V306Z" fill="#2e7d32"/>
+<text x="1382" y="296" font-size="13.5" font-weight="700" fill="#ffffff">productos</text>
+<text x="1610" y="296" font-size="10" fill="#ffffff" fill-opacity="0.8" text-anchor="end">19 columnas</text>
+<rect x="1377" y="310" width="22" height="12" rx="3" fill="#c9a904"/>
+<text x="1388" y="319.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">PK</text>
+<text x="1406" y="320" font-size="11.5" font-weight="700" fill="#1e1b18">id</text>
+<text x="1611" y="320" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M1371 326H1619" stroke="#efe6e2" stroke-width="1"/>
+<rect x="1377" y="330" width="22" height="12" rx="3" fill="#8d7166"/>
+<text x="1388" y="339.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">UQ</text>
+<text x="1406" y="340" font-size="11.5" font-weight="400" fill="#1e1b18">sku</text>
+<text x="1611" y="340" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(30)</text>
+<path d="M1371 346H1619" stroke="#efe6e2" stroke-width="1"/>
+<text x="1406" y="360" font-size="11.5" font-weight="400" fill="#1e1b18">nombre</text>
+<text x="1611" y="360" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(120)</text>
+<path d="M1371 366H1619" stroke="#efe6e2" stroke-width="1"/>
+<text x="1406" y="380" font-size="11.5" font-weight="400" fill="#1e1b18">descripcion</text>
+<text x="1611" y="380" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(255)</text>
+<path d="M1371 386H1619" stroke="#efe6e2" stroke-width="1"/>
+<rect x="1377" y="390" width="22" height="12" rx="3" fill="#00629b"/>
+<text x="1388" y="399.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">FK</text>
+<text x="1406" y="400" font-size="11.5" font-weight="400" fill="#1e1b18">categoria_id</text>
+<text x="1611" y="400" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M1371 406H1619" stroke="#efe6e2" stroke-width="1"/>
+<rect x="1377" y="410" width="22" height="12" rx="3" fill="#00629b"/>
+<text x="1388" y="419.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">FK</text>
+<text x="1406" y="420" font-size="11.5" font-weight="400" fill="#1e1b18">proveedor_id</text>
+<text x="1611" y="420" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M1371 426H1619" stroke="#efe6e2" stroke-width="1"/>
+<text x="1406" y="440" font-size="11.5" font-weight="400" fill="#1e1b18">unidad_medida</text>
+<text x="1611" y="440" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(20)</text>
+<path d="M1371 446H1619" stroke="#efe6e2" stroke-width="1"/>
+<text x="1406" y="460" font-size="11.5" font-weight="400" fill="#1e1b18">precio_costo</text>
+<text x="1611" y="460" font-size="9.5" fill="#8d7166" text-anchor="end">DECIMAL(12,2)</text>
+<path d="M1371 466H1619" stroke="#efe6e2" stroke-width="1"/>
+<text x="1406" y="480" font-size="11.5" font-weight="400" fill="#1e1b18">precio_venta</text>
+<text x="1611" y="480" font-size="9.5" fill="#8d7166" text-anchor="end">DECIMAL(12,2)</text>
+<path d="M1371 486H1619" stroke="#efe6e2" stroke-width="1"/>
+<text x="1406" y="500" font-size="11.5" font-weight="400" fill="#1e1b18">iva_porcentaje</text>
+<text x="1611" y="500" font-size="9.5" fill="#8d7166" text-anchor="end">DECIMAL(5,2)</text>
+<path d="M1371 506H1619" stroke="#efe6e2" stroke-width="1"/>
+<text x="1406" y="520" font-size="11.5" font-weight="400" fill="#1e1b18">stock_actual</text>
+<text x="1611" y="520" font-size="9.5" fill="#8d7166" text-anchor="end">DECIMAL(12,3)</text>
+<path d="M1371 526H1619" stroke="#efe6e2" stroke-width="1"/>
+<text x="1406" y="540" font-size="11.5" font-weight="400" fill="#1e1b18">punto_reorden</text>
+<text x="1611" y="540" font-size="9.5" fill="#8d7166" text-anchor="end">DECIMAL(12,3)</text>
+<path d="M1371 546H1619" stroke="#efe6e2" stroke-width="1"/>
+<text x="1406" y="560" font-size="11.5" font-weight="400" fill="#1e1b18">stock_maximo</text>
+<text x="1611" y="560" font-size="9.5" fill="#8d7166" text-anchor="end">DECIMAL(12,3)</text>
+<path d="M1371 566H1619" stroke="#efe6e2" stroke-width="1"/>
+<text x="1406" y="580" font-size="11.5" font-weight="400" fill="#1e1b18">es_insumo</text>
+<text x="1611" y="580" font-size="9.5" fill="#8d7166" text-anchor="end">TINYINT(1)</text>
+<path d="M1371 586H1619" stroke="#efe6e2" stroke-width="1"/>
+<text x="1406" y="600" font-size="11.5" font-weight="400" fill="#1e1b18">imagen</text>
+<text x="1611" y="600" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(180)</text>
+<path d="M1371 606H1619" stroke="#efe6e2" stroke-width="1"/>
+<text x="1406" y="620" font-size="11.5" font-weight="400" fill="#1e1b18">activo</text>
+<text x="1611" y="620" font-size="9.5" fill="#8d7166" text-anchor="end">TINYINT(1)</text>
+<path d="M1371 626H1619" stroke="#efe6e2" stroke-width="1"/>
+<text x="1406" y="640" font-size="11.5" font-weight="400" fill="#1e1b18">creado_en</text>
+<text x="1611" y="640" font-size="9.5" fill="#8d7166" text-anchor="end">DATETIME</text>
+<path d="M1371 646H1619" stroke="#efe6e2" stroke-width="1"/>
+<text x="1406" y="660" font-size="11.5" font-weight="400" fill="#1e1b18">actualizado_en</text>
+<text x="1611" y="660" font-size="9.5" fill="#8d7166" text-anchor="end">DATETIME</text>
+<path d="M1371 666H1619" stroke="#efe6e2" stroke-width="1"/>
+<text x="1406" y="680" font-size="11.5" font-weight="400" fill="#1e1b18">deleted_at</text>
+<text x="1611" y="680" font-size="9.5" fill="#8d7166" text-anchor="end">DATETIME</text>
+</g>
+<g>
+<rect x="680" y="96" width="250" height="210" rx="7" fill="#ffffff" stroke="#eb5e15" stroke-width="1.3"/>
+<path d="M680 126V103a7 7 0 0 1 7 -7H923a7 7 0 0 1 7 7V126Z" fill="#eb5e15"/>
+<text x="692" y="116" font-size="13.5" font-weight="700" fill="#ffffff">clientes</text>
+<text x="920" y="116" font-size="10" fill="#ffffff" fill-opacity="0.8" text-anchor="end">9 columnas</text>
+<rect x="687" y="130" width="22" height="12" rx="3" fill="#c9a904"/>
+<text x="698" y="139.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">PK</text>
+<text x="716" y="140" font-size="11.5" font-weight="700" fill="#1e1b18">id</text>
+<text x="921" y="140" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M681 146H929" stroke="#efe6e2" stroke-width="1"/>
+<text x="716" y="160" font-size="11.5" font-weight="400" fill="#1e1b18">tipo_documento</text>
+<text x="921" y="160" font-size="9.5" fill="#8d7166" text-anchor="end">ENUM</text>
+<path d="M681 166H929" stroke="#efe6e2" stroke-width="1"/>
+<text x="716" y="180" font-size="11.5" font-weight="400" fill="#1e1b18">documento</text>
+<text x="921" y="180" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(30)</text>
+<path d="M681 186H929" stroke="#efe6e2" stroke-width="1"/>
+<text x="716" y="200" font-size="11.5" font-weight="400" fill="#1e1b18">nombre</text>
+<text x="921" y="200" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(120)</text>
+<path d="M681 206H929" stroke="#efe6e2" stroke-width="1"/>
+<text x="716" y="220" font-size="11.5" font-weight="400" fill="#1e1b18">telefono</text>
+<text x="921" y="220" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(30)</text>
+<path d="M681 226H929" stroke="#efe6e2" stroke-width="1"/>
+<text x="716" y="240" font-size="11.5" font-weight="400" fill="#1e1b18">correo</text>
+<text x="921" y="240" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(120)</text>
+<path d="M681 246H929" stroke="#efe6e2" stroke-width="1"/>
+<text x="716" y="260" font-size="11.5" font-weight="400" fill="#1e1b18">direccion</text>
+<text x="921" y="260" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(180)</text>
+<path d="M681 266H929" stroke="#efe6e2" stroke-width="1"/>
+<text x="716" y="280" font-size="11.5" font-weight="400" fill="#1e1b18">creado_en</text>
+<text x="921" y="280" font-size="9.5" fill="#8d7166" text-anchor="end">DATETIME</text>
+<path d="M681 286H929" stroke="#efe6e2" stroke-width="1"/>
+<text x="716" y="300" font-size="11.5" font-weight="400" fill="#1e1b18">deleted_at</text>
+<text x="921" y="300" font-size="9.5" fill="#8d7166" text-anchor="end">DATETIME</text>
+</g>
+<g>
+<rect x="1020" y="756" width="250" height="390" rx="7" fill="#ffffff" stroke="#eb5e15" stroke-width="1.3"/>
+<path d="M1020 786V763a7 7 0 0 1 7 -7H1263a7 7 0 0 1 7 7V786Z" fill="#eb5e15"/>
+<text x="1032" y="776" font-size="13.5" font-weight="700" fill="#ffffff">promociones</text>
+<text x="1260" y="776" font-size="10" fill="#ffffff" fill-opacity="0.8" text-anchor="end">18 columnas</text>
+<rect x="1027" y="790" width="22" height="12" rx="3" fill="#c9a904"/>
+<text x="1038" y="799.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">PK</text>
+<text x="1056" y="800" font-size="11.5" font-weight="700" fill="#1e1b18">id</text>
+<text x="1261" y="800" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M1021 806H1269" stroke="#efe6e2" stroke-width="1"/>
+<rect x="1027" y="810" width="22" height="12" rx="3" fill="#8d7166"/>
+<text x="1038" y="819.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">UQ</text>
+<text x="1056" y="820" font-size="11.5" font-weight="400" fill="#1e1b18">codigo</text>
+<text x="1261" y="820" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(30)</text>
+<path d="M1021 826H1269" stroke="#efe6e2" stroke-width="1"/>
+<text x="1056" y="840" font-size="11.5" font-weight="400" fill="#1e1b18">descripcion</text>
+<text x="1261" y="840" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(180)</text>
+<path d="M1021 846H1269" stroke="#efe6e2" stroke-width="1"/>
+<text x="1056" y="860" font-size="11.5" font-weight="400" fill="#1e1b18">tipo</text>
+<text x="1261" y="860" font-size="9.5" fill="#8d7166" text-anchor="end">ENUM</text>
+<path d="M1021 866H1269" stroke="#efe6e2" stroke-width="1"/>
+<text x="1056" y="880" font-size="11.5" font-weight="400" fill="#1e1b18">valor</text>
+<text x="1261" y="880" font-size="9.5" fill="#8d7166" text-anchor="end">DECIMAL(12,2)</text>
+<path d="M1021 886H1269" stroke="#efe6e2" stroke-width="1"/>
+<text x="1056" y="900" font-size="11.5" font-weight="400" fill="#1e1b18">alcance</text>
+<text x="1261" y="900" font-size="9.5" fill="#8d7166" text-anchor="end">ENUM</text>
+<path d="M1021 906H1269" stroke="#efe6e2" stroke-width="1"/>
+<rect x="1027" y="910" width="22" height="12" rx="3" fill="#00629b"/>
+<text x="1038" y="919.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">FK</text>
+<text x="1056" y="920" font-size="11.5" font-weight="400" fill="#1e1b18">producto_id</text>
+<text x="1261" y="920" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M1021 926H1269" stroke="#efe6e2" stroke-width="1"/>
+<rect x="1027" y="930" width="22" height="12" rx="3" fill="#00629b"/>
+<text x="1038" y="939.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">FK</text>
+<text x="1056" y="940" font-size="11.5" font-weight="400" fill="#1e1b18">categoria_id</text>
+<text x="1261" y="940" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M1021 946H1269" stroke="#efe6e2" stroke-width="1"/>
+<text x="1056" y="960" font-size="11.5" font-weight="400" fill="#1e1b18">monto_minimo</text>
+<text x="1261" y="960" font-size="9.5" fill="#8d7166" text-anchor="end">DECIMAL(12,2)</text>
+<path d="M1021 966H1269" stroke="#efe6e2" stroke-width="1"/>
+<text x="1056" y="980" font-size="11.5" font-weight="400" fill="#1e1b18">fecha_inicio</text>
+<text x="1261" y="980" font-size="9.5" fill="#8d7166" text-anchor="end">DATE</text>
+<path d="M1021 986H1269" stroke="#efe6e2" stroke-width="1"/>
+<text x="1056" y="1000" font-size="11.5" font-weight="400" fill="#1e1b18">fecha_fin</text>
+<text x="1261" y="1000" font-size="9.5" fill="#8d7166" text-anchor="end">DATE</text>
+<path d="M1021 1006H1269" stroke="#efe6e2" stroke-width="1"/>
+<text x="1056" y="1020" font-size="11.5" font-weight="400" fill="#1e1b18">usos_maximos</text>
+<text x="1261" y="1020" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M1021 1026H1269" stroke="#efe6e2" stroke-width="1"/>
+<text x="1056" y="1040" font-size="11.5" font-weight="400" fill="#1e1b18">usos_actuales</text>
+<text x="1261" y="1040" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M1021 1046H1269" stroke="#efe6e2" stroke-width="1"/>
+<text x="1056" y="1060" font-size="11.5" font-weight="400" fill="#1e1b18">requiere_autorizacion</text>
+<text x="1261" y="1060" font-size="9.5" fill="#8d7166" text-anchor="end">TINYINT(1)</text>
+<path d="M1021 1066H1269" stroke="#efe6e2" stroke-width="1"/>
+<text x="1056" y="1080" font-size="11.5" font-weight="400" fill="#1e1b18">activa</text>
+<text x="1261" y="1080" font-size="9.5" fill="#8d7166" text-anchor="end">TINYINT(1)</text>
+<path d="M1021 1086H1269" stroke="#efe6e2" stroke-width="1"/>
+<rect x="1027" y="1090" width="22" height="12" rx="3" fill="#00629b"/>
+<text x="1038" y="1099.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">FK</text>
+<text x="1056" y="1100" font-size="11.5" font-weight="400" fill="#1e1b18">creado_por</text>
+<text x="1261" y="1100" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M1021 1106H1269" stroke="#efe6e2" stroke-width="1"/>
+<text x="1056" y="1120" font-size="11.5" font-weight="400" fill="#1e1b18">creado_en</text>
+<text x="1261" y="1120" font-size="9.5" fill="#8d7166" text-anchor="end">DATETIME</text>
+<path d="M1021 1126H1269" stroke="#efe6e2" stroke-width="1"/>
+<text x="1056" y="1140" font-size="11.5" font-weight="400" fill="#1e1b18">deleted_at</text>
+<text x="1261" y="1140" font-size="9.5" fill="#8d7166" text-anchor="end">DATETIME</text>
+</g>
+<g>
+<rect x="680" y="356" width="250" height="410" rx="7" fill="#ffffff" stroke="#eb5e15" stroke-width="1.3"/>
+<path d="M680 386V363a7 7 0 0 1 7 -7H923a7 7 0 0 1 7 7V386Z" fill="#eb5e15"/>
+<text x="692" y="376" font-size="13.5" font-weight="700" fill="#ffffff">ventas</text>
+<text x="920" y="376" font-size="10" fill="#ffffff" fill-opacity="0.8" text-anchor="end">19 columnas</text>
+<rect x="687" y="390" width="22" height="12" rx="3" fill="#c9a904"/>
+<text x="698" y="399.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">PK</text>
+<text x="716" y="400" font-size="11.5" font-weight="700" fill="#1e1b18">id</text>
+<text x="921" y="400" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M681 406H929" stroke="#efe6e2" stroke-width="1"/>
+<rect x="687" y="410" width="22" height="12" rx="3" fill="#8d7166"/>
+<text x="698" y="419.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">UQ</text>
+<text x="716" y="420" font-size="11.5" font-weight="400" fill="#1e1b18">folio</text>
+<text x="921" y="420" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(20)</text>
+<path d="M681 426H929" stroke="#efe6e2" stroke-width="1"/>
+<rect x="687" y="430" width="22" height="12" rx="3" fill="#00629b"/>
+<text x="698" y="439.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">FK</text>
+<text x="716" y="440" font-size="11.5" font-weight="400" fill="#1e1b18">usuario_id</text>
+<text x="921" y="440" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M681 446H929" stroke="#efe6e2" stroke-width="1"/>
+<rect x="687" y="450" width="22" height="12" rx="3" fill="#00629b"/>
+<text x="698" y="459.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">FK</text>
+<text x="716" y="460" font-size="11.5" font-weight="400" fill="#1e1b18">cliente_id</text>
+<text x="921" y="460" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M681 466H929" stroke="#efe6e2" stroke-width="1"/>
+<text x="716" y="480" font-size="11.5" font-weight="400" fill="#1e1b18">fecha</text>
+<text x="921" y="480" font-size="9.5" fill="#8d7166" text-anchor="end">DATETIME</text>
+<path d="M681 486H929" stroke="#efe6e2" stroke-width="1"/>
+<text x="716" y="500" font-size="11.5" font-weight="400" fill="#1e1b18">subtotal</text>
+<text x="921" y="500" font-size="9.5" fill="#8d7166" text-anchor="end">DECIMAL(12,2)</text>
+<path d="M681 506H929" stroke="#efe6e2" stroke-width="1"/>
+<text x="716" y="520" font-size="11.5" font-weight="400" fill="#1e1b18">descuento_total</text>
+<text x="921" y="520" font-size="9.5" fill="#8d7166" text-anchor="end">DECIMAL(12,2)</text>
+<path d="M681 526H929" stroke="#efe6e2" stroke-width="1"/>
+<text x="716" y="540" font-size="11.5" font-weight="400" fill="#1e1b18">base_gravable</text>
+<text x="921" y="540" font-size="9.5" fill="#8d7166" text-anchor="end">DECIMAL(12,2)</text>
+<path d="M681 546H929" stroke="#efe6e2" stroke-width="1"/>
+<text x="716" y="560" font-size="11.5" font-weight="400" fill="#1e1b18">impuesto_total</text>
+<text x="921" y="560" font-size="9.5" fill="#8d7166" text-anchor="end">DECIMAL(12,2)</text>
+<path d="M681 566H929" stroke="#efe6e2" stroke-width="1"/>
+<text x="716" y="580" font-size="11.5" font-weight="400" fill="#1e1b18">total</text>
+<text x="921" y="580" font-size="9.5" fill="#8d7166" text-anchor="end">DECIMAL(12,2)</text>
+<path d="M681 586H929" stroke="#efe6e2" stroke-width="1"/>
+<text x="716" y="600" font-size="11.5" font-weight="400" fill="#1e1b18">costo_total</text>
+<text x="921" y="600" font-size="9.5" fill="#8d7166" text-anchor="end">DECIMAL(12,2)</text>
+<path d="M681 606H929" stroke="#efe6e2" stroke-width="1"/>
+<text x="716" y="620" font-size="11.5" font-weight="400" fill="#1e1b18">metodo_pago</text>
+<text x="921" y="620" font-size="9.5" fill="#8d7166" text-anchor="end">ENUM</text>
+<path d="M681 626H929" stroke="#efe6e2" stroke-width="1"/>
+<text x="716" y="640" font-size="11.5" font-weight="400" fill="#1e1b18">monto_recibido</text>
+<text x="921" y="640" font-size="9.5" fill="#8d7166" text-anchor="end">DECIMAL(12,2)</text>
+<path d="M681 646H929" stroke="#efe6e2" stroke-width="1"/>
+<text x="716" y="660" font-size="11.5" font-weight="400" fill="#1e1b18">cambio</text>
+<text x="921" y="660" font-size="9.5" fill="#8d7166" text-anchor="end">DECIMAL(12,2)</text>
+<path d="M681 666H929" stroke="#efe6e2" stroke-width="1"/>
+<text x="716" y="680" font-size="11.5" font-weight="400" fill="#1e1b18">estado</text>
+<text x="921" y="680" font-size="9.5" fill="#8d7166" text-anchor="end">ENUM</text>
+<path d="M681 686H929" stroke="#efe6e2" stroke-width="1"/>
+<rect x="687" y="690" width="22" height="12" rx="3" fill="#00629b"/>
+<text x="698" y="699.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">FK</text>
+<text x="716" y="700" font-size="11.5" font-weight="400" fill="#1e1b18">anulada_por</text>
+<text x="921" y="700" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M681 706H929" stroke="#efe6e2" stroke-width="1"/>
+<text x="716" y="720" font-size="11.5" font-weight="400" fill="#1e1b18">anulada_en</text>
+<text x="921" y="720" font-size="9.5" fill="#8d7166" text-anchor="end">DATETIME</text>
+<path d="M681 726H929" stroke="#efe6e2" stroke-width="1"/>
+<text x="716" y="740" font-size="11.5" font-weight="400" fill="#1e1b18">motivo_anulacion</text>
+<text x="921" y="740" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(255)</text>
+<path d="M681 746H929" stroke="#efe6e2" stroke-width="1"/>
+<text x="716" y="760" font-size="11.5" font-weight="400" fill="#1e1b18">creado_en</text>
+<text x="921" y="760" font-size="9.5" fill="#8d7166" text-anchor="end">DATETIME</text>
+</g>
+<g>
+<rect x="1020" y="96" width="250" height="290" rx="7" fill="#ffffff" stroke="#eb5e15" stroke-width="1.3"/>
+<path d="M1020 126V103a7 7 0 0 1 7 -7H1263a7 7 0 0 1 7 7V126Z" fill="#eb5e15"/>
+<text x="1032" y="116" font-size="13.5" font-weight="700" fill="#ffffff">venta_detalle</text>
+<text x="1260" y="116" font-size="10" fill="#ffffff" fill-opacity="0.8" text-anchor="end">13 columnas</text>
+<rect x="1027" y="130" width="22" height="12" rx="3" fill="#c9a904"/>
+<text x="1038" y="139.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">PK</text>
+<text x="1056" y="140" font-size="11.5" font-weight="700" fill="#1e1b18">id</text>
+<text x="1261" y="140" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M1021 146H1269" stroke="#efe6e2" stroke-width="1"/>
+<rect x="1027" y="150" width="22" height="12" rx="3" fill="#00629b"/>
+<text x="1038" y="159.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">FK</text>
+<text x="1056" y="160" font-size="11.5" font-weight="400" fill="#1e1b18">venta_id</text>
+<text x="1261" y="160" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M1021 166H1269" stroke="#efe6e2" stroke-width="1"/>
+<rect x="1027" y="170" width="22" height="12" rx="3" fill="#00629b"/>
+<text x="1038" y="179.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">FK</text>
+<text x="1056" y="180" font-size="11.5" font-weight="400" fill="#1e1b18">producto_id</text>
+<text x="1261" y="180" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M1021 186H1269" stroke="#efe6e2" stroke-width="1"/>
+<text x="1056" y="200" font-size="11.5" font-weight="400" fill="#1e1b18">sku</text>
+<text x="1261" y="200" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(30)</text>
+<path d="M1021 206H1269" stroke="#efe6e2" stroke-width="1"/>
+<text x="1056" y="220" font-size="11.5" font-weight="400" fill="#1e1b18">nombre_producto</text>
+<text x="1261" y="220" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(120)</text>
+<path d="M1021 226H1269" stroke="#efe6e2" stroke-width="1"/>
+<text x="1056" y="240" font-size="11.5" font-weight="400" fill="#1e1b18">cantidad</text>
+<text x="1261" y="240" font-size="9.5" fill="#8d7166" text-anchor="end">DECIMAL(12,3)</text>
+<path d="M1021 246H1269" stroke="#efe6e2" stroke-width="1"/>
+<text x="1056" y="260" font-size="11.5" font-weight="400" fill="#1e1b18">precio_unitario</text>
+<text x="1261" y="260" font-size="9.5" fill="#8d7166" text-anchor="end">DECIMAL(12,2)</text>
+<path d="M1021 266H1269" stroke="#efe6e2" stroke-width="1"/>
+<text x="1056" y="280" font-size="11.5" font-weight="400" fill="#1e1b18">costo_unitario</text>
+<text x="1261" y="280" font-size="9.5" fill="#8d7166" text-anchor="end">DECIMAL(12,2)</text>
+<path d="M1021 286H1269" stroke="#efe6e2" stroke-width="1"/>
+<text x="1056" y="300" font-size="11.5" font-weight="400" fill="#1e1b18">descuento_unitario</text>
+<text x="1261" y="300" font-size="9.5" fill="#8d7166" text-anchor="end">DECIMAL(12,2)</text>
+<path d="M1021 306H1269" stroke="#efe6e2" stroke-width="1"/>
+<text x="1056" y="320" font-size="11.5" font-weight="400" fill="#1e1b18">iva_porcentaje</text>
+<text x="1261" y="320" font-size="9.5" fill="#8d7166" text-anchor="end">DECIMAL(5,2)</text>
+<path d="M1021 326H1269" stroke="#efe6e2" stroke-width="1"/>
+<text x="1056" y="340" font-size="11.5" font-weight="400" fill="#1e1b18">subtotal</text>
+<text x="1261" y="340" font-size="9.5" fill="#8d7166" text-anchor="end">DECIMAL(12,2)</text>
+<path d="M1021 346H1269" stroke="#efe6e2" stroke-width="1"/>
+<text x="1056" y="360" font-size="11.5" font-weight="400" fill="#1e1b18">impuesto</text>
+<text x="1261" y="360" font-size="9.5" fill="#8d7166" text-anchor="end">DECIMAL(12,2)</text>
+<path d="M1021 366H1269" stroke="#efe6e2" stroke-width="1"/>
+<text x="1056" y="380" font-size="11.5" font-weight="400" fill="#1e1b18">total</text>
+<text x="1261" y="380" font-size="9.5" fill="#8d7166" text-anchor="end">DECIMAL(12,2)</text>
+</g>
+<g>
+<rect x="1020" y="436" width="250" height="270" rx="7" fill="#ffffff" stroke="#eb5e15" stroke-width="1.3"/>
+<path d="M1020 466V443a7 7 0 0 1 7 -7H1263a7 7 0 0 1 7 7V466Z" fill="#eb5e15"/>
+<text x="1032" y="456" font-size="13.5" font-weight="700" fill="#ffffff">descuentos_aplicados</text>
+<text x="1260" y="456" font-size="10" fill="#ffffff" fill-opacity="0.8" text-anchor="end">12 columnas</text>
+<rect x="1027" y="470" width="22" height="12" rx="3" fill="#c9a904"/>
+<text x="1038" y="479.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">PK</text>
+<text x="1056" y="480" font-size="11.5" font-weight="700" fill="#1e1b18">id</text>
+<text x="1261" y="480" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M1021 486H1269" stroke="#efe6e2" stroke-width="1"/>
+<rect x="1027" y="490" width="22" height="12" rx="3" fill="#00629b"/>
+<text x="1038" y="499.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">FK</text>
+<text x="1056" y="500" font-size="11.5" font-weight="400" fill="#1e1b18">venta_id</text>
+<text x="1261" y="500" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M1021 506H1269" stroke="#efe6e2" stroke-width="1"/>
+<rect x="1027" y="510" width="22" height="12" rx="3" fill="#00629b"/>
+<text x="1038" y="519.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">FK</text>
+<text x="1056" y="520" font-size="11.5" font-weight="400" fill="#1e1b18">promocion_id</text>
+<text x="1261" y="520" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M1021 526H1269" stroke="#efe6e2" stroke-width="1"/>
+<text x="1056" y="540" font-size="11.5" font-weight="400" fill="#1e1b18">codigo</text>
+<text x="1261" y="540" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(30)</text>
+<path d="M1021 546H1269" stroke="#efe6e2" stroke-width="1"/>
+<text x="1056" y="560" font-size="11.5" font-weight="400" fill="#1e1b18">tipo</text>
+<text x="1261" y="560" font-size="9.5" fill="#8d7166" text-anchor="end">ENUM</text>
+<path d="M1021 566H1269" stroke="#efe6e2" stroke-width="1"/>
+<text x="1056" y="580" font-size="11.5" font-weight="400" fill="#1e1b18">valor</text>
+<text x="1261" y="580" font-size="9.5" fill="#8d7166" text-anchor="end">DECIMAL(12,2)</text>
+<path d="M1021 586H1269" stroke="#efe6e2" stroke-width="1"/>
+<text x="1056" y="600" font-size="11.5" font-weight="400" fill="#1e1b18">motivo</text>
+<text x="1261" y="600" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(255)</text>
+<path d="M1021 606H1269" stroke="#efe6e2" stroke-width="1"/>
+<text x="1056" y="620" font-size="11.5" font-weight="400" fill="#1e1b18">valor_original</text>
+<text x="1261" y="620" font-size="9.5" fill="#8d7166" text-anchor="end">DECIMAL(12,2)</text>
+<path d="M1021 626H1269" stroke="#efe6e2" stroke-width="1"/>
+<text x="1056" y="640" font-size="11.5" font-weight="400" fill="#1e1b18">valor_descuento</text>
+<text x="1261" y="640" font-size="9.5" fill="#8d7166" text-anchor="end">DECIMAL(12,2)</text>
+<path d="M1021 646H1269" stroke="#efe6e2" stroke-width="1"/>
+<text x="1056" y="660" font-size="11.5" font-weight="400" fill="#1e1b18">valor_final</text>
+<text x="1261" y="660" font-size="9.5" fill="#8d7166" text-anchor="end">DECIMAL(12,2)</text>
+<path d="M1021 666H1269" stroke="#efe6e2" stroke-width="1"/>
+<rect x="1027" y="670" width="22" height="12" rx="3" fill="#00629b"/>
+<text x="1038" y="679.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">FK</text>
+<text x="1056" y="680" font-size="11.5" font-weight="400" fill="#1e1b18">autorizado_por</text>
+<text x="1261" y="680" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M1021 686H1269" stroke="#efe6e2" stroke-width="1"/>
+<text x="1056" y="700" font-size="11.5" font-weight="400" fill="#1e1b18">creado_en</text>
+<text x="1261" y="700" font-size="9.5" fill="#8d7166" text-anchor="end">DATETIME</text>
+</g>
+<g>
+<rect x="680" y="816" width="250" height="390" rx="7" fill="#ffffff" stroke="#eb5e15" stroke-width="1.3"/>
+<path d="M680 846V823a7 7 0 0 1 7 -7H923a7 7 0 0 1 7 7V846Z" fill="#eb5e15"/>
+<text x="692" y="836" font-size="13.5" font-weight="700" fill="#ffffff">comprobantes</text>
+<text x="920" y="836" font-size="10" fill="#ffffff" fill-opacity="0.8" text-anchor="end">18 columnas</text>
+<rect x="687" y="850" width="22" height="12" rx="3" fill="#c9a904"/>
+<text x="698" y="859.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">PK</text>
+<text x="716" y="860" font-size="11.5" font-weight="700" fill="#1e1b18">id</text>
+<text x="921" y="860" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M681 866H929" stroke="#efe6e2" stroke-width="1"/>
+<rect x="687" y="870" width="22" height="12" rx="3" fill="#00629b"/>
+<text x="698" y="879.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">FK</text>
+<text x="716" y="880" font-size="11.5" font-weight="400" fill="#1e1b18">venta_id</text>
+<text x="921" y="880" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M681 886H929" stroke="#efe6e2" stroke-width="1"/>
+<rect x="687" y="890" width="22" height="12" rx="3" fill="#8d7166"/>
+<text x="698" y="899.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">UQ</text>
+<text x="716" y="900" font-size="11.5" font-weight="400" fill="#1e1b18">numero</text>
+<text x="921" y="900" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(30)</text>
+<path d="M681 906H929" stroke="#efe6e2" stroke-width="1"/>
+<text x="716" y="920" font-size="11.5" font-weight="400" fill="#1e1b18">prefijo</text>
+<text x="921" y="920" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(10)</text>
+<path d="M681 926H929" stroke="#efe6e2" stroke-width="1"/>
+<text x="716" y="940" font-size="11.5" font-weight="400" fill="#1e1b18">consecutivo</text>
+<text x="921" y="940" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M681 946H929" stroke="#efe6e2" stroke-width="1"/>
+<text x="716" y="960" font-size="11.5" font-weight="400" fill="#1e1b18">tipo</text>
+<text x="921" y="960" font-size="9.5" fill="#8d7166" text-anchor="end">ENUM</text>
+<path d="M681 966H929" stroke="#efe6e2" stroke-width="1"/>
+<text x="716" y="980" font-size="11.5" font-weight="400" fill="#1e1b18">resolucion_dian</text>
+<text x="921" y="980" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(120)</text>
+<path d="M681 986H929" stroke="#efe6e2" stroke-width="1"/>
+<text x="716" y="1000" font-size="11.5" font-weight="400" fill="#1e1b18">fecha_emision</text>
+<text x="921" y="1000" font-size="9.5" fill="#8d7166" text-anchor="end">DATETIME</text>
+<path d="M681 1006H929" stroke="#efe6e2" stroke-width="1"/>
+<text x="716" y="1020" font-size="11.5" font-weight="400" fill="#1e1b18">emisor</text>
+<text x="921" y="1020" font-size="9.5" fill="#8d7166" text-anchor="end">LONGTEXT</text>
+<path d="M681 1026H929" stroke="#efe6e2" stroke-width="1"/>
+<text x="716" y="1040" font-size="11.5" font-weight="400" fill="#1e1b18">cliente</text>
+<text x="921" y="1040" font-size="9.5" fill="#8d7166" text-anchor="end">LONGTEXT</text>
+<path d="M681 1046H929" stroke="#efe6e2" stroke-width="1"/>
+<text x="716" y="1060" font-size="11.5" font-weight="400" fill="#1e1b18">detalle</text>
+<text x="921" y="1060" font-size="9.5" fill="#8d7166" text-anchor="end">LONGTEXT</text>
+<path d="M681 1066H929" stroke="#efe6e2" stroke-width="1"/>
+<text x="716" y="1080" font-size="11.5" font-weight="400" fill="#1e1b18">subtotal</text>
+<text x="921" y="1080" font-size="9.5" fill="#8d7166" text-anchor="end">DECIMAL(12,2)</text>
+<path d="M681 1086H929" stroke="#efe6e2" stroke-width="1"/>
+<text x="716" y="1100" font-size="11.5" font-weight="400" fill="#1e1b18">descuento</text>
+<text x="921" y="1100" font-size="9.5" fill="#8d7166" text-anchor="end">DECIMAL(12,2)</text>
+<path d="M681 1106H929" stroke="#efe6e2" stroke-width="1"/>
+<text x="716" y="1120" font-size="11.5" font-weight="400" fill="#1e1b18">base_gravable</text>
+<text x="921" y="1120" font-size="9.5" fill="#8d7166" text-anchor="end">DECIMAL(12,2)</text>
+<path d="M681 1126H929" stroke="#efe6e2" stroke-width="1"/>
+<text x="716" y="1140" font-size="11.5" font-weight="400" fill="#1e1b18">impuesto</text>
+<text x="921" y="1140" font-size="9.5" fill="#8d7166" text-anchor="end">DECIMAL(12,2)</text>
+<path d="M681 1146H929" stroke="#efe6e2" stroke-width="1"/>
+<text x="716" y="1160" font-size="11.5" font-weight="400" fill="#1e1b18">total</text>
+<text x="921" y="1160" font-size="9.5" fill="#8d7166" text-anchor="end">DECIMAL(12,2)</text>
+<path d="M681 1166H929" stroke="#efe6e2" stroke-width="1"/>
+<text x="716" y="1180" font-size="11.5" font-weight="400" fill="#1e1b18">estado</text>
+<text x="921" y="1180" font-size="9.5" fill="#8d7166" text-anchor="end">ENUM</text>
+<path d="M681 1186H929" stroke="#efe6e2" stroke-width="1"/>
+<text x="716" y="1200" font-size="11.5" font-weight="400" fill="#1e1b18">creado_en</text>
+<text x="921" y="1200" font-size="9.5" fill="#8d7166" text-anchor="end">DATETIME</text>
+</g>
+<g>
+<rect x="1720" y="296" width="250" height="250" rx="7" fill="#ffffff" stroke="#00629b" stroke-width="1.3"/>
+<path d="M1720 326V303a7 7 0 0 1 7 -7H1963a7 7 0 0 1 7 7V326Z" fill="#00629b"/>
+<text x="1732" y="316" font-size="13.5" font-weight="700" fill="#ffffff">compras</text>
+<text x="1960" y="316" font-size="10" fill="#ffffff" fill-opacity="0.8" text-anchor="end">11 columnas</text>
+<rect x="1727" y="330" width="22" height="12" rx="3" fill="#c9a904"/>
+<text x="1738" y="339.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">PK</text>
+<text x="1756" y="340" font-size="11.5" font-weight="700" fill="#1e1b18">id</text>
+<text x="1961" y="340" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M1721 346H1969" stroke="#efe6e2" stroke-width="1"/>
+<rect x="1727" y="350" width="22" height="12" rx="3" fill="#8d7166"/>
+<text x="1738" y="359.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">UQ</text>
+<text x="1756" y="360" font-size="11.5" font-weight="400" fill="#1e1b18">numero</text>
+<text x="1961" y="360" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(20)</text>
+<path d="M1721 366H1969" stroke="#efe6e2" stroke-width="1"/>
+<rect x="1727" y="370" width="22" height="12" rx="3" fill="#00629b"/>
+<text x="1738" y="379.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">FK</text>
+<text x="1756" y="380" font-size="11.5" font-weight="400" fill="#1e1b18">proveedor_id</text>
+<text x="1961" y="380" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M1721 386H1969" stroke="#efe6e2" stroke-width="1"/>
+<rect x="1727" y="390" width="22" height="12" rx="3" fill="#00629b"/>
+<text x="1738" y="399.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">FK</text>
+<text x="1756" y="400" font-size="11.5" font-weight="400" fill="#1e1b18">usuario_id</text>
+<text x="1961" y="400" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M1721 406H1969" stroke="#efe6e2" stroke-width="1"/>
+<text x="1756" y="420" font-size="11.5" font-weight="400" fill="#1e1b18">fecha</text>
+<text x="1961" y="420" font-size="9.5" fill="#8d7166" text-anchor="end">DATETIME</text>
+<path d="M1721 426H1969" stroke="#efe6e2" stroke-width="1"/>
+<text x="1756" y="440" font-size="11.5" font-weight="400" fill="#1e1b18">subtotal</text>
+<text x="1961" y="440" font-size="9.5" fill="#8d7166" text-anchor="end">DECIMAL(12,2)</text>
+<path d="M1721 446H1969" stroke="#efe6e2" stroke-width="1"/>
+<text x="1756" y="460" font-size="11.5" font-weight="400" fill="#1e1b18">impuesto</text>
+<text x="1961" y="460" font-size="9.5" fill="#8d7166" text-anchor="end">DECIMAL(12,2)</text>
+<path d="M1721 466H1969" stroke="#efe6e2" stroke-width="1"/>
+<text x="1756" y="480" font-size="11.5" font-weight="400" fill="#1e1b18">total</text>
+<text x="1961" y="480" font-size="9.5" fill="#8d7166" text-anchor="end">DECIMAL(12,2)</text>
+<path d="M1721 486H1969" stroke="#efe6e2" stroke-width="1"/>
+<text x="1756" y="500" font-size="11.5" font-weight="400" fill="#1e1b18">estado</text>
+<text x="1961" y="500" font-size="9.5" fill="#8d7166" text-anchor="end">ENUM</text>
+<path d="M1721 506H1969" stroke="#efe6e2" stroke-width="1"/>
+<text x="1756" y="520" font-size="11.5" font-weight="400" fill="#1e1b18">observaciones</text>
+<text x="1961" y="520" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(255)</text>
+<path d="M1721 526H1969" stroke="#efe6e2" stroke-width="1"/>
+<text x="1756" y="540" font-size="11.5" font-weight="400" fill="#1e1b18">creado_en</text>
+<text x="1961" y="540" font-size="9.5" fill="#8d7166" text-anchor="end">DATETIME</text>
+</g>
+<g>
+<rect x="1720" y="96" width="250" height="150" rx="7" fill="#ffffff" stroke="#00629b" stroke-width="1.3"/>
+<path d="M1720 126V103a7 7 0 0 1 7 -7H1963a7 7 0 0 1 7 7V126Z" fill="#00629b"/>
+<text x="1732" y="116" font-size="13.5" font-weight="700" fill="#ffffff">compra_detalle</text>
+<text x="1960" y="116" font-size="10" fill="#ffffff" fill-opacity="0.8" text-anchor="end">6 columnas</text>
+<rect x="1727" y="130" width="22" height="12" rx="3" fill="#c9a904"/>
+<text x="1738" y="139.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">PK</text>
+<text x="1756" y="140" font-size="11.5" font-weight="700" fill="#1e1b18">id</text>
+<text x="1961" y="140" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M1721 146H1969" stroke="#efe6e2" stroke-width="1"/>
+<rect x="1727" y="150" width="22" height="12" rx="3" fill="#00629b"/>
+<text x="1738" y="159.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">FK</text>
+<text x="1756" y="160" font-size="11.5" font-weight="400" fill="#1e1b18">compra_id</text>
+<text x="1961" y="160" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M1721 166H1969" stroke="#efe6e2" stroke-width="1"/>
+<rect x="1727" y="170" width="22" height="12" rx="3" fill="#00629b"/>
+<text x="1738" y="179.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">FK</text>
+<text x="1756" y="180" font-size="11.5" font-weight="400" fill="#1e1b18">producto_id</text>
+<text x="1961" y="180" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M1721 186H1969" stroke="#efe6e2" stroke-width="1"/>
+<text x="1756" y="200" font-size="11.5" font-weight="400" fill="#1e1b18">cantidad</text>
+<text x="1961" y="200" font-size="9.5" fill="#8d7166" text-anchor="end">DECIMAL(12,3)</text>
+<path d="M1721 206H1969" stroke="#efe6e2" stroke-width="1"/>
+<text x="1756" y="220" font-size="11.5" font-weight="400" fill="#1e1b18">costo_unitario</text>
+<text x="1961" y="220" font-size="9.5" fill="#8d7166" text-anchor="end">DECIMAL(12,2)</text>
+<path d="M1721 226H1969" stroke="#efe6e2" stroke-width="1"/>
+<text x="1756" y="240" font-size="11.5" font-weight="400" fill="#1e1b18">subtotal</text>
+<text x="1961" y="240" font-size="9.5" fill="#8d7166" text-anchor="end">DECIMAL(12,2)</text>
+</g>
+<g>
+<rect x="1370" y="736" width="250" height="290" rx="7" fill="#ffffff" stroke="#2e7d32" stroke-width="1.3"/>
+<path d="M1370 766V743a7 7 0 0 1 7 -7H1613a7 7 0 0 1 7 7V766Z" fill="#2e7d32"/>
+<text x="1382" y="756" font-size="13.5" font-weight="700" fill="#ffffff">movimientos_inventario</text>
+<text x="1610" y="756" font-size="10" fill="#ffffff" fill-opacity="0.8" text-anchor="end">13 columnas</text>
+<rect x="1377" y="770" width="22" height="12" rx="3" fill="#c9a904"/>
+<text x="1388" y="779.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">PK</text>
+<text x="1406" y="780" font-size="11.5" font-weight="700" fill="#1e1b18">id</text>
+<text x="1611" y="780" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M1371 786H1619" stroke="#efe6e2" stroke-width="1"/>
+<rect x="1377" y="790" width="22" height="12" rx="3" fill="#00629b"/>
+<text x="1388" y="799.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">FK</text>
+<text x="1406" y="800" font-size="11.5" font-weight="400" fill="#1e1b18">producto_id</text>
+<text x="1611" y="800" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M1371 806H1619" stroke="#efe6e2" stroke-width="1"/>
+<text x="1406" y="820" font-size="11.5" font-weight="400" fill="#1e1b18">tipo</text>
+<text x="1611" y="820" font-size="9.5" fill="#8d7166" text-anchor="end">ENUM</text>
+<path d="M1371 826H1619" stroke="#efe6e2" stroke-width="1"/>
+<text x="1406" y="840" font-size="11.5" font-weight="400" fill="#1e1b18">motivo</text>
+<text x="1611" y="840" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(120)</text>
+<path d="M1371 846H1619" stroke="#efe6e2" stroke-width="1"/>
+<text x="1406" y="860" font-size="11.5" font-weight="400" fill="#1e1b18">cantidad</text>
+<text x="1611" y="860" font-size="9.5" fill="#8d7166" text-anchor="end">DECIMAL(12,3)</text>
+<path d="M1371 866H1619" stroke="#efe6e2" stroke-width="1"/>
+<text x="1406" y="880" font-size="11.5" font-weight="400" fill="#1e1b18">stock_anterior</text>
+<text x="1611" y="880" font-size="9.5" fill="#8d7166" text-anchor="end">DECIMAL(12,3)</text>
+<path d="M1371 886H1619" stroke="#efe6e2" stroke-width="1"/>
+<text x="1406" y="900" font-size="11.5" font-weight="400" fill="#1e1b18">stock_nuevo</text>
+<text x="1611" y="900" font-size="9.5" fill="#8d7166" text-anchor="end">DECIMAL(12,3)</text>
+<path d="M1371 906H1619" stroke="#efe6e2" stroke-width="1"/>
+<text x="1406" y="920" font-size="11.5" font-weight="400" fill="#1e1b18">costo_unitario</text>
+<text x="1611" y="920" font-size="9.5" fill="#8d7166" text-anchor="end">DECIMAL(12,2)</text>
+<path d="M1371 926H1619" stroke="#efe6e2" stroke-width="1"/>
+<text x="1406" y="940" font-size="11.5" font-weight="400" fill="#1e1b18">referencia_tipo</text>
+<text x="1611" y="940" font-size="9.5" fill="#8d7166" text-anchor="end">ENUM</text>
+<path d="M1371 946H1619" stroke="#efe6e2" stroke-width="1"/>
+<text x="1406" y="960" font-size="11.5" font-weight="400" fill="#1e1b18">referencia_id</text>
+<text x="1611" y="960" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M1371 966H1619" stroke="#efe6e2" stroke-width="1"/>
+<rect x="1377" y="970" width="22" height="12" rx="3" fill="#00629b"/>
+<text x="1388" y="979.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">FK</text>
+<text x="1406" y="980" font-size="11.5" font-weight="400" fill="#1e1b18">usuario_id</text>
+<text x="1611" y="980" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M1371 986H1619" stroke="#efe6e2" stroke-width="1"/>
+<text x="1406" y="1000" font-size="11.5" font-weight="400" fill="#1e1b18">observaciones</text>
+<text x="1611" y="1000" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(255)</text>
+<path d="M1371 1006H1619" stroke="#efe6e2" stroke-width="1"/>
+<text x="1406" y="1020" font-size="11.5" font-weight="400" fill="#1e1b18">creado_en</text>
+<text x="1611" y="1020" font-size="9.5" fill="#8d7166" text-anchor="end">DATETIME</text>
+</g>
+<g>
+<rect x="1370" y="1076" width="250" height="250" rx="7" fill="#ffffff" stroke="#2e7d32" stroke-width="1.3"/>
+<path d="M1370 1106V1083a7 7 0 0 1 7 -7H1613a7 7 0 0 1 7 7V1106Z" fill="#2e7d32"/>
+<text x="1382" y="1096" font-size="13.5" font-weight="700" fill="#ffffff">alertas_stock</text>
+<text x="1610" y="1096" font-size="10" fill="#ffffff" fill-opacity="0.8" text-anchor="end">11 columnas</text>
+<rect x="1377" y="1110" width="22" height="12" rx="3" fill="#c9a904"/>
+<text x="1388" y="1119.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">PK</text>
+<text x="1406" y="1120" font-size="11.5" font-weight="700" fill="#1e1b18">id</text>
+<text x="1611" y="1120" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M1371 1126H1619" stroke="#efe6e2" stroke-width="1"/>
+<rect x="1377" y="1130" width="22" height="12" rx="3" fill="#00629b"/>
+<text x="1388" y="1139.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">FK</text>
+<text x="1406" y="1140" font-size="11.5" font-weight="400" fill="#1e1b18">producto_id</text>
+<text x="1611" y="1140" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M1371 1146H1619" stroke="#efe6e2" stroke-width="1"/>
+<text x="1406" y="1160" font-size="11.5" font-weight="400" fill="#1e1b18">tipo</text>
+<text x="1611" y="1160" font-size="9.5" fill="#8d7166" text-anchor="end">ENUM</text>
+<path d="M1371 1166H1619" stroke="#efe6e2" stroke-width="1"/>
+<text x="1406" y="1180" font-size="11.5" font-weight="400" fill="#1e1b18">stock_en_alerta</text>
+<text x="1611" y="1180" font-size="9.5" fill="#8d7166" text-anchor="end">DECIMAL(12,3)</text>
+<path d="M1371 1186H1619" stroke="#efe6e2" stroke-width="1"/>
+<text x="1406" y="1200" font-size="11.5" font-weight="400" fill="#1e1b18">punto_reorden</text>
+<text x="1611" y="1200" font-size="9.5" fill="#8d7166" text-anchor="end">DECIMAL(12,3)</text>
+<path d="M1371 1206H1619" stroke="#efe6e2" stroke-width="1"/>
+<text x="1406" y="1220" font-size="11.5" font-weight="400" fill="#1e1b18">mensaje</text>
+<text x="1611" y="1220" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(255)</text>
+<path d="M1371 1226H1619" stroke="#efe6e2" stroke-width="1"/>
+<text x="1406" y="1240" font-size="11.5" font-weight="400" fill="#1e1b18">estado</text>
+<text x="1611" y="1240" font-size="9.5" fill="#8d7166" text-anchor="end">ENUM</text>
+<path d="M1371 1246H1619" stroke="#efe6e2" stroke-width="1"/>
+<text x="1406" y="1260" font-size="11.5" font-weight="400" fill="#1e1b18">generada_en</text>
+<text x="1611" y="1260" font-size="9.5" fill="#8d7166" text-anchor="end">DATETIME</text>
+<path d="M1371 1266H1619" stroke="#efe6e2" stroke-width="1"/>
+<text x="1406" y="1280" font-size="11.5" font-weight="400" fill="#1e1b18">vista_en</text>
+<text x="1611" y="1280" font-size="9.5" fill="#8d7166" text-anchor="end">DATETIME</text>
+<path d="M1371 1286H1619" stroke="#efe6e2" stroke-width="1"/>
+<rect x="1377" y="1290" width="22" height="12" rx="3" fill="#00629b"/>
+<text x="1388" y="1299.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">FK</text>
+<text x="1406" y="1300" font-size="11.5" font-weight="400" fill="#1e1b18">vista_por</text>
+<text x="1611" y="1300" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M1371 1306H1619" stroke="#efe6e2" stroke-width="1"/>
+<text x="1406" y="1320" font-size="11.5" font-weight="400" fill="#1e1b18">resuelta_en</text>
+<text x="1611" y="1320" font-size="9.5" fill="#8d7166" text-anchor="end">DATETIME</text>
+</g>
+<g>
+<rect x="40" y="96" width="250" height="310" rx="7" fill="#ffffff" stroke="#8d7166" stroke-width="1.3"/>
+<path d="M40 126V103a7 7 0 0 1 7 -7H283a7 7 0 0 1 7 7V126Z" fill="#8d7166"/>
+<text x="52" y="116" font-size="13.5" font-weight="700" fill="#ffffff">bitacora</text>
+<text x="280" y="116" font-size="10" fill="#ffffff" fill-opacity="0.8" text-anchor="end">14 columnas</text>
+<rect x="47" y="130" width="22" height="12" rx="3" fill="#c9a904"/>
+<text x="58" y="139.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">PK</text>
+<text x="76" y="140" font-size="11.5" font-weight="700" fill="#1e1b18">id</text>
+<text x="281" y="140" font-size="9.5" fill="#8d7166" text-anchor="end">BIGINT UNSIGNED</text>
+<path d="M41 146H289" stroke="#efe6e2" stroke-width="1"/>
+<rect x="47" y="150" width="22" height="12" rx="3" fill="#00629b"/>
+<text x="58" y="159.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">FK</text>
+<text x="76" y="160" font-size="11.5" font-weight="400" fill="#1e1b18">usuario_id</text>
+<text x="281" y="160" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M41 166H289" stroke="#efe6e2" stroke-width="1"/>
+<text x="76" y="180" font-size="11.5" font-weight="400" fill="#1e1b18">usuario_nombre</text>
+<text x="281" y="180" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(120)</text>
+<path d="M41 186H289" stroke="#efe6e2" stroke-width="1"/>
+<text x="76" y="200" font-size="11.5" font-weight="400" fill="#1e1b18">accion</text>
+<text x="281" y="200" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(60)</text>
+<path d="M41 206H289" stroke="#efe6e2" stroke-width="1"/>
+<text x="76" y="220" font-size="11.5" font-weight="400" fill="#1e1b18">modulo</text>
+<text x="281" y="220" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(40)</text>
+<path d="M41 226H289" stroke="#efe6e2" stroke-width="1"/>
+<text x="76" y="240" font-size="11.5" font-weight="400" fill="#1e1b18">descripcion</text>
+<text x="281" y="240" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(255)</text>
+<path d="M41 246H289" stroke="#efe6e2" stroke-width="1"/>
+<text x="76" y="260" font-size="11.5" font-weight="400" fill="#1e1b18">nivel</text>
+<text x="281" y="260" font-size="9.5" fill="#8d7166" text-anchor="end">ENUM</text>
+<path d="M41 266H289" stroke="#efe6e2" stroke-width="1"/>
+<text x="76" y="280" font-size="11.5" font-weight="400" fill="#1e1b18">entidad</text>
+<text x="281" y="280" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(40)</text>
+<path d="M41 286H289" stroke="#efe6e2" stroke-width="1"/>
+<text x="76" y="300" font-size="11.5" font-weight="400" fill="#1e1b18">entidad_id</text>
+<text x="281" y="300" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(40)</text>
+<path d="M41 306H289" stroke="#efe6e2" stroke-width="1"/>
+<text x="76" y="320" font-size="11.5" font-weight="400" fill="#1e1b18">datos_antes</text>
+<text x="281" y="320" font-size="9.5" fill="#8d7166" text-anchor="end">LONGTEXT</text>
+<path d="M41 326H289" stroke="#efe6e2" stroke-width="1"/>
+<text x="76" y="340" font-size="11.5" font-weight="400" fill="#1e1b18">datos_despues</text>
+<text x="281" y="340" font-size="9.5" fill="#8d7166" text-anchor="end">LONGTEXT</text>
+<path d="M41 346H289" stroke="#efe6e2" stroke-width="1"/>
+<text x="76" y="360" font-size="11.5" font-weight="400" fill="#1e1b18">ip</text>
+<text x="281" y="360" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(45)</text>
+<path d="M41 366H289" stroke="#efe6e2" stroke-width="1"/>
+<text x="76" y="380" font-size="11.5" font-weight="400" fill="#1e1b18">user_agent</text>
+<text x="281" y="380" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(255)</text>
+<path d="M41 386H289" stroke="#efe6e2" stroke-width="1"/>
+<text x="76" y="400" font-size="11.5" font-weight="400" fill="#1e1b18">creado_en</text>
+<text x="281" y="400" font-size="9.5" fill="#8d7166" text-anchor="end">DATETIME</text>
+</g>
+<g>
+<rect x="40" y="456" width="250" height="210" rx="7" fill="#ffffff" stroke="#8d7166" stroke-width="1.3"/>
+<path d="M40 486V463a7 7 0 0 1 7 -7H283a7 7 0 0 1 7 7V486Z" fill="#8d7166"/>
+<text x="52" y="476" font-size="13.5" font-weight="700" fill="#ffffff">respaldos</text>
+<text x="280" y="476" font-size="10" fill="#ffffff" fill-opacity="0.8" text-anchor="end">9 columnas</text>
+<rect x="47" y="490" width="22" height="12" rx="3" fill="#c9a904"/>
+<text x="58" y="499.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">PK</text>
+<text x="76" y="500" font-size="11.5" font-weight="700" fill="#1e1b18">id</text>
+<text x="281" y="500" font-size="9.5" fill="#8d7166" text-anchor="end">INT UNSIGNED</text>
+<path d="M41 506H289" stroke="#efe6e2" stroke-width="1"/>
+<text x="76" y="520" font-size="11.5" font-weight="400" fill="#1e1b18">nombre_archivo</text>
+<text x="281" y="520" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(180)</text>
+<path d="M41 526H289" stroke="#efe6e2" stroke-width="1"/>
+<text x="76" y="540" font-size="11.5" font-weight="400" fill="#1e1b18">ruta</text>
+<text x="281" y="540" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(255)</text>
+<path d="M41 546H289" stroke="#efe6e2" stroke-width="1"/>
+<text x="76" y="560" font-size="11.5" font-weight="400" fill="#1e1b18">tamano_bytes</text>
+<text x="281" y="560" font-size="9.5" fill="#8d7166" text-anchor="end">BIGINT UNSIGNED</text>
+<path d="M41 566H289" stroke="#efe6e2" stroke-width="1"/>
+<text x="76" y="580" font-size="11.5" font-weight="400" fill="#1e1b18">tipo</text>
+<text x="281" y="580" font-size="9.5" fill="#8d7166" text-anchor="end">ENUM</text>
+<path d="M41 586H289" stroke="#efe6e2" stroke-width="1"/>
+<text x="76" y="600" font-size="11.5" font-weight="400" fill="#1e1b18">estado</text>
+<text x="281" y="600" font-size="9.5" fill="#8d7166" text-anchor="end">ENUM</text>
+<path d="M41 606H289" stroke="#efe6e2" stroke-width="1"/>
+<text x="76" y="620" font-size="11.5" font-weight="400" fill="#1e1b18">iniciado_en</text>
+<text x="281" y="620" font-size="9.5" fill="#8d7166" text-anchor="end">DATETIME</text>
+<path d="M41 626H289" stroke="#efe6e2" stroke-width="1"/>
+<text x="76" y="640" font-size="11.5" font-weight="400" fill="#1e1b18">finalizado_en</text>
+<text x="281" y="640" font-size="9.5" fill="#8d7166" text-anchor="end">DATETIME</text>
+<path d="M41 646H289" stroke="#efe6e2" stroke-width="1"/>
+<text x="76" y="660" font-size="11.5" font-weight="400" fill="#1e1b18">mensaje</text>
+<text x="281" y="660" font-size="9.5" fill="#8d7166" text-anchor="end">VARCHAR(255)</text>
+</g>
+<rect x="26" y="866" width="278" height="250" rx="12" fill="#ffffff" stroke="#e1bfb3"/>
+<text x="40" y="888" font-size="13" font-weight="700" fill="#594138" letter-spacing="0.6">CÓMO LEER EL DIAGRAMA</text>
+<rect x="40" y="908" width="22" height="12" rx="3" fill="#c9a904"/>
+<text x="51" y="917.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">PK</text>
+<text x="74" y="918" font-size="11.5" fill="#1e1b18">Llave primaria</text>
+<rect x="40" y="930" width="22" height="12" rx="3" fill="#00629b"/>
+<text x="51" y="939.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">FK</text>
+<text x="74" y="940" font-size="11.5" fill="#1e1b18">Llave foránea</text>
+<rect x="40" y="952" width="22" height="12" rx="3" fill="#8d7166"/>
+<text x="51" y="961.2" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">UQ</text>
+<text x="74" y="962" font-size="11.5" fill="#1e1b18">Valor único</text>
+<path d="M40 988H100" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M47 993L47 983" fill="none" stroke="#594138" stroke-width="1.4" />
+<path d="M89 988L100 983M89 988L100 993" fill="none" stroke="#594138" stroke-width="1.4" />
+<text x="112" y="992" font-size="11.5" fill="#1e1b18">Uno (barra) a muchos (pata)</text>
+<path d="M40 1014H100" fill="none" stroke="#594138" stroke-width="1.4" />
+<circle cx="70" cy="1014" r="2.6" fill="#594138"/>
+<text x="112" y="1018" font-size="11.5" fill="#1e1b18">Con punto se unen; sin punto se cruzan</text>
+<path d="M40 1040H100" fill="none" stroke="#7e57c2" stroke-width="1.4" />
+<text x="112" y="1044" font-size="11.5" fill="#1e1b18">Quién lo hizo: llave hacia usuarios</text>
+<text x="40" y="1070" font-size="10.5" fill="#8d7166">Cada línea sale de la columna FK y llega a la</text>
+<text x="40" y="1085" font-size="10.5" fill="#8d7166">columna id de la tabla a la que apunta.</text>
+</svg>
