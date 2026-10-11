@@ -201,6 +201,13 @@ ok('RF2 consecutivo avanza', segundo.j.datos.consecutivo === comp.consecutivo + 
 
 const pdfComp = await api('GET', '/comprobantes/' + comp.id + '/descargar?formato=pdf', { token: TC, raw: true });
 ok('RF2 descarga comprobante en PDF', pdfComp.status === 200 && pdfComp.buf.slice(0, 5).toString() === '%PDF-');
+// El PDF copia la tirilla de la página: su ancho (378 px son 283,5 puntos) y sus tres fuentes
+const pdfCrudo = pdfComp.buf.toString('latin1');
+ok('RF2 el PDF mide lo mismo que la tirilla de la pagina', pdfCrudo.includes('/MediaBox [0 0 283.50 '),
+  (pdfCrudo.match(/\/MediaBox \[[^\]]*\]/) || [''])[0]);
+ok('RF2 el PDF incrusta las fuentes de la pagina',
+  ['WorkSans-Regular', 'WorkSans-SemiBold', 'Baloo2-ExtraBold'].every((f) => pdfCrudo.includes('/FontName /KERICO+' + f))
+  && (pdfCrudo.match(/\/FontFile2 /g) || []).length === 3);
 
 // ---------- RF3 : Descuentos ----------
 seccion('RF3 Descuentos y promociones');

@@ -4,10 +4,19 @@ declare(strict_types=1);
 
 namespace Kerico\Nucleo;
 
+// El comprobante en PDF, igual al que muestra la página: mismo contenido, fuentes y medidas que el componente
+// Tirilla (frontend/src/componentes/GestionVentas.jsx) y la regla .tirilla de index.css. Si cambia uno, cambia el otro.
 final class TirillaPdf
 {
-    private const ANCHO = 226.77;
-    private const MARGEN = 14.0;
+    // Medidas en píxeles de CSS, como en la hoja de estilos; un píxel son 0,75 puntos de PDF
+    private const PUNTOS = 0.75;
+    private const ANCHO = 378.0;
+    // 1 px de borde más 20 px de relleno
+    private const MARGEN = 21.0;
+    private const RADIO = 8.0;
+    private const INTERLINEA = 1.5;
+    // El navegador redondea la altura de la letra al píxel físico: se imita una pantalla de doble densidad
+    private const DENSIDAD = 2;
 
     private const NARANJA = [0.922, 0.369, 0.082];
     private const CARBON = [0.118, 0.106, 0.094];
@@ -15,14 +24,20 @@ final class TirillaPdf
     private const ARENA = [0.882, 0.749, 0.702];
     private const ERROR = [0.729, 0.102, 0.102];
 
+    // Nombre de cada fuente dentro del PDF y su archivo
+    private const FUENTES = [
+        'normal' => ['F1', 'WorkSans-Regular'],
+        'fuerte' => ['F2', 'WorkSans-SemiBold'],
+        'marca'  => ['F3', 'Baloo2-ExtraBold'],
+    ];
+
     private array $comprobante;
     private array $emisor;
     private array $cliente;
     private array $detalle;
-    private array $totales;
+    /** @var array<string, FuentePdf> */
+    private array $fuentes = [];
     private string $flujo = '';
-    private float $alto = 0.0;
-    private float $y = 0.0;
 
     public function __construct(array $comprobante)
     {
@@ -30,96 +45,9 @@ final class TirillaPdf
         $this->emisor = $comprobante['emisor'] ?? [];
         $this->cliente = $comprobante['cliente'] ?? [];
         $this->detalle = $comprobante['detalle'] ?? [];
-        $this->totales = $this->filasTotales();
-        $this->alto = $this->calcularAlto();
-    }
-
-    private function filasTotales(): array
-    {
-        $filas = [['Subtotal', $this->dinero($this->comprobante['subtotal'] ?? 0), false]];
-        if ((float) ($this->comprobante['descuento'] ?? 0) > 0) {
-            $filas[] = ['Descuento', '- ' . $this->dinero($this->comprobante['descuento']), false];
+        foreach (self::FUENTES as $clave => [, $archivo]) {
+            $this->fuentes[$clave] = new FuentePdf(__DIR__ . '/../recursos/fuentes/' . $archivo . '.ttf');
         }
-        $filas[] = ['Base gravable', $this->dinero($this->comprobante['base_gravable'] ?? 0), false];
-        $filas[] = ['Impuesto', $this->dinero($this->comprobante['impuesto'] ?? 0), false];
-        $filas[] = ['TOTAL', $this->dinero($this->comprobante['total'] ?? 0), true];
-        return $filas;
-    }
-
-    private function envolver(string $texto, int $ancho, int $maximo): array
-    {
-        $palabras = preg_split('/\s+/', trim($texto)) ?: [];
-        $lineas = [];
-        $actual = '';
-        foreach ($palabras as $palabra) {
-            $prueba = $actual === '' ? $palabra : $actual . ' ' . $palabra;
-            if (mb_strlen($prueba) > $ancho && $actual !== '') {
-                $lineas[] = $actual;
-                $actual = $palabra;
-            } else {
-                $actual = $prueba;
-            }
-        }
-        if ($actual !== '') {
-            $lineas[] = $actual;
-        }
-        return array_slice($lineas === [] ? [$texto] : $lineas, 0, $maximo);
-    }
-
-    private function lineasNombre(string $nombre): array
-    {
-        $palabras = preg_split('/\s+/', trim($nombre)) ?: [];
-        $lineas = [];
-        $actual = '';
-        foreach ($palabras as $palabra) {
-            $prueba = $actual === '' ? $palabra : $actual . ' ' . $palabra;
-            if (mb_strlen($prueba) > 26 && $actual !== '') {
-                $lineas[] = $actual;
-                $actual = $palabra;
-            } else {
-                $actual = $prueba;
-            }
-        }
-        if ($actual !== '') {
-            $lineas[] = $actual;
-        }
-        return array_slice($lineas === [] ? [$nombre] : $lineas, 0, 3);
-    }
-
-    private function calcularAlto(): float
-    {
-        $alto = self::MARGEN;
-        $alto += 26;
-        $alto += 4 * 11;
-        $alto += 12;
-
-        $alto += 6 * 12;
-        if (trim((string) ($this->cliente['documento'] ?? '')) !== '') {
-            $alto += 12;
-        }
-        $alto += 12;
-
-        foreach ($this->detalle as $item) {
-            $alto += count($this->lineasNombre((string) ($item['nombre'] ?? ''))) * 11;
-            $alto += 11;
-            $alto += 3;
-        }
-        $alto += 12;
-
-        $alto += count($this->totales) * 13;
-        $alto += 12;
-
-        $alto += 24;
-        $resolucionTexto = (string) ($this->comprobante['resolucion_dian'] ?? '');
-        if (trim($resolucionTexto) !== '') {
-            $alto += count($this->envolver($resolucionTexto, 44, 4)) * 9;
-        }
-        if (($this->comprobante['estado'] ?? '') === 'Anulado') {
-            $alto += 20;
-        }
-        $alto += self::MARGEN;
-
-        return max($alto, 260.0);
     }
 
     private function dinero($valor): string
@@ -133,164 +61,228 @@ final class TirillaPdf
         return rtrim(rtrim($texto, '0'), '.');
     }
 
-    private function escapar(string $texto): string
+    // La misma fecha que escribe fechaHora() en la página: 24/09/2026, 02:20 p. m.
+    private function fecha(string $valor): string
     {
-        $convertido = @iconv('UTF-8', 'Windows-1252//IGNORE', $texto);
-        if ($convertido === false || $convertido === '') {
-            $convertido = @iconv('UTF-8', 'Windows-1252//TRANSLIT', $texto);
+        $marca = strtotime($valor);
+        if ($marca === false) {
+            return $valor;
         }
-        if ($convertido === false) {
-            $convertido = preg_replace('/[^\x20-\x7E]/', '', $texto) ?? '';
-        }
-        return str_replace(['\\', '(', ')', "\r", "\n"], ['\\\\', '\\(', '\\)', '', ' '], $convertido);
+        return date('d/m/Y, h:i', $marca) . (date('a', $marca) === 'am' ? ' a. m.' : ' p. m.');
     }
 
-    private function ancho(string $texto, float $tamano, bool $negrita): float
+    // Parte un texto en renglones que caben en $ancho, cortando entre palabras
+    private function envolver(string $texto, string $fuente, float $tamano, float $ancho): array
     {
-        return mb_strlen($texto) * $tamano * ($negrita ? 0.56 : 0.5);
+        $lineas = [];
+        $actual = '';
+        foreach (preg_split('/\s+/u', trim($texto), -1, PREG_SPLIT_NO_EMPTY) ?: [] as $palabra) {
+            $prueba = $actual === '' ? $palabra : $actual . ' ' . $palabra;
+            if ($actual !== '' && $this->fuentes[$fuente]->ancho($prueba, $tamano) > $ancho) {
+                $lineas[] = $actual;
+                $actual = $palabra;
+            } else {
+                $actual = $prueba;
+            }
+        }
+        if ($actual !== '') {
+            $lineas[] = $actual;
+        }
+        return $lineas;
     }
 
-    private function texto(string $texto, float $x, float $tamano, bool $negrita, array $color): void
+    /**
+     * Dibuja un renglón, que en la página es una caja de línea, y devuelve dónde empieza el siguiente.
+     * Cada tramo es [fuente, texto, color, cifras tabulares]. Los textos vecinos de igual estilo van en un
+     * solo tramo, porque el navegador los compone juntos y aplica kerning entre ellos.
+     */
+    private function renglon(float $tope, float $tamano, array $tramos, string $alineacion = 'izquierda', ?float $alto = null, float $espaciado = 0.0): float
     {
+        $alto ??= $tamano * self::INTERLINEA;
+        $ancho = 0.0;
+        foreach ($tramos as [$fuente, $texto, , $tabular]) {
+            $ancho += $this->fuentes[$fuente]->ancho($texto, $tamano, $tabular, $espaciado);
+        }
+        $x = match ($alineacion) {
+            'centro'  => (self::ANCHO - $ancho) / 2,
+            'derecha' => self::ANCHO - self::MARGEN - $ancho,
+            default   => self::MARGEN,
+        };
+
+        // Línea base como la calcula el navegador: letra centrada en el alto del renglón, redondeando al píxel físico
+        $letra = $this->fuentes[$tramos[0][0]];
+        $ascenso = round($letra->ascenso * $tamano * self::DENSIDAD) / self::DENSIDAD;
+        $descenso = round($letra->descenso * $tamano * self::DENSIDAD) / self::DENSIDAD;
+        $base = $tope + $ascenso + floor(($alto - $ascenso - $descenso) / 2 * self::DENSIDAD) / self::DENSIDAD;
+
+        foreach ($tramos as [$fuente, $texto, $color, $tabular]) {
+            $this->flujo .= sprintf(
+                "BT /%s %.2F Tf %.3F %.3F %.3F rg %.4F Tc 1 0 0 -1 %.3F %.3F Tm %s TJ ET\n",
+                self::FUENTES[$fuente][0], $tamano, $color[0], $color[1], $color[2], $espaciado, $x, $base,
+                $this->fuentes[$fuente]->escribir($texto, $tabular)
+            );
+            $x += $this->fuentes[$fuente]->ancho($texto, $tamano, $tabular, $espaciado);
+        }
+        return $tope + $alto;
+    }
+
+    // La raya punteada entre secciones: un <hr> de 1 px con 10 px de margen arriba y abajo
+    private function raya(float $tope): float
+    {
+        // Rayas de 3 px separadas unos 2 px. Como el navegador, se ajusta el hueco para que la línea empiece y
+        // termine en raya, eligiendo entre poner una raya más o una menos el hueco que quede más cerca de 2 px
+        $largo = self::ANCHO - 2 * self::MARGEN;
+        $rayas = floor(($largo + 2) / 5);
+        $huecoAmplio = ($largo - $rayas * 3) / ($rayas - 1);
+        $huecoEstrecho = ($largo - ($rayas + 1) * 3) / $rayas;
+        $hueco = ($huecoEstrecho <= 0 || abs($huecoAmplio - 2) < abs($huecoEstrecho - 2)) ? $huecoAmplio : $huecoEstrecho;
+
         $this->flujo .= sprintf(
-            "BT %.3F %.3F %.3F rg /%s %.2F Tf %.2F %.2F Td (%s) Tj ET\n",
-            $color[0], $color[1], $color[2],
-            $negrita ? 'F2' : 'F1',
-            $tamano, $x, $this->y,
-            $this->escapar($texto)
+            "%.3F %.3F %.3F RG 1 w [3 %.4F] 0 d %.2F %.2F m %.2F %.2F l S [] 0 d\n",
+            self::ARENA[0], self::ARENA[1], self::ARENA[2], $hueco,
+            self::MARGEN, $tope + 10.5, self::ANCHO - self::MARGEN, $tope + 10.5
         );
+        return $tope + 21;
     }
 
-    private function centrado(string $texto, float $tamano, bool $negrita, array $color): void
+    // El marco redondeado de la tarjeta
+    private function marco(float $alto): string
     {
-        $x = (self::ANCHO - $this->ancho($texto, $tamano, $negrita)) / 2;
-        $this->texto($texto, max($x, self::MARGEN), $tamano, $negrita, $color);
-    }
-
-    private function derecha(string $texto, float $tamano, bool $negrita, array $color): void
-    {
-        $x = self::ANCHO - self::MARGEN - $this->ancho($texto, $tamano, $negrita);
-        $this->texto($texto, $x, $tamano, $negrita, $color);
-    }
-
-    private function separador(): void
-    {
-        $this->y -= 6;
-        $this->flujo .= sprintf(
-            "%.3F %.3F %.3F RG 0.5 w %.2F %.2F m %.2F %.2F l S\n",
+        // 0,5 px hacia adentro para que el trazo de 1 px quede completo dentro de la hoja
+        [$x0, $y0, $x1, $y1, $r] = [0.5, 0.5, self::ANCHO - 0.5, $alto - 0.5, self::RADIO - 0.5];
+        // Distancia de los puntos de control que hace de una curva de Bézier un cuarto de círculo
+        $k = $r * 0.5523;
+        return sprintf(
+            "%.3F %.3F %.3F RG 1 w %.3F %.3F m %.3F %.3F l %.3F %.3F %.3F %.3F %.3F %.3F c %.3F %.3F l "
+            . "%.3F %.3F %.3F %.3F %.3F %.3F c %.3F %.3F l %.3F %.3F %.3F %.3F %.3F %.3F c %.3F %.3F l "
+            . "%.3F %.3F %.3F %.3F %.3F %.3F c h S\n",
             self::ARENA[0], self::ARENA[1], self::ARENA[2],
-            self::MARGEN, $this->y, self::ANCHO - self::MARGEN, $this->y
+            $x0 + $r, $y0, $x1 - $r, $y0, $x1 - $r + $k, $y0, $x1, $y0 + $r - $k, $x1, $y0 + $r,
+            $x1, $y1 - $r, $x1, $y1 - $r + $k, $x1 - $r + $k, $y1, $x1 - $r, $y1,
+            $x0 + $r, $y1, $x0 + $r - $k, $y1, $x0, $y1 - $r + $k, $x0, $y1 - $r,
+            $x0, $y0 + $r, $x0, $y0 + $r - $k, $x0 + $r - $k, $y0, $x0 + $r, $y0
         );
-        $this->y -= 6;
     }
 
     public function generar(): string
     {
-        $this->y = $this->alto - self::MARGEN - 16;
+        $contenido = self::ANCHO - 2 * self::MARGEN;
+        $normal = static fn (string $texto, array $color = self::CARBON, bool $tabular = false): array => ['normal', $texto, $color, $tabular];
+        $y = self::MARGEN;
 
-        $this->centrado((string) ($this->emisor['nombre'] ?? 'Ke-Rico!'), 20, true, self::NARANJA);
-        $this->y -= 13;
-
+        // Encabezado: nombre y datos del emisor, centrados
+        $nombre = trim((string) ($this->emisor['nombre'] ?? '')) ?: 'Ke-Rico!';
+        $y = $this->renglon($y, 22, [['marca', $nombre, self::NARANJA, false]], 'centro', 22 * 0.95, -0.012 * 22);
+        $nit = trim((string) ($this->emisor['nit'] ?? ''));
         foreach ([
             (string) ($this->emisor['razon_social'] ?? ''),
-            'NIT ' . (string) ($this->emisor['nit'] ?? ''),
+            $nit === '' ? '' : 'NIT ' . $nit,
             (string) ($this->emisor['direccion'] ?? ''),
             (string) ($this->emisor['telefono'] ?? ''),
         ] as $linea) {
-            if (trim($linea) === '' || $linea === 'NIT ') continue;
-            $this->centrado($linea, 8, false, self::PIEDRA);
-            $this->y -= 10;
+            if (trim($linea) !== '') {
+                $y = $this->renglon($y, 11, [$normal(trim($linea), self::PIEDRA)], 'centro');
+            }
         }
+        $y = $this->raya($y);
 
-        $this->separador();
-
-        $tipo = (string) ($this->comprobante['tipo'] ?? 'Comprobante');
-        $this->texto($tipo, self::MARGEN, 9, true, self::CARBON);
-        $this->derecha('N.º ' . (string) ($this->comprobante['numero'] ?? ''), 9, false, self::CARBON);
-        $this->y -= 12;
-
+        // Datos del comprobante
+        $y = $this->renglon($y, 12, [
+            ['fuerte', (string) ($this->comprobante['tipo'] ?? 'Comprobante'), self::CARBON, false],
+            $normal(' N.º ' . (string) ($this->comprobante['numero'] ?? '')),
+        ]);
+        $documento = trim((string) ($this->cliente['documento'] ?? ''));
         foreach ([
-            'Fecha: ' . (string) ($this->comprobante['fecha_emision'] ?? ''),
+            'Fecha: ' . $this->fecha((string) ($this->comprobante['fecha_emision'] ?? '')),
             'Venta: ' . (string) ($this->comprobante['folio'] ?? ''),
             'Cajero: ' . (string) ($this->comprobante['cajero'] ?? ''),
-            'Cliente: ' . (string) ($this->cliente['nombre'] ?? 'Consumidor final'),
+            'Cliente: ' . (trim((string) ($this->cliente['nombre'] ?? '')) ?: 'Consumidor final'),
+            $documento === '' ? '' : trim((string) ($this->cliente['tipo_documento'] ?? '') . ' ' . $documento),
         ] as $linea) {
-            $this->texto($linea, self::MARGEN, 8, false, self::CARBON);
-            $this->y -= 11;
-        }
-
-        $documento = trim((string) ($this->cliente['documento'] ?? '')) === ''
-            ? ''
-            : trim((string) ($this->cliente['tipo_documento'] ?? '') . ' ' . (string) ($this->cliente['documento'] ?? ''));
-        if ($documento !== '') {
-            $this->texto($documento, self::MARGEN, 8, false, self::CARBON);
-            $this->y -= 11;
-        }
-
-        $this->separador();
-
-        foreach ($this->detalle as $item) {
-            foreach ($this->lineasNombre((string) ($item['nombre'] ?? '')) as $linea) {
-                $this->texto($linea, self::MARGEN, 8.5, false, self::CARBON);
-                $this->y -= 10;
+            if ($linea !== '') {
+                $y = $this->renglon($y, 12, [$normal($linea)]);
             }
-            $this->texto(
+        }
+        $y = $this->raya($y);
+
+        // Productos: el nombre y debajo "cantidad x precio"; a la derecha, el total de la línea
+        $valores = array_map(fn (array $item): string => $this->dinero($item['total'] ?? 0), $this->detalle);
+        $anchoValores = 0.0;
+        foreach ($valores as $valor) {
+            $anchoValores = max($anchoValores, $this->fuentes['normal']->ancho($valor, 12.5, true));
+        }
+        foreach ($this->detalle as $i => $item) {
+            $nombreProducto = trim((string) ($item['nombre'] ?? ''));
+            // Un nombre que no cabe junto a la columna de valores baja al renglón siguiente, como en la tabla de la página
+            $lineas = $this->fuentes['normal']->ancho($nombreProducto, 12.5) + $anchoValores > $contenido
+                ? $this->envolver($nombreProducto, 'normal', 12.5, $contenido - $anchoValores)
+                : [$nombreProducto];
+            $fila = $y + 3;
+            $y = $fila;
+            foreach ($lineas as $linea) {
+                $y = $this->renglon($y, 12.5, [$normal($linea)]);
+            }
+            $y = $this->renglon($y, 12.5, [$normal(
                 $this->cantidad($item['cantidad'] ?? 0) . ' x ' . $this->dinero($item['precio_unitario'] ?? 0),
-                self::MARGEN + 6,
-                8,
-                false,
-                self::PIEDRA
-            );
-            $this->derecha($this->dinero($item['total'] ?? 0), 8.5, false, self::CARBON);
-            $this->y -= 14;
+                self::PIEDRA,
+                true
+            )]);
+            // El valor se escribe al final para que el texto copiado salga en el orden de la página
+            $this->renglon($fila, 12.5, [$normal($valores[$i], self::CARBON, true)], 'derecha');
+            $y += 3;
         }
+        $y = $this->raya($y);
 
-        $this->separador();
-
-        foreach ($this->totales as [$etiqueta, $valor, $fuerte]) {
-            $tamano = $fuerte ? 11 : 8.5;
-            $this->texto($etiqueta, self::MARGEN, $tamano, $fuerte, self::CARBON);
-            $this->derecha($valor, $tamano, $fuerte, self::CARBON);
-            $this->y -= $fuerte ? 15 : 12;
+        // Totales
+        $totales = [['Subtotal', $this->dinero($this->comprobante['subtotal'] ?? 0)]];
+        if ((float) ($this->comprobante['descuento'] ?? 0) > 0) {
+            $totales[] = ['Descuento', '- ' . $this->dinero($this->comprobante['descuento'])];
         }
+        $totales[] = ['Base gravable', $this->dinero($this->comprobante['base_gravable'] ?? 0)];
+        $totales[] = ['Impuesto', $this->dinero($this->comprobante['impuesto'] ?? 0)];
+        foreach ($totales as [$etiqueta, $valor]) {
+            $this->renglon($y + 3, 12.5, [$normal($etiqueta)]);
+            $y = $this->renglon($y + 3, 12.5, [$normal($valor, self::CARBON, true)], 'derecha') + 3;
+        }
+        $this->renglon($y + 3, 15, [['fuerte', 'TOTAL', self::CARBON, false]]);
+        $y = $this->renglon($y + 3, 15, [['fuerte', $this->dinero($this->comprobante['total'] ?? 0), self::CARBON, true]], 'derecha') + 3;
+        $y = $this->raya($y);
 
-        $this->separador();
-
+        // Pie
         if (($this->comprobante['estado'] ?? '') === 'Anulado') {
-            $this->centrado('COMPROBANTE ANULADO', 10, true, self::ERROR);
-            $this->y -= 16;
+            $y = $this->renglon($y, 13, [['fuerte', 'COMPROBANTE ANULADO', self::ERROR, false]], 'centro') + 8;
         }
-
-        $resolucion = (string) ($this->comprobante['resolucion_dian'] ?? '');
-        if (trim($resolucion) !== '') {
-            foreach ($this->envolver($resolucion, 44, 4) as $linea) {
-                $this->centrado($linea, 7, false, self::PIEDRA);
-                $this->y -= 9;
-            }
+        foreach ($this->envolver((string) ($this->comprobante['resolucion_dian'] ?? ''), 'normal', 10, $contenido) as $linea) {
+            $y = $this->renglon($y, 10, [$normal($linea, self::PIEDRA)], 'centro');
         }
+        $y = $this->renglon($y + 8, 11, [$normal('Gracias por su compra')], 'centro');
 
-        $this->y -= 4;
-        $this->centrado('Gracias por su compra', 9, false, self::CARBON);
-
-        return $this->ensamblar();
+        return $this->ensamblar($y + self::MARGEN);
     }
 
-    private function ensamblar(): string
+    private function ensamblar(float $alto): string
     {
-        $objetos = [];
-        $objetos[1] = '<< /Type /Catalog /Pages 2 0 R >>';
-        $objetos[2] = '<< /Type /Pages /Kids [3 0 R] /Count 1 >>';
-        $objetos[3] = sprintf(
-            '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 %.2F %.2F] '
-            . '/Resources << /Font << /F1 5 0 R /F2 6 0 R >> >> /Contents 4 0 R >>',
-            self::ANCHO,
-            $this->alto
-        );
-        $objetos[4] = '<< /Length ' . strlen($this->flujo) . " >>\nstream\n" . $this->flujo . 'endstream';
-        $objetos[5] = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>';
-        $objetos[6] = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>';
+        $objetos = [1 => '<< /Type /Catalog /Pages 2 0 R >>', 2 => '<< /Type /Pages /Kids [3 0 R] /Count 1 >>', 3 => '', 4 => ''];
 
-        $pdf = "%PDF-1.4\n";
+        // El origen pasa a la esquina superior izquierda y las medidas a píxeles, como en la página
+        $flujo = sprintf("%.4F 0 0 -%.4F 0 %.3F cm\n", self::PUNTOS, self::PUNTOS, $alto * self::PUNTOS)
+            . $this->marco($alto) . $this->flujo;
+        $objetos[4] = '<< /Length ' . strlen($flujo) . " >>\nstream\n" . $flujo . 'endstream';
+
+        // Las fuentes se incrustan al final, cuando ya se sabe qué letras usó el documento
+        $recursos = '';
+        foreach (self::FUENTES as $clave => [$nombre, $archivo]) {
+            $recursos .= '/' . $nombre . ' ' . $this->fuentes[$clave]->incrustar($objetos, 'KERICO+' . $archivo) . ' 0 R ';
+        }
+        $objetos[3] = sprintf(
+            '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 %.2F %.2F] /Resources << /Font << %s>> >> /Contents 4 0 R >>',
+            self::ANCHO * self::PUNTOS,
+            $alto * self::PUNTOS,
+            $recursos
+        );
+
+        // La segunda línea, con bytes altos, avisa a quien transporte el archivo de que es binario
+        $pdf = "%PDF-1.4\n%\xE2\xE3\xCF\xD3\n";
         $posiciones = [];
         foreach ($objetos as $id => $cuerpo) {
             $posiciones[$id] = strlen($pdf);

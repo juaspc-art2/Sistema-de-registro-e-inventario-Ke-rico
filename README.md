@@ -94,6 +94,18 @@ La configuración está en [INSTALACION.md](INSTALACION.md#7-envío-de-correo-sm
 
 ---
 
+## Comprobantes en PDF
+
+El PDF de un comprobante es igual al que muestra la página: mismas fuentes, medidas y
+contenido. Para lograrlo lleva incrustadas las fuentes Work Sans y Baloo 2, que están en
+`backend/recursos/fuentes/` junto a su licencia (SIL Open Font License 1.1).
+
+La tirilla de la página (`Tirilla` en `frontend/src/componentes/GestionVentas.jsx`, con la
+regla `.tirilla` de `index.css`) y la del PDF (`backend/nucleo/TirillaPdf.php`) se
+mantienen a mano: un cambio en una debe repetirse en la otra.
+
+---
+
 ## Requerimientos funcionales
 
 | Código | Requerimiento | Dónde está |

@@ -56,6 +56,18 @@ revisar(
     false
 );
 
+// El comprobante en PDF lleva incrustadas las mismas fuentes de la página
+$fuentes = count(glob(__DIR__ . '/recursos/fuentes/*.ttf') ?: []);
+revisar(
+    $resultados,
+    'Comprobantes en PDF',
+    $fuentes >= 3 && function_exists('gzcompress'),
+    $fuentes < 3
+        ? 'faltan las fuentes de api/recursos/fuentes: los comprobantes no se podrán descargar'
+        : (function_exists('gzcompress') ? $fuentes . ' fuentes disponibles' : 'falta la extensión zlib para incrustar las fuentes'),
+    false
+);
+
 $smtp = $config['correo'];
 revisar(
     $resultados,

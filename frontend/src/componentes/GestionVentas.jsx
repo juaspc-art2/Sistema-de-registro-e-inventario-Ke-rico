@@ -364,22 +364,24 @@ function Punto({ avisar, alRegistrar }) {
   );
 }
 
+// El PDF que se descarga copia esta tirilla medida por medida (backend/nucleo/TirillaPdf.php): si cambia una, cambia la otra
 export function Tirilla({ comprobante }) {
   const e = comprobante.emisor || {};
   const c = comprobante.cliente || {};
   return (
     <div className="tirilla">
       <div className="centro">
-        <div className="marca" style={{ fontSize: 22, color: 'var(--naranja)' }}>Ke-Rico!</div>
+        <div className="marca" style={{ fontSize: 22, color: 'var(--naranja)' }}>{e.nombre || 'Ke-Rico!'}</div>
         <div style={{ fontSize: 11, color: 'var(--piedra)' }}>{e.razon_social}</div>
-        <div style={{ fontSize: 11, color: 'var(--piedra)' }}>NIT {e.nit}</div>
+        {e.nit ? <div style={{ fontSize: 11, color: 'var(--piedra)' }}>NIT {e.nit}</div> : null}
         <div style={{ fontSize: 11, color: 'var(--piedra)' }}>{e.direccion}</div>
         <div style={{ fontSize: 11, color: 'var(--piedra)' }}>{e.telefono}</div>
       </div>
       <hr />
       <div style={{ fontSize: 12 }}>
         <div><strong>{comprobante.tipo}</strong> N.º {comprobante.numero}</div>
-        <div>Fecha: {fechaHora(comprobante.fecha_emision)}</div>
+        {/* Algunos navegadores separan "p. m." con espacios especiales; el PDF usa espacios comunes */}
+        <div>Fecha: {fechaHora(comprobante.fecha_emision).replace(/[\u00a0\u202f]/g, ' ')}</div>
         <div>Venta: {comprobante.folio}</div>
         <div>Cajero: {comprobante.cajero}</div>
         <div>Cliente: {c.nombre || 'Consumidor final'}</div>
@@ -420,6 +422,11 @@ export function Tirilla({ comprobante }) {
         </tbody>
       </table>
       <hr />
+      {comprobante.estado === 'Anulado' ? (
+        <div className="centro" style={{ fontSize: 13, fontWeight: 700, color: 'var(--error)', marginBottom: 8 }}>
+          COMPROBANTE ANULADO
+        </div>
+      ) : null}
       <div className="centro" style={{ fontSize: 10, color: 'var(--piedra)' }}>
         {comprobante.resolucion_dian}
       </div>

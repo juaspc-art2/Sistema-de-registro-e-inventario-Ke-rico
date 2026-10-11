@@ -190,7 +190,6 @@ export default function EmisionComprobantes() {
             </>
           }
         >
-          {detalle.estado === 'Anulado' ? <Aviso tipo="error">Este comprobante fue anulado.</Aviso> : null}
           <Tirilla comprobante={detalle} />
         </Modal>
       ) : null}
