@@ -33,11 +33,11 @@ final class ProveedoresControlador
         $validador = new Validador($peticion->cuerpo());
         $datos = [
             'nombre_empresa'  => $validador->texto('nombre_empresa', 'El nombre de la empresa', true, 120, 2),
-            'nit'             => $validador->texto('nit', 'El NIT', true, 30, 5),
-            'telefono'        => $validador->texto('telefono', 'El telefono', false, 30),
+            'nit'             => $validador->formato('nit', 'El NIT', 'NIT', true, 30),
+            'telefono'        => $validador->formato('telefono', 'El teléfono', 'telefono', false, 30),
             'correo'          => $validador->correo('correo', 'El correo', false),
             'direccion'       => $validador->texto('direccion', 'La direccion', false, 180),
-            'contacto_nombre' => $validador->texto('contacto_nombre', 'El contacto', false, 120),
+            'contacto_nombre' => $validador->formato('contacto_nombre', 'El nombre del contacto', 'nombre', false, 120),
             'tipo_productos'  => $validador->texto('tipo_productos', 'El tipo de productos', true, 180, 3),
             'estado'          => $validador->opcion('estado', 'El estado', Proveedor::ESTADOS, false, 'Activo'),
             'calificacion'    => $validador->decimal('calificacion', 'La calificacion', false, 0, 5) ?? 0.0,

@@ -9,6 +9,7 @@ use Kerico\Nucleo\Bd;
 use Kerico\Nucleo\Bitacora;
 use Kerico\Nucleo\ErrorHttp;
 use Kerico\Nucleo\Paginador;
+use Kerico\Nucleo\Validador;
 
 final class Proveedor
 {
@@ -285,6 +286,13 @@ final class Proveedor
                         ['items' => 'Costo inválido']
                     );
                 }
+                // Sin tope, una cantidad o un costo desmedidos no caben en la columna y la compra falla con un error interno
+                if ($cantidad > Validador::CANTIDAD_MAXIMA || $costo > Validador::DINERO_MAXIMO) {
+                    throw ErrorHttp::validacion(
+                        'La cantidad o el costo de la línea ' . ($indice + 1) . ' supera el máximo permitido',
+                        ['items' => 'Valor excesivo']
+                    );
+                }
 
                 $producto = Bd::primero('SELECT * FROM productos WHERE id = ? AND deleted_at IS NULL', [$productoId]);
                 if ($producto === null) {
@@ -304,6 +312,10 @@ final class Proveedor
             $subtotal = round($subtotal, 2);
             $impuesto = round((float) ($datos['impuesto'] ?? 0), 2);
             $total = round($subtotal + $impuesto, 2);
+            // 9.999.999.999,99 es lo que cabe en el total de una compra
+            if ($impuesto < 0 || !($total < 10000000000)) {
+                throw ErrorHttp::validacion('El total de la compra supera el máximo permitido', ['items' => 'Total excesivo']);
+            }
             $estado = ($datos['estado'] ?? '') === 'Pendiente' ? 'Pendiente' : 'Recibida';
 
             $numeroTemporal = 'TMP-' . bin2hex(random_bytes(6));

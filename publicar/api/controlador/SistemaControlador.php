@@ -85,15 +85,16 @@ final class SistemaControlador
     private static function datosUsuario(Peticion $peticion, bool $creando): array
     {
         $validador = new Validador($peticion->cuerpo());
+        $tipoDocumento = $validador->opcion('tipo_documento', 'El tipo de documento', ['CC', 'TI', 'CE', 'PA', 'NIT'], false, 'CC');
         $datos = [
-            'usuario'        => $validador->texto('usuario', 'El usuario', true, 40, 3),
-            'nombre'         => $validador->texto('nombre', 'El nombre', true, 80, 2),
-            'apellido'       => $validador->texto('apellido', 'El apellido', true, 80, 2),
-            'tipo_documento' => $validador->opcion('tipo_documento', 'El tipo de documento', ['CC', 'TI', 'CE', 'PA', 'NIT'], false, 'CC'),
-            'documento'      => $validador->texto('documento', 'El documento', true, 30, 5),
-            'fecha_nac'      => $validador->fecha('fecha_nac', 'La fecha de nacimiento', false),
+            'usuario'        => $validador->formato('usuario', 'El usuario', 'usuario', true, 40, 3),
+            'nombre'         => $validador->formato('nombre', 'El nombre', 'nombre', true, 80, 2),
+            'apellido'       => $validador->formato('apellido', 'El apellido', 'nombre', true, 80, 2),
+            'tipo_documento' => $tipoDocumento,
+            'documento'      => $validador->formato('documento', 'El documento', $tipoDocumento, true, 30, 5),
+            'fecha_nac'      => $validador->fecha('fecha_nac', 'La fecha de nacimiento', false, '1900-01-01', date('Y-m-d')),
             'correo'         => $validador->correo('correo', 'El correo', true),
-            'telefono'       => $validador->texto('telefono', 'El telefono', false, 30),
+            'telefono'       => $validador->formato('telefono', 'El teléfono', 'telefono', false, 30),
             'cargo'          => $validador->texto('cargo', 'El cargo', false, 80),
             'rol_id'         => $validador->entero('rol_id', 'El rol', true, 1),
             'activo'         => $validador->booleano('activo', true),

@@ -164,6 +164,10 @@ final class Venta
             $impuestoTotal = round($total - $baseGravable, 2);
 
             $recibido = round((float) ($datos['monto_recibido'] ?? $total), 2);
+            // 9.999.999.999,99 es lo que cabe en la columna; un número mayor fallaba con un error interno
+            if (!($recibido < 10000000000)) {
+                throw ErrorHttp::validacion('El monto recibido supera el máximo permitido', ['monto_recibido' => 'Valor excesivo']);
+            }
             if ($metodo === 'Efectivo' && $recibido < $total) {
                 throw ErrorHttp::validacion(
                     'El monto recibido es menor que el total de la venta',
