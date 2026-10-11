@@ -449,58 +449,6 @@ JOIN categorias c ON c.id = p.categoria_id
 LEFT JOIN proveedores pr ON pr.id = p.proveedor_id
 WHERE p.deleted_at IS NULL;
 
-CREATE OR REPLACE VIEW v_rentabilidad_producto AS
-SELECT
-  p.id AS producto_id,
-  p.sku,
-  p.nombre,
-  c.nombre AS categoria,
-  COALESCE(SUM(vd.cantidad), 0) AS unidades_vendidas,
-  COALESCE(SUM(vd.subtotal), 0) AS ingresos,
-  COALESCE(SUM(vd.costo_unitario * vd.cantidad), 0) AS costo_total,
-  COALESCE(SUM(vd.subtotal) - SUM(vd.costo_unitario * vd.cantidad), 0) AS utilidad_bruta,
-  CASE
-    WHEN COALESCE(SUM(vd.subtotal), 0) = 0 THEN 0
-    ELSE ROUND(((SUM(vd.subtotal) - SUM(vd.costo_unitario * vd.cantidad)) / SUM(vd.subtotal)) * 100, 2)
-  END AS margen_porcentaje
-FROM productos p
-JOIN categorias c ON c.id = p.categoria_id
-LEFT JOIN venta_detalle vd ON vd.producto_id = p.id
-LEFT JOIN ventas v ON v.id = vd.venta_id AND v.estado = 'Completada'
-GROUP BY p.id, p.sku, p.nombre, c.nombre;
-
-CREATE OR REPLACE VIEW v_ventas_diarias AS
-SELECT
-  DATE(v.fecha) AS dia,
-  COUNT(DISTINCT v.id) AS transacciones,
-  SUM(v.subtotal) AS subtotal,
-  SUM(v.descuento_total) AS descuentos,
-  SUM(v.impuesto_total) AS impuestos,
-  SUM(v.total) AS total,
-  SUM(v.costo_total) AS costo,
-  SUM(v.total - v.impuesto_total - v.costo_total) AS utilidad
-FROM ventas v
-WHERE v.estado = 'Completada'
-GROUP BY DATE(v.fecha);
-
-CREATE OR REPLACE VIEW v_rentabilidad_categoria AS
-SELECT
-  c.id AS categoria_id,
-  c.nombre AS categoria,
-  COALESCE(SUM(vd.cantidad), 0) AS unidades_vendidas,
-  COALESCE(SUM(vd.subtotal), 0) AS ingresos,
-  COALESCE(SUM(vd.costo_unitario * vd.cantidad), 0) AS costo_total,
-  COALESCE(SUM(vd.subtotal) - SUM(vd.costo_unitario * vd.cantidad), 0) AS utilidad_bruta,
-  CASE
-    WHEN COALESCE(SUM(vd.subtotal), 0) = 0 THEN 0
-    ELSE ROUND(((SUM(vd.subtotal) - SUM(vd.costo_unitario * vd.cantidad)) / SUM(vd.subtotal)) * 100, 2)
-  END AS margen_porcentaje
-FROM categorias c
-LEFT JOIN productos p ON p.categoria_id = c.id
-LEFT JOIN venta_detalle vd ON vd.producto_id = p.id
-LEFT JOIN ventas v ON v.id = vd.venta_id AND v.estado = 'Completada'
-GROUP BY c.id, c.nombre;
-
 
 
 INSERT INTO roles (id, nombre, descripcion) VALUES
@@ -600,16 +548,11 @@ INSERT INTO configuracion (clave, valor, tipo, descripcion) VALUES
   ('resolucion_dian', 'Resolución DIAN 18764003456789 del 2026-01-15, prefijo KR, rango 1 al 50000', 'texto', 'Resolución de facturación'),
   ('comprobante_prefijo', 'KR', 'texto', 'Prefijo del consecutivo de comprobantes'),
   ('comprobante_consecutivo', '1', 'entero', 'Siguiente consecutivo disponible'),
-  ('impuesto_alimentos', '8.00', 'decimal', 'Impuesto al consumo para alimentos preparados'),
-  ('impuesto_bebidas', '19.00', 'decimal', 'IVA general para bebidas envasadas'),
   ('sesion_minutos_inactividad', '15', 'entero', 'Cierre automático de sesión por inactividad'),
   ('intentos_maximos_login', '5', 'entero', 'Intentos fallidos antes de bloquear la cuenta'),
   ('bloqueo_minutos', '15', 'entero', 'Duración del bloqueo por intentos fallidos'),
   ('respaldo_intervalo_horas', '24', 'entero', 'Frecuencia de respaldo automático'),
-  ('respaldo_directorio', 'respaldos', 'texto', 'Carpeta donde se guardan los respaldos'),
-  ('alerta_factor_critico', '0.5', 'decimal', 'Fracción del punto de reorden que marca estado crítico'),
-  ('moneda_simbolo', '$', 'texto', 'Símbolo de moneda'),
-  ('moneda_codigo', 'COP', 'texto', 'Código ISO de moneda');
+  ('notificaciones_correo', '', 'texto', 'Correo que recibe las alertas de stock (vacío: no se envían)');
 
 INSERT INTO categorias (id, nombre, descripcion) VALUES
   (1, 'Empanadas', 'Empanadas de maíz fritas, rellenas'),
@@ -935,13 +878,13 @@ UPDATE productos SET stock_actual = CASE id
 END WHERE id BETWEEN 1 AND 23;
 
 INSERT INTO alertas_stock (producto_id, tipo, stock_en_alerta, punto_reorden, mensaje, estado, generada_en) VALUES
-  (4, 'Bajo', 36.000, 40.000, 'Empanada hawaiana esta en 36.000 unidad frente a un punto de reorden de 40.000 unidad.', 'Pendiente', '2026-09-13 21:30:00'),
-  (8, 'Bajo', 26.000, 30.000, 'Pastel de yuca esta en 26.000 unidad frente a un punto de reorden de 30.000 unidad.', 'Pendiente', '2026-09-13 21:30:00'),
-  (9, 'Critico', 10.000, 25.000, 'Carimañola esta en 10.000 unidad frente a un punto de reorden de 25.000 unidad.', 'Pendiente', '2026-09-13 21:30:00'),
-  (10, 'Agotado', 0.000, 12.000, 'Gaseosa 2 L se quedo sin existencias. Reponer de inmediato.', 'Pendiente', '2026-09-13 21:30:00'),
-  (15, 'Critico', 8.000, 25.000, 'Masa de maíz peto esta en 8.000 kg frente a un punto de reorden de 25.000 kg.', 'Pendiente', '2026-09-13 21:30:00'),
-  (18, 'Bajo', 9.000, 10.000, 'Queso campesino esta en 9.000 kg frente a un punto de reorden de 10.000 kg.', 'Pendiente', '2026-09-13 21:30:00'),
-  (19, 'Bajo', 17.000, 20.000, 'Aceite de girasol esta en 17.000 litro frente a un punto de reorden de 20.000 litro.', 'Pendiente', '2026-09-13 21:30:00');
+  (4, 'Bajo', 36.000, 40.000, 'Empanada hawaiana está en 36 unidades frente a un punto de reorden de 40 unidades.', 'Pendiente', '2026-09-13 21:30:00'),
+  (8, 'Bajo', 26.000, 30.000, 'Pastel de yuca está en 26 unidades frente a un punto de reorden de 30 unidades.', 'Pendiente', '2026-09-13 21:30:00'),
+  (9, 'Critico', 10.000, 25.000, 'Carimañola está en 10 unidades frente a un punto de reorden de 25 unidades.', 'Pendiente', '2026-09-13 21:30:00'),
+  (10, 'Agotado', 0.000, 12.000, 'Gaseosa 2 L se quedó sin existencias. Reponer de inmediato.', 'Pendiente', '2026-09-13 21:30:00'),
+  (15, 'Critico', 8.000, 25.000, 'Masa de maíz peto está en 8 kg frente a un punto de reorden de 25 kg.', 'Pendiente', '2026-09-13 21:30:00'),
+  (18, 'Bajo', 9.000, 10.000, 'Queso campesino está en 9 kg frente a un punto de reorden de 10 kg.', 'Pendiente', '2026-09-13 21:30:00'),
+  (19, 'Bajo', 17.000, 20.000, 'Aceite de girasol está en 17 litros frente a un punto de reorden de 20 litros.', 'Pendiente', '2026-09-13 21:30:00');
 
 INSERT INTO bitacora (usuario_id, usuario_nombre, accion, modulo, descripcion, nivel, entidad, entidad_id, ip, user_agent, creado_en) VALUES
   (1, 'Juan Steban Peña Cárdenas', 'INSTALACION', 'Sistema', 'Base de datos inicializada con datos de arranque', 'Sistema', 'sistema', '', '127.0.0.1', 'Ke-Rico Sistema', '2026-09-01 07:00:00'),
@@ -969,3 +912,20 @@ INSERT INTO respaldos (nombre_archivo, ruta, tamano_bytes, tipo, estado, iniciad
   ('kerico-20260912-020000.sql', 'respaldos/kerico-20260912-020000.sql', 486233, 'Automatico', 'Completado', '2026-09-12 02:00:00', '2026-09-12 02:01:00', 'Respaldo automático de 24 horas'),
   ('kerico-20260913-020000.sql', 'respaldos/kerico-20260913-020000.sql', 502118, 'Automatico', 'Completado', '2026-09-13 02:00:00', '2026-09-13 02:01:00', 'Respaldo automático de 24 horas');
 
+
+-- Las fechas de arriba son relativas. Al importar, todas se corren los mismos días para que la
+-- última venta quede en el día de ayer: el panel, los reportes del mes y las promociones vigentes
+-- tienen datos recientes sin importar cuándo se cargue la semilla. Las horas no cambian.
+SET @dias = DATEDIFF(CURDATE(), (SELECT DATE(MAX(fecha)) FROM ventas)) - 1;
+
+UPDATE promociones SET fecha_inicio = fecha_inicio + INTERVAL @dias DAY, fecha_fin = fecha_fin + INTERVAL @dias DAY;
+UPDATE compras SET fecha = fecha + INTERVAL @dias DAY;
+UPDATE ventas SET fecha = fecha + INTERVAL @dias DAY;
+UPDATE descuentos_aplicados SET creado_en = creado_en + INTERVAL @dias DAY;
+UPDATE comprobantes SET fecha_emision = fecha_emision + INTERVAL @dias DAY;
+UPDATE movimientos_inventario SET creado_en = creado_en + INTERVAL @dias DAY;
+UPDATE alertas_stock SET generada_en = generada_en + INTERVAL @dias DAY;
+UPDATE bitacora SET creado_en = creado_en + INTERVAL @dias DAY;
+UPDATE respaldos SET iniciado_en = iniciado_en + INTERVAL @dias DAY, finalizado_en = finalizado_en + INTERVAL @dias DAY;
+UPDATE respaldos SET nombre_archivo = CONCAT('kerico-', DATE_FORMAT(iniciado_en, '%Y%m%d-%H%i%s'), '.sql');
+UPDATE respaldos SET ruta = CONCAT('respaldos/', nombre_archivo);
