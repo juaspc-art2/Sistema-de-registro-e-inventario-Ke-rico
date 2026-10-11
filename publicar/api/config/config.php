@@ -20,6 +20,14 @@ return [
         'password' => entorno('KERICO_DB_PASS', ''),
         'charset'  => 'utf8mb4',
     ],
+    // Sin KERICO_SMTP_HOST el sistema no envía correos. Puerto 465: TLS directo; otros: STARTTLS
+    'correo' => [
+        'host'      => entorno('KERICO_SMTP_HOST', ''),
+        'puerto'    => (int) entorno('KERICO_SMTP_PORT', '587'),
+        'usuario'   => entorno('KERICO_SMTP_USER', ''),
+        'password'  => entorno('KERICO_SMTP_PASS', ''),
+        'remitente' => entorno('KERICO_SMTP_FROM', ''),
+    ],
     'app' => [
         'nombre'          => 'Sistema de Registro e Inventario Ke-Rico!',
         'version'         => '1.0.0',
@@ -27,6 +35,5 @@ return [
         'origenes'        => ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost', 'http://127.0.0.1'],
         'depuracion'      => entorno('KERICO_DEBUG', '0') === '1',
         'ruta_respaldos'  => __DIR__ . '/../respaldos',
-        'ruta_mysqldump'  => entorno('KERICO_MYSQLDUMP', ''),
     ],
 ];

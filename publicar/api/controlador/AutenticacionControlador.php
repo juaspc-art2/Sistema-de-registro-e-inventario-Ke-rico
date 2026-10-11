@@ -7,6 +7,7 @@ namespace Kerico\Controlador;
 use Kerico\Modelo\Usuario;
 use Kerico\Nucleo\Ajustes;
 use Kerico\Nucleo\Autenticacion;
+use Kerico\Nucleo\Correo;
 use Kerico\Nucleo\Peticion;
 use Kerico\Nucleo\Respuesta;
 use Kerico\Nucleo\Validador;
@@ -17,7 +18,7 @@ final class AutenticacionControlador
     {
         $validador = new Validador($peticion->cuerpo());
         $usuario = $validador->texto('usuario', 'El usuario', true, 120);
-        $password = $validador->texto('password', 'La contraseña', true, 120);
+        $password = $validador->texto('password', 'La contraseña', true, 120, 0, true);
         $validador->validar();
 
         $sesion = Autenticacion::iniciarSesion($usuario, $password, $peticion->ip(), $peticion->agente());
@@ -41,14 +42,15 @@ final class AutenticacionControlador
             'permisos'       => Autenticacion::permisos(),
             'minutos_sesion' => (int) Ajustes::obtener('sesion_minutos_inactividad', 15),
             'empresa'        => Ajustes::emisor(),
+            'correo_activo'  => Correo::activo(),
         ]);
     }
 
     public static function cambiarPassword(Peticion $peticion): void
     {
         $validador = new Validador($peticion->cuerpo());
-        $actual = $validador->texto('password_actual', 'La contraseña actual', true, 120);
-        $nueva = $validador->texto('password_nueva', 'La nueva contraseña', true, 120, 3);
+        $actual = $validador->texto('password_actual', 'La contraseña actual', true, 120, 0, true);
+        $nueva = $validador->texto('password_nueva', 'La nueva contraseña', true, 120, 3, true);
         $validador->validar();
 
         Usuario::cambiarPassword(Autenticacion::idUsuario(), $actual, $nueva);
@@ -61,10 +63,12 @@ final class AutenticacionControlador
         $correo = $validador->correo('correo', 'El correo', true);
         $validador->validar();
 
-        $resultado = Usuario::solicitarRecuperacion($correo);
+        Usuario::solicitarRecuperacion($correo);
         Respuesta::exito(
-            $resultado,
-            'Si el correo está registrado se generó un enlace de recuperación válido por una hora'
+            ['enviado' => true, 'por_correo' => Correo::activo()],
+            Correo::activo()
+                ? 'Si el correo está registrado, recibirá un código para definir una contraseña nueva'
+                : 'Si el correo está registrado, la solicitud quedó en el registro de actividad para el administrador'
         );
     }
 
@@ -72,7 +76,7 @@ final class AutenticacionControlador
     {
         $validador = new Validador($peticion->cuerpo());
         $token = $validador->texto('token', 'El token', true, 64);
-        $password = $validador->texto('password', 'La nueva contraseña', true, 120, 3);
+        $password = $validador->texto('password', 'La nueva contraseña', true, 120, 3, true);
         $validador->validar();
 
         Usuario::restablecerConToken($token, $password);

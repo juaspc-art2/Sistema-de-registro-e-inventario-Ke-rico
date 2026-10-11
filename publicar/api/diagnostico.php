@@ -2,6 +2,12 @@
 
 declare(strict_types=1);
 
+// Muestra usuario de la base, rutas y versiones: solo se responde al propio equipo
+if (!in_array($_SERVER['REMOTE_ADDR'] ?? '', ['127.0.0.1', '::1'], true)) {
+    http_response_code(404);
+    exit;
+}
+
 header('Content-Type: text/html; charset=utf-8');
 
 $config = require __DIR__ . '/config/config.php';
@@ -50,6 +56,17 @@ revisar(
     false
 );
 
+$smtp = $config['correo'];
+revisar(
+    $resultados,
+    'Correo (SMTP)',
+    $smtp['host'] !== '' && extension_loaded('openssl'),
+    $smtp['host'] === ''
+        ? 'sin configurar: defina KERICO_SMTP_HOST para enviar comprobantes, reportes y avisos'
+        : ($smtp['host'] . ':' . $smtp['puerto'] . (extension_loaded('openssl') ? '' : ' (falta la extensión openssl para cifrar)')),
+    false
+);
+
 $bd = $config['bd'];
 $conexion = null;
 $errorBd = '';
@@ -79,7 +96,7 @@ $TABLAS = [
     'venta_detalle', 'descuentos_aplicados', 'comprobantes', 'compras', 'compra_detalle',
     'movimientos_inventario', 'alertas_stock', 'bitacora', 'respaldos',
 ];
-$VISTAS = ['v_estado_inventario', 'v_rentabilidad_producto', 'v_ventas_diarias', 'v_rentabilidad_categoria'];
+$VISTAS = ['v_estado_inventario'];
 
 if ($conexion !== null) {
     $existentes = [];

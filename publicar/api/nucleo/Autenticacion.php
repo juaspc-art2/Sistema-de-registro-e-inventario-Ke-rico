@@ -6,6 +6,8 @@ namespace Kerico\Nucleo;
 
 final class Autenticacion
 {
+    private const HASH_SENUELO = '$2y$10$OenjZa2Me9AZ6EswgdESW.haK4/TTbcrCNBrtXuveW.zbDhSlLJDG';
+
     private static ?array $usuario = null;
     private static ?string $token = null;
     private static ?string $csrf = null;
@@ -25,7 +27,16 @@ final class Autenticacion
         $intentosMaximos = (int) Ajustes::obtener('intentos_maximos_login', 5);
         $bloqueoMinutos = (int) Ajustes::obtener('bloqueo_minutos', 15);
 
+        // Una sola respuesta para usuario inexistente, clave errada y cuenta bloqueada:
+        // así el inicio de sesión no sirve para averiguar qué cuentas existen
+        $rechazo = ErrorHttp::noAutenticado(
+            'Usuario o contraseña incorrectos. Tras ' . $intentosMaximos . ' intentos fallidos la cuenta se bloquea '
+            . $bloqueoMinutos . ' minutos.'
+        );
+
         if ($fila === null) {
+            // Mismo trabajo que con una cuenta real: el tiempo de respuesta tampoco la delata
+            password_verify($password, self::HASH_SENUELO);
             Bitacora::registrar(
                 'LOGIN_FALLIDO',
                 'Autenticacion',
@@ -37,16 +48,12 @@ final class Autenticacion
                 null,
                 null
             );
-            throw ErrorHttp::noAutenticado('Usuario o contraseña incorrectos');
-        }
-
-        if ((int) $fila['activo'] !== 1) {
-            throw ErrorHttp::sinPermiso('La cuenta se encuentra inactiva. Contacte al administrador.');
+            throw $rechazo;
         }
 
         if ($fila['bloqueado_hasta'] !== null && strtotime((string) $fila['bloqueado_hasta']) > time()) {
-            $restante = (int) ceil((strtotime((string) $fila['bloqueado_hasta']) - time()) / 60);
-            throw ErrorHttp::sinPermiso('Cuenta bloqueada por intentos fallidos. Intente en ' . $restante . ' minuto(s).');
+            password_verify($password, self::HASH_SENUELO);
+            throw $rechazo;
         }
 
         if (!password_verify($password, (string) $fila['password_hash'])) {
@@ -63,7 +70,8 @@ final class Autenticacion
             Bitacora::registrar(
                 'LOGIN_FALLIDO',
                 'Autenticacion',
-                'Intento de inicio de sesión fallido para el usuario ' . $fila['usuario'],
+                'Intento de inicio de sesión fallido para el usuario ' . $fila['usuario']
+                . ($bloqueo !== null ? '. Cuenta bloqueada por ' . $bloqueoMinutos . ' minutos' : ''),
                 'Error',
                 'usuarios',
                 $fila['id'],
@@ -71,10 +79,11 @@ final class Autenticacion
                 null,
                 self::comoUsuario($fila)
             );
-            if ($bloqueo !== null) {
-                throw ErrorHttp::sinPermiso('Cuenta bloqueada por ' . $bloqueoMinutos . ' minutos tras varios intentos fallidos.');
-            }
-            throw ErrorHttp::noAutenticado('Usuario o contraseña incorrectos');
+            throw $rechazo;
+        }
+
+        if ((int) $fila['activo'] !== 1) {
+            throw ErrorHttp::sinPermiso('La cuenta se encuentra inactiva. Contacte al administrador.');
         }
 
         if (password_needs_rehash((string) $fila['password_hash'], PASSWORD_BCRYPT)) {

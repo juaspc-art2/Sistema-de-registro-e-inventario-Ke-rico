@@ -14,9 +14,12 @@ final class Validador
         $this->datos = $datos;
     }
 
-    public function texto(string $campo, string $etiqueta, bool $obligatorio = true, int $maximo = 255, int $minimo = 0): string
+    public function texto(string $campo, string $etiqueta, bool $obligatorio = true, int $maximo = 255, int $minimo = 0, bool $crudo = false): string
     {
-        $valor = Sanitizador::texto((string) ($this->datos[$campo] ?? ''));
+        $valor = (string) ($this->datos[$campo] ?? '');
+        if (!$crudo) {
+            $valor = Sanitizador::texto($valor);
+        }
         if ($valor === '' && $obligatorio) {
             $this->errores[$campo] = $etiqueta . ' es obligatorio';
             return '';

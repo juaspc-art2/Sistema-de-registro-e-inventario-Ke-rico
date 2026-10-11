@@ -8,6 +8,7 @@ use Kerico\Nucleo\Autenticacion;
 use Kerico\Nucleo\Bd;
 use Kerico\Nucleo\Bitacora;
 use Kerico\Nucleo\ErrorHttp;
+use Kerico\Nucleo\Exportador;
 use Kerico\Nucleo\Paginador;
 
 final class Venta
@@ -37,7 +38,6 @@ final class Venta
             foreach ($items as $indice => $item) {
                 $productoId = (int) ($item['producto_id'] ?? 0);
                 $cantidad = (float) ($item['cantidad'] ?? 0);
-                $descuentoUnitario = round((float) ($item['descuento_unitario'] ?? 0), 2);
 
                 if ($productoId <= 0) {
                     throw ErrorHttp::validacion('Producto no válido en la línea ' . ($indice + 1), ['items' => 'Producto inválido']);
@@ -48,21 +48,11 @@ final class Venta
                         ['items' => 'Cantidad inválida']
                     );
                 }
-                if ($descuentoUnitario < 0) {
-                    throw ErrorHttp::validacion(
-                        'El descuento no puede ser negativo en la línea ' . ($indice + 1),
-                        ['items' => 'Descuento inválido']
-                    );
-                }
 
-                if (!isset($agrupado[$productoId])) {
-                    $agrupado[$productoId] = ['cantidad' => 0.0, 'descuento_unitario' => $descuentoUnitario];
-                }
-                $agrupado[$productoId]['cantidad'] += $cantidad;
-                $agrupado[$productoId]['descuento_unitario'] = max($agrupado[$productoId]['descuento_unitario'], $descuentoUnitario);
+                $agrupado[$productoId] = ($agrupado[$productoId] ?? 0.0) + $cantidad;
             }
 
-            foreach ($agrupado as $productoId => $item) {
+            foreach ($agrupado as $productoId => $cantidad) {
                 $producto = Bd::primero(
                     'SELECT p.*, c.id AS cat_id FROM productos p JOIN categorias c ON c.id = p.categoria_id
                      WHERE p.id = ? FOR UPDATE',
@@ -79,7 +69,6 @@ final class Venta
                     throw ErrorHttp::conflicto('El insumo ' . $producto['nombre'] . ' no se puede vender directamente');
                 }
 
-                $cantidad = (float) $item['cantidad'];
                 $stock = (float) $producto['stock_actual'];
                 if ($cantidad > $stock) {
                     throw ErrorHttp::conflicto(
@@ -89,9 +78,8 @@ final class Venta
                 }
 
                 $precio = (float) $producto['precio_venta'];
-                $descuentoUnitario = min((float) $item['descuento_unitario'], $precio);
                 $iva = (float) $producto['iva_porcentaje'];
-                $totalLinea = round(($precio - $descuentoUnitario) * $cantidad, 2);
+                $totalLinea = round($precio * $cantidad, 2);
                 $base = round($totalLinea / (1 + $iva / 100), 2);
                 $impuesto = round($totalLinea - $base, 2);
 
@@ -103,7 +91,6 @@ final class Venta
                     'cantidad'           => $cantidad,
                     'precio_unitario'    => $precio,
                     'costo_unitario'     => (float) $producto['precio_costo'],
-                    'descuento_unitario' => $descuentoUnitario,
                     'iva_porcentaje'     => $iva,
                     'subtotal'           => $base,
                     'impuesto'           => $impuesto,
@@ -218,11 +205,11 @@ final class Venta
                 Bd::ejecutar(
                     'INSERT INTO venta_detalle
                         (venta_id, producto_id, sku, nombre_producto, cantidad, precio_unitario, costo_unitario,
-                         descuento_unitario, iva_porcentaje, subtotal, impuesto, total)
-                     VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',
+                         iva_porcentaje, subtotal, impuesto, total)
+                     VALUES (?,?,?,?,?,?,?,?,?,?,?)',
                     [
                         $ventaId, $linea['producto_id'], $linea['sku'], $linea['nombre'], $linea['cantidad'],
-                        $linea['precio_unitario'], $linea['costo_unitario'], $linea['descuento_unitario'],
+                        $linea['precio_unitario'], $linea['costo_unitario'],
                         $linea['iva_porcentaje'], $linea['subtotal'], $linea['impuesto'], $linea['total'],
                     ]
                 );
@@ -260,7 +247,15 @@ final class Venta
                 );
 
                 if ($promocion !== null) {
-                    Bd::ejecutar('UPDATE promociones SET usos_actuales = usos_actuales + 1 WHERE id = ?', [$promocion['id']]);
+                    // La condición va en el UPDATE: dos cajas a la vez no pueden gastar el mismo último uso
+                    $reservado = Bd::ejecutar(
+                        'UPDATE promociones SET usos_actuales = usos_actuales + 1
+                         WHERE id = ? AND (usos_maximos = 0 OR usos_actuales < usos_maximos)',
+                        [$promocion['id']]
+                    );
+                    if ($reservado === 0) {
+                        throw ErrorHttp::conflicto('La promoción alcanzo el maximo de usos');
+                    }
                 }
 
                 Bitacora::registrar(
@@ -312,7 +307,13 @@ final class Venta
         $comprobantes = Bd::consultar('SELECT id, numero, tipo, estado FROM comprobantes WHERE venta_id = ?', [$id]);
         $descuentos = Bd::consultar('SELECT codigo, tipo, valor_descuento, motivo FROM descuentos_aplicados WHERE venta_id = ?', [$id]);
 
-        return [
+        // Costo y utilidad son datos de rentabilidad: solo para quien puede ver esos reportes
+        $rentabilidad = Autenticacion::tienePermiso('reportes.ver') ? [
+            'costo_total' => (float) $venta['costo_total'],
+            'utilidad'    => round((float) $venta['total'] - (float) $venta['impuesto_total'] - (float) $venta['costo_total'], 2),
+        ] : [];
+
+        return $rentabilidad + [
             'id'              => (int) $venta['id'],
             'folio'           => (string) $venta['folio'],
             'fecha'           => (string) $venta['fecha'],
@@ -324,8 +325,6 @@ final class Venta
             'base_gravable'   => (float) $venta['base_gravable'],
             'impuesto_total'  => (float) $venta['impuesto_total'],
             'total'           => (float) $venta['total'],
-            'costo_total'     => (float) $venta['costo_total'],
-            'utilidad'        => round((float) $venta['total'] - (float) $venta['impuesto_total'] - (float) $venta['costo_total'], 2),
             'metodo_pago'     => (string) $venta['metodo_pago'],
             'monto_recibido'  => (float) $venta['monto_recibido'],
             'cambio'          => (float) $venta['cambio'],
@@ -406,12 +405,14 @@ final class Venta
         return [$sql, $parametros];
     }
 
+    private const COLUMNAS = 'SELECT v.*, CONCAT(u.nombre, " ", u.apellido) AS cajero, c.nombre AS cliente,
+                    (SELECT COUNT(*) FROM venta_detalle d WHERE d.venta_id = v.id) AS lineas';
+
     public static function paginar(array $filtros = []): array
     {
         [$desde, $parametros] = self::filtrar($filtros);
         return Paginador::consultar(
-            'SELECT v.*, CONCAT(u.nombre, " ", u.apellido) AS cajero, c.nombre AS cliente,
-                    (SELECT COUNT(*) FROM venta_detalle d WHERE d.venta_id = v.id) AS lineas',
+            self::COLUMNAS,
             $desde,
             $parametros,
             $filtros,
@@ -439,40 +440,10 @@ final class Venta
         ];
     }
 
-    public static function listar(array $filtros = []): array
+    public static function listar(array $filtros = [], int $limite = Exportador::MAXIMO_FILAS + 1): array
     {
-        $sql = 'SELECT v.*, CONCAT(u.nombre, " ", u.apellido) AS cajero, c.nombre AS cliente,
-                       (SELECT COUNT(*) FROM venta_detalle d WHERE d.venta_id = v.id) AS lineas
-                FROM ventas v
-                JOIN usuarios u ON u.id = v.usuario_id
-                LEFT JOIN clientes c ON c.id = v.cliente_id
-                WHERE 1 = 1';
-        $parametros = [];
-
-        if (!empty($filtros['busqueda'])) {
-            $sql .= ' AND (v.folio LIKE ? OR c.nombre LIKE ?)';
-            $termino = '%' . $filtros['busqueda'] . '%';
-            $parametros[] = $termino;
-            $parametros[] = $termino;
-        }
-        if (!empty($filtros['estado'])) {
-            $sql .= ' AND v.estado = ?';
-            $parametros[] = $filtros['estado'];
-        }
-        if (!empty($filtros['desde'])) {
-            $sql .= ' AND v.fecha >= ?';
-            $parametros[] = $filtros['desde'] . ' 00:00:00';
-        }
-        if (!empty($filtros['hasta'])) {
-            $sql .= ' AND v.fecha <= ?';
-            $parametros[] = $filtros['hasta'] . ' 23:59:59';
-        }
-        if (!empty($filtros['usuario_id'])) {
-            $sql .= ' AND v.usuario_id = ?';
-            $parametros[] = (int) $filtros['usuario_id'];
-        }
-
-        $sql .= ' ORDER BY v.fecha DESC, v.id DESC LIMIT 500';
+        [$desde, $parametros] = self::filtrar($filtros);
+        $sql = self::COLUMNAS . $desde . ' ORDER BY v.fecha DESC, v.id DESC LIMIT ' . (int) $limite;
 
         return array_map([self::class, 'normalizarLista'], Bd::consultar($sql, $parametros));
     }
@@ -562,14 +533,17 @@ final class Venta
         $impuestos = (float) ($fila['impuestos'] ?? 0);
         $costo = (float) ($fila['costo'] ?? 0);
 
-        return [
+        $rentabilidad = Autenticacion::tienePermiso('reportes.ver') ? [
+            'costo'    => $costo,
+            'utilidad' => round($total - $impuestos - $costo, 2),
+        ] : [];
+
+        return $rentabilidad + [
             'dia'           => $dia,
             'transacciones' => (int) ($fila['transacciones'] ?? 0),
             'total'         => $total,
             'descuentos'    => (float) ($fila['descuentos'] ?? 0),
             'impuestos'     => $impuestos,
-            'costo'         => $costo,
-            'utilidad'      => round($total - $impuestos - $costo, 2),
             'unidades'      => (float) ($unidades ?? 0),
         ];
     }

@@ -14,14 +14,24 @@ final class Proveedor
 {
     public const ESTADOS = ['Activo', 'Inactivo', 'En revision'];
 
-    public static function listar(array $filtros = []): array
+    private const COLUMNAS = 'SELECT p.*,
+                    (SELECT COUNT(*) FROM productos pr WHERE pr.proveedor_id = p.id AND pr.deleted_at IS NULL) AS productos,
+                    (SELECT COUNT(*) FROM compras c WHERE c.proveedor_id = p.id) AS compras,
+                    (SELECT COALESCE(SUM(c.total), 0) FROM compras c WHERE c.proveedor_id = p.id AND c.estado = "Recibida") AS monto_comprado,
+                    (SELECT MAX(c.fecha) FROM compras c WHERE c.proveedor_id = p.id) AS ultima_compra';
+
+    private const ORDEN = [
+        'nombre'       => 'p.nombre_empresa',
+        'nit'          => 'p.nit',
+        'estado'       => 'p.estado',
+        'calificacion' => 'p.calificacion',
+        'productos'    => 'productos',
+        'monto'        => 'monto_comprado',
+    ];
+
+    private static function filtrar(array $filtros): array
     {
-        $sql = 'SELECT p.*,
-                       (SELECT COUNT(*) FROM productos pr WHERE pr.proveedor_id = p.id) AS productos,
-                       (SELECT COUNT(*) FROM compras c WHERE c.proveedor_id = p.id) AS compras,
-                       (SELECT COALESCE(SUM(c.total), 0) FROM compras c WHERE c.proveedor_id = p.id AND c.estado = "Recibida") AS monto_comprado,
-                       (SELECT MAX(c.fecha) FROM compras c WHERE c.proveedor_id = p.id) AS ultima_compra
-                FROM proveedores p WHERE p.deleted_at IS NULL';
+        $sql = ' FROM proveedores p WHERE p.deleted_at IS NULL';
         $parametros = [];
 
         if (!empty($filtros['busqueda'])) {
@@ -36,43 +46,22 @@ final class Proveedor
             $parametros[] = $filtros['estado'];
         }
 
-        $sql .= ' ORDER BY p.nombre_empresa';
+        return [$sql, $parametros];
+    }
+
+    public static function listar(array $filtros = []): array
+    {
+        [$desde, $parametros] = self::filtrar($filtros);
+        $sql = self::COLUMNAS . $desde . ' ORDER BY p.nombre_empresa';
 
         return array_map([self::class, 'normalizar'], Bd::consultar($sql, $parametros));
     }
 
-    private const ORDEN = [
-        'nombre'       => 'p.nombre_empresa',
-        'nit'          => 'p.nit',
-        'estado'       => 'p.estado',
-        'calificacion' => 'p.calificacion',
-        'productos'    => 'productos',
-        'monto'        => 'monto_comprado',
-    ];
-
     public static function paginar(array $filtros = []): array
     {
-        $desde = ' FROM proveedores p WHERE p.deleted_at IS NULL';
-        $parametros = [];
-
-        if (!empty($filtros['busqueda'])) {
-            $desde .= ' AND (p.nombre_empresa LIKE ? OR p.nit LIKE ? OR p.tipo_productos LIKE ?)';
-            $termino = '%' . $filtros['busqueda'] . '%';
-            $parametros[] = $termino;
-            $parametros[] = $termino;
-            $parametros[] = $termino;
-        }
-        if (!empty($filtros['estado'])) {
-            $desde .= ' AND p.estado = ?';
-            $parametros[] = $filtros['estado'];
-        }
-
+        [$desde, $parametros] = self::filtrar($filtros);
         return Paginador::consultar(
-            'SELECT p.*,
-                    (SELECT COUNT(*) FROM productos pr WHERE pr.proveedor_id = p.id AND pr.deleted_at IS NULL) AS productos,
-                    (SELECT COUNT(*) FROM compras c WHERE c.proveedor_id = p.id) AS compras,
-                    (SELECT COALESCE(SUM(c.total), 0) FROM compras c WHERE c.proveedor_id = p.id AND c.estado = "Recibida") AS monto_comprado,
-                    (SELECT MAX(c.fecha) FROM compras c WHERE c.proveedor_id = p.id) AS ultima_compra',
+            self::COLUMNAS,
             $desde,
             $parametros,
             $filtros,
@@ -98,12 +87,7 @@ final class Proveedor
     public static function porId(int $id): array
     {
         $fila = Bd::primero(
-            'SELECT p.*,
-                    (SELECT COUNT(*) FROM productos pr WHERE pr.proveedor_id = p.id) AS productos,
-                    (SELECT COUNT(*) FROM compras c WHERE c.proveedor_id = p.id) AS compras,
-                    (SELECT COALESCE(SUM(c.total), 0) FROM compras c WHERE c.proveedor_id = p.id AND c.estado = "Recibida") AS monto_comprado,
-                    (SELECT MAX(c.fecha) FROM compras c WHERE c.proveedor_id = p.id) AS ultima_compra
-             FROM proveedores p WHERE p.id = ? AND p.deleted_at IS NULL',
+            self::COLUMNAS . ' FROM proveedores p WHERE p.id = ? AND p.deleted_at IS NULL',
             [$id]
         );
         if ($fila === null) {
@@ -275,7 +259,7 @@ final class Proveedor
         $usuarioId = Autenticacion::idUsuario();
 
         return Bd::transaccion(static function () use ($items, $proveedorId, $usuarioId, $datos): array {
-            $proveedor = Bd::primero('SELECT * FROM proveedores WHERE id = ?', [$proveedorId]);
+            $proveedor = Bd::primero('SELECT * FROM proveedores WHERE id = ? AND deleted_at IS NULL', [$proveedorId]);
             if ($proveedor === null) {
                 throw ErrorHttp::noEncontrado('El proveedor no existe');
             }
@@ -294,14 +278,15 @@ final class Proveedor
                         ['items' => 'Cantidad inválida']
                     );
                 }
-                if ($costo < 0) {
+                // Al recibir la compra este costo pasa a ser el del producto: un cero dañaría la rentabilidad
+                if ($costo <= 0) {
                     throw ErrorHttp::validacion(
-                        'El costo no puede ser negativo en la línea ' . ($indice + 1),
+                        'El costo debe ser mayor que cero en la línea ' . ($indice + 1),
                         ['items' => 'Costo inválido']
                     );
                 }
 
-                $producto = Bd::primero('SELECT * FROM productos WHERE id = ?', [$productoId]);
+                $producto = Bd::primero('SELECT * FROM productos WHERE id = ? AND deleted_at IS NULL', [$productoId]);
                 if ($producto === null) {
                     throw ErrorHttp::noEncontrado('El producto con identificador ' . $productoId . ' no existe');
                 }
@@ -319,9 +304,7 @@ final class Proveedor
             $subtotal = round($subtotal, 2);
             $impuesto = round((float) ($datos['impuesto'] ?? 0), 2);
             $total = round($subtotal + $impuesto, 2);
-            $estado = in_array($datos['estado'] ?? 'Recibida', ['Recibida', 'Pendiente'], true)
-                ? $datos['estado']
-                : 'Recibida';
+            $estado = ($datos['estado'] ?? '') === 'Pendiente' ? 'Pendiente' : 'Recibida';
 
             $numeroTemporal = 'TMP-' . bin2hex(random_bytes(6));
             $compraId = Bd::insertar(
@@ -450,7 +433,7 @@ final class Proveedor
             $parametros[] = $filtros['hasta'] . ' 23:59:59';
         }
 
-        $sql .= ' ORDER BY c.fecha DESC LIMIT 300';
+        $sql .= ' ORDER BY c.fecha DESC';
 
         return array_map(static fn (array $c): array => [
             'id'        => (int) $c['id'],

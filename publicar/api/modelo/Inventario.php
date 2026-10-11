@@ -8,7 +8,9 @@ use Kerico\Nucleo\Ajustes;
 use Kerico\Nucleo\Autenticacion;
 use Kerico\Nucleo\Bd;
 use Kerico\Nucleo\Bitacora;
+use Kerico\Nucleo\Correo;
 use Kerico\Nucleo\ErrorHttp;
+use Kerico\Nucleo\Exportador;
 use Kerico\Nucleo\Paginador;
 
 final class Inventario
@@ -121,8 +123,8 @@ final class Inventario
         if ($reorden <= 0) {
             return 'Disponible';
         }
-        $factor = (float) Ajustes::obtener('alerta_factor_critico', 0.5);
-        if ($stock <= $reorden * $factor) {
+        // El mismo 0.5 está en la vista v_estado_inventario: si cambia aquí, cambia allá
+        if ($stock <= $reorden * 0.5) {
             return 'Critico';
         }
         if ($stock <= $reorden) {
@@ -150,52 +152,57 @@ final class Inventario
 
         $usuarioId = $usuarioId ?? Autenticacion::idUsuario();
 
-        $producto = Bd::primero('SELECT * FROM productos WHERE id = ? FOR UPDATE', [$productoId]);
-        if ($producto === null) {
-            throw ErrorHttp::noEncontrado('El producto no existe');
-        }
+        // Sin transacción el FOR UPDATE no bloquea nada y el stock puede cambiar sin dejar su movimiento
+        return Bd::transaccion(static function () use (
+            $productoId, $tipo, $cantidad, $motivo, $referenciaTipo, $referenciaId, $observaciones, $usuarioId
+        ): array {
+            $producto = Bd::primero('SELECT * FROM productos WHERE id = ? FOR UPDATE', [$productoId]);
+            if ($producto === null) {
+                throw ErrorHttp::noEncontrado('El producto no existe');
+            }
 
-        $anterior = (float) $producto['stock_actual'];
-        $suma = in_array($tipo, ['Entrada', 'Devolucion'], true);
-        $nuevo = $suma ? $anterior + $cantidad : $anterior - $cantidad;
+            $anterior = (float) $producto['stock_actual'];
+            $suma = in_array($tipo, ['Entrada', 'Devolucion'], true);
+            $nuevo = $suma ? $anterior + $cantidad : $anterior - $cantidad;
 
-        if ($nuevo < 0) {
-            throw ErrorHttp::validacion(
-                'No hay existencias suficientes de ' . $producto['nombre'],
-                ['cantidad' => 'Disponible: ' . rtrim(rtrim(number_format($anterior, 3, '.', ''), '0'), '.')]
+            if ($nuevo < 0) {
+                throw ErrorHttp::validacion(
+                    'No hay existencias suficientes de ' . $producto['nombre'],
+                    ['cantidad' => 'Disponible: ' . rtrim(rtrim(number_format($anterior, 3, '.', ''), '0'), '.')]
+                );
+            }
+
+            Bd::ejecutar('UPDATE productos SET stock_actual = ? WHERE id = ?', [$nuevo, $productoId]);
+
+            $movimientoId = Bd::insertar(
+                'INSERT INTO movimientos_inventario
+                    (producto_id, tipo, motivo, cantidad, stock_anterior, stock_nuevo, costo_unitario,
+                     referencia_tipo, referencia_id, usuario_id, observaciones)
+                 VALUES (?,?,?,?,?,?,?,?,?,?,?)',
+                [
+                    $productoId,
+                    $tipo,
+                    mb_substr($motivo, 0, 120),
+                    $cantidad,
+                    $anterior,
+                    $nuevo,
+                    (float) $producto['precio_costo'],
+                    $referenciaTipo,
+                    $referenciaId,
+                    $usuarioId,
+                    mb_substr($observaciones, 0, 255),
+                ]
             );
-        }
 
-        Bd::ejecutar('UPDATE productos SET stock_actual = ? WHERE id = ?', [$nuevo, $productoId]);
+            self::evaluarAlerta($productoId, $nuevo, (float) $producto['punto_reorden'], (string) $producto['nombre'], (string) $producto['unidad_medida']);
 
-        $movimientoId = Bd::insertar(
-            'INSERT INTO movimientos_inventario
-                (producto_id, tipo, motivo, cantidad, stock_anterior, stock_nuevo, costo_unitario,
-                 referencia_tipo, referencia_id, usuario_id, observaciones)
-             VALUES (?,?,?,?,?,?,?,?,?,?,?)',
-            [
-                $productoId,
-                $tipo,
-                mb_substr($motivo, 0, 120),
-                $cantidad,
-                $anterior,
-                $nuevo,
-                (float) $producto['precio_costo'],
-                $referenciaTipo,
-                $referenciaId,
-                $usuarioId,
-                mb_substr($observaciones, 0, 255),
-            ]
-        );
-
-        self::evaluarAlerta($productoId, $nuevo, (float) $producto['punto_reorden'], (string) $producto['nombre'], (string) $producto['unidad_medida']);
-
-        return [
-            'id'             => $movimientoId,
-            'producto_id'    => $productoId,
-            'stock_anterior' => $anterior,
-            'stock_nuevo'    => $nuevo,
-        ];
+            return [
+                'id'             => $movimientoId,
+                'producto_id'    => $productoId,
+                'stock_anterior' => $anterior,
+                'stock_nuevo'    => $nuevo,
+            ];
+        });
     }
 
     public static function evaluarAlerta(int $productoId, float $stock, float $reorden, string $nombre, string $unidad): void
@@ -218,11 +225,10 @@ final class Inventario
             [$productoId]
         );
 
-        $cantidad = rtrim(rtrim(number_format($stock, 3, '.', ''), '0'), '.');
-        $limite = rtrim(rtrim(number_format($reorden, 3, '.', ''), '0'), '.');
         $mensaje = $estado === 'Agotado'
             ? $nombre . ' se quedó sin existencias. Reponer de inmediato.'
-            : $nombre . ' está en ' . $cantidad . ' ' . $unidad . ' frente a un punto de reorden de ' . $limite . ' ' . $unidad . '.';
+            : $nombre . ' está en ' . self::conUnidad($stock, $unidad)
+                . ' frente a un punto de reorden de ' . self::conUnidad($reorden, $unidad) . '.';
 
         if ($existente !== null && $existente['tipo'] === $estado) {
             Bd::ejecutar(
@@ -253,6 +259,30 @@ final class Inventario
             'productos',
             $productoId
         );
+
+        Correo::encolar(
+            (string) Ajustes::obtener('notificaciones_correo', ''),
+            'Stock ' . ($estado === 'Critico' ? 'crítico' : mb_strtolower($estado)) . ': ' . $nombre,
+            [
+                $mensaje,
+                ['datos' => [
+                    'Existencias'      => self::conUnidad($stock, $unidad),
+                    'Punto de reorden' => self::conUnidad($reorden, $unidad),
+                ]],
+                'Puede revisarlo en el módulo «Alertas de stock» del sistema.',
+            ]
+        );
+    }
+
+    // "49 unidades", "1 unidad", "8 kg". Las abreviaturas (kg, ml, lb) no cambian en plural
+    public static function conUnidad(float $cantidad, string $unidad): string
+    {
+        if ($cantidad != 1.0 && mb_strlen($unidad) > 3) {
+            $unidad = preg_match('/[aeiouáéíóú]$/iu', $unidad) === 1
+                ? $unidad . 's'
+                : preg_replace(['/ón$/u', '/z$/u'], ['on', 'c'], $unidad) . 'es';
+        }
+        return rtrim(rtrim(number_format($cantidad, 3, '.', ''), '0'), '.') . ' ' . $unidad;
     }
 
     public static function recalcularAlertas(): int
@@ -314,12 +344,14 @@ final class Inventario
         return [$sql, $parametros];
     }
 
+    private const COLUMNAS_MOVIMIENTOS = 'SELECT m.*, p.sku, p.nombre AS producto, p.unidad_medida,
+                    CONCAT(u.nombre, " ", u.apellido) AS usuario';
+
     public static function paginarMovimientos(array $filtros = []): array
     {
         [$desde, $parametros] = self::filtrarMovimientos($filtros);
         return Paginador::consultar(
-            'SELECT m.*, p.sku, p.nombre AS producto, p.unidad_medida,
-                    CONCAT(u.nombre, " ", u.apellido) AS usuario',
+            self::COLUMNAS_MOVIMIENTOS,
             $desde,
             $parametros,
             $filtros,
@@ -331,41 +363,8 @@ final class Inventario
 
     public static function movimientos(array $filtros = []): array
     {
-        $sql = 'SELECT m.*, p.sku, p.nombre AS producto, p.unidad_medida,
-                       CONCAT(u.nombre, " ", u.apellido) AS usuario
-                FROM movimientos_inventario m
-                JOIN productos p ON p.id = m.producto_id
-                JOIN usuarios u ON u.id = m.usuario_id
-                WHERE 1 = 1';
-        $parametros = [];
-
-        if (!empty($filtros['busqueda'])) {
-            $sql .= ' AND (p.nombre LIKE ? OR p.sku LIKE ? OR m.motivo LIKE ?)';
-            $termino = '%' . $filtros['busqueda'] . '%';
-            $parametros[] = $termino;
-            $parametros[] = $termino;
-            $parametros[] = $termino;
-        }
-        if (!empty($filtros['tipo'])) {
-            $sql .= ' AND m.tipo = ?';
-            $parametros[] = $filtros['tipo'];
-        }
-        if (!empty($filtros['producto_id'])) {
-            $sql .= ' AND m.producto_id = ?';
-            $parametros[] = (int) $filtros['producto_id'];
-        }
-        if (!empty($filtros['desde'])) {
-            $sql .= ' AND m.creado_en >= ?';
-            $parametros[] = $filtros['desde'] . ' 00:00:00';
-        }
-        if (!empty($filtros['hasta'])) {
-            $sql .= ' AND m.creado_en <= ?';
-            $parametros[] = $filtros['hasta'] . ' 23:59:59';
-        }
-
-        $sql .= ' ORDER BY m.creado_en DESC, m.id DESC';
-        $limite = (int) ($filtros['limite'] ?? 300);
-        $sql .= ' LIMIT ' . max(1, min($limite, 2000));
+        [$desde, $parametros] = self::filtrarMovimientos($filtros);
+        $sql = self::COLUMNAS_MOVIMIENTOS . $desde . ' ORDER BY m.creado_en DESC, m.id DESC LIMIT ' . (Exportador::MAXIMO_FILAS + 1);
 
         return array_map([self::class, 'normalizarMovimiento'], Bd::consultar($sql, $parametros));
     }

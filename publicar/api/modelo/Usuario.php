@@ -7,35 +7,12 @@ namespace Kerico\Modelo;
 use Kerico\Nucleo\Autenticacion;
 use Kerico\Nucleo\Bd;
 use Kerico\Nucleo\Bitacora;
+use Kerico\Nucleo\Correo;
 use Kerico\Nucleo\ErrorHttp;
 use Kerico\Nucleo\Paginador;
 
 final class Usuario
 {
-    public static function listar(array $filtros = []): array
-    {
-        $sql = 'SELECT u.*, r.nombre AS rol,
-                       (SELECT COUNT(*) FROM sesiones s WHERE s.usuario_id = u.id AND s.cerrada_en IS NULL) AS sesiones_activas
-                FROM usuarios u JOIN roles r ON r.id = u.rol_id WHERE u.deleted_at IS NULL';
-        $parametros = [];
-
-        if (!empty($filtros['busqueda'])) {
-            $sql .= ' AND (u.nombre LIKE ? OR u.apellido LIKE ? OR u.usuario LIKE ? OR u.correo LIKE ? OR u.documento LIKE ?)';
-            $termino = '%' . $filtros['busqueda'] . '%';
-            for ($i = 0; $i < 5; $i++) {
-                $parametros[] = $termino;
-            }
-        }
-        if (!empty($filtros['rol_id'])) {
-            $sql .= ' AND u.rol_id = ?';
-            $parametros[] = (int) $filtros['rol_id'];
-        }
-
-        $sql .= ' ORDER BY u.nombre, u.apellido';
-
-        return array_map([self::class, 'normalizar'], Bd::consultar($sql, $parametros));
-    }
-
     private const ORDEN = [
         'nombre'  => 'u.nombre',
         'usuario' => 'u.usuario',
@@ -88,12 +65,7 @@ final class Usuario
             throw ErrorHttp::conflicto('No puede eliminar su propia cuenta');
         }
 
-        $administradores = (int) Bd::valor(
-            'SELECT COUNT(*) FROM usuarios WHERE rol_id = 1 AND activo = 1 AND deleted_at IS NULL'
-        );
-        if ((int) $usuario['rol_id'] === 1 && $administradores <= 1) {
-            throw ErrorHttp::conflicto('Debe existir al menos un administrador activo en el sistema');
-        }
+        self::exigirOtroAdministrador($usuario);
 
         Bd::ejecutar('UPDATE usuarios SET activo = 0, deleted_at = NOW() WHERE id = ?', [$id]);
         Bd::ejecutar(
@@ -247,6 +219,9 @@ final class Usuario
         if ($id === Autenticacion::idUsuario() && !$datos['activo']) {
             throw ErrorHttp::conflicto('No puede desactivar su propia cuenta');
         }
+        if ((int) $datos['rol_id'] !== 1 || !$datos['activo']) {
+            self::exigirOtroAdministrador($antes);
+        }
 
         Bd::ejecutar(
             'UPDATE usuarios SET
@@ -329,11 +304,19 @@ final class Usuario
         );
     }
 
-    public static function solicitarRecuperacion(string $correo): array
+    // El token nunca sale en la respuesta: quien lo recibe puede cambiar la contraseña de la cuenta.
+    // Viaja solo al correo registrado; sin correo configurado, el administrador ve la solicitud en la bitácora
+    public static function solicitarRecuperacion(string $correo): void
     {
-        $fila = Bd::primero('SELECT id, usuario, nombre FROM usuarios WHERE correo = ? AND activo = 1 AND deleted_at IS NULL', [$correo]);
+        // Un código por cuenta cada 5 minutos: nadie puede inundar un buzón ajeno desde la pantalla de acceso
+        $fila = Bd::primero(
+            'SELECT id, usuario, nombre, correo FROM usuarios
+             WHERE correo = ? AND activo = 1 AND deleted_at IS NULL
+               AND (token_expira IS NULL OR token_expira < ?)',
+            [$correo, date('Y-m-d H:i:s', time() + 55 * 60)]
+        );
         if ($fila === null) {
-            return ['enviado' => true];
+            return;
         }
 
         $token = bin2hex(random_bytes(24));
@@ -342,10 +325,21 @@ final class Usuario
             [$token, date('Y-m-d H:i:s', time() + 3600), (int) $fila['id']]
         );
 
+        Correo::encolar(
+            (string) $fila['correo'],
+            'Código para recuperar su contraseña',
+            [
+                'Hola ' . $fila['nombre'] . ',',
+                'Para definir una contraseña nueva abra «Olvidé mi contraseña» en la pantalla de acceso y escriba este código:',
+                ['codigo' => $token],
+                'El código vence en una hora. Si usted no lo pidió, ignore este mensaje.',
+            ]
+        );
+
         Bitacora::registrar(
             'PASSWORD_RECUPERAR',
             'Autenticacion',
-            'Se generó un enlace de recuperación para ' . $fila['usuario'],
+            'El usuario ' . $fila['usuario'] . ' pidió recuperar su contraseña',
             'Advertencia',
             'usuarios',
             (int) $fila['id'],
@@ -353,8 +347,6 @@ final class Usuario
             null,
             null
         );
-
-        return ['enviado' => true, 'token' => $token, 'usuario' => (string) $fila['usuario']];
     }
 
     public static function restablecerConToken(string $token, string $nueva): void
@@ -412,9 +404,24 @@ final class Usuario
         ));
     }
 
+    // Impide que el sistema se quede sin su último administrador activo
+    private static function exigirOtroAdministrador(array $usuario): void
+    {
+        if ((int) $usuario['rol_id'] !== 1 || (int) $usuario['activo'] !== 1 || $usuario['deleted_at'] !== null) {
+            return;
+        }
+        $administradores = (int) Bd::valor(
+            'SELECT COUNT(*) FROM usuarios WHERE rol_id = 1 AND activo = 1 AND deleted_at IS NULL'
+        );
+        if ($administradores <= 1) {
+            throw ErrorHttp::conflicto('Debe existir al menos un administrador activo en el sistema');
+        }
+    }
+
+    // Sin filtrar por deleted_at: los índices únicos también cuentan a los usuarios en la papelera
     private static function validarUnico(string $columna, string $valor, ?int $excluir, string $mensaje): void
     {
-        $sql = 'SELECT id FROM usuarios WHERE deleted_at IS NULL AND ' . $columna . ' = ?';
+        $sql = 'SELECT id FROM usuarios WHERE ' . $columna . ' = ?';
         $parametros = [$valor];
         if ($excluir !== null) {
             $sql .= ' AND id <> ?';

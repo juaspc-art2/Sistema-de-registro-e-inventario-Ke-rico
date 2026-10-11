@@ -13,6 +13,7 @@ use Kerico\Controlador\VentasControlador;
 use Kerico\Nucleo\Autenticacion;
 use Kerico\Nucleo\Bd;
 use Kerico\Nucleo\Bitacora;
+use Kerico\Nucleo\Correo;
 use Kerico\Nucleo\Enrutador;
 use Kerico\Nucleo\ErrorHttp;
 use Kerico\Nucleo\Peticion;
@@ -40,11 +41,13 @@ spl_autoload_register(static function (string $clase): void {
 });
 
 Bd::configurar($config['bd']);
+Correo::configurar($config['correo']);
 
 ob_start();
 
 $peticion = new Peticion();
 Bitacora::contexto($peticion->ip(), $peticion->agente());
+Respuesta::entregarPorCorreo($peticion->cabecera('X-Enviar-A'));
 
 $origen = $_SERVER['HTTP_ORIGIN'] ?? '';
 if ($origen !== '' && in_array($origen, $config['app']['origenes'], true)) {
@@ -54,7 +57,7 @@ if ($origen !== '' && in_array($origen, $config['app']['origenes'], true)) {
     header('Access-Control-Allow-Origin: *');
 }
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Token-Kerico, X-CSRF-Kerico');
+header('Access-Control-Allow-Headers: Content-Type, Authorization, X-CSRF-Kerico, X-Enviar-A');
 header('Access-Control-Expose-Headers: X-Nombre-Archivo');
 header('X-Content-Type-Options: nosniff');
 header('Referrer-Policy: no-referrer');
@@ -143,7 +146,6 @@ $enrutador->post('/proveedores/{id}/restaurar', [ProveedoresControlador::class, 
 $enrutador->get('/reportes/panel', [ReportesControlador::class, 'panel']);
 $enrutador->get('/reportes/rentabilidad', [ReportesControlador::class, 'rentabilidad']);
 $enrutador->get('/reportes/rentabilidad/exportar', [ReportesControlador::class, 'exportarRentabilidad']);
-$enrutador->get('/reportes/inventario', [ReportesControlador::class, 'inventarioValorizado']);
 
 $enrutador->get('/sistema/bitacora', [SistemaControlador::class, 'bitacora']);
 $enrutador->get('/sistema/bitacora/exportar', [SistemaControlador::class, 'exportarBitacora']);
@@ -164,6 +166,12 @@ $enrutador->get('/sistema/respaldos/{id}/descargar', [SistemaControlador::class,
 
 try {
     $enrutador->despachar($peticion);
+    // Los avisos por correo salen después de entregar la respuesta: un servidor de correo lento
+    // no demora una venta, y el tiempo de respuesta no delata si un correo está registrado
+    if (Correo::pendientes()) {
+        Respuesta::cerrar();
+        Correo::despachar();
+    }
 } catch (ErrorHttp $e) {
     Respuesta::error($e->getMessage(), $e->getCode(), $e->detalles());
 } catch (Throwable $e) {
@@ -183,8 +191,8 @@ try {
             null,
             Autenticacion::usuarioActual()
         );
-    } catch (Throwable $ignorado) {
-        $mensaje = $mensaje;
+    } catch (Throwable) {
+        // Si la bitácora tampoco responde, igual se devuelve el 500 al cliente
     }
 
     Respuesta::error($mensaje, 500);

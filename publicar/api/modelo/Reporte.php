@@ -4,10 +4,15 @@ declare(strict_types=1);
 
 namespace Kerico\Modelo;
 
+use Kerico\Nucleo\Autenticacion;
 use Kerico\Nucleo\Bd;
 
 final class Reporte
 {
+    // v.total / v.subtotal reparte el descuento de la venta entre sus líneas,
+    // así las filas por producto suman lo mismo que los totales
+    private const INGRESOS_LINEA = 'COALESCE(SUM(d.subtotal * v.total / NULLIF(v.subtotal, 0)), 0)';
+
     public static function rango(array $filtros): array
     {
         $desde = $filtros['desde'] ?? date('Y-m-01');
@@ -40,11 +45,11 @@ final class Reporte
         $transacciones = (int) $totales['transacciones'];
 
         $porProducto = Bd::consultar(
-            "SELECT d.producto_id, d.sku, d.nombre_producto AS nombre, c.nombre AS categoria,
+            'SELECT d.producto_id, d.sku, d.nombre_producto AS nombre, c.nombre AS categoria,
                     SUM(d.cantidad) AS unidades,
-                    SUM(d.subtotal) AS ingresos,
+                    ' . self::INGRESOS_LINEA . ' AS ingresos,
                     SUM(d.costo_unitario * d.cantidad) AS costo,
-                    SUM(d.subtotal) - SUM(d.costo_unitario * d.cantidad) AS utilidad
+                    ' . self::INGRESOS_LINEA . " - SUM(d.costo_unitario * d.cantidad) AS utilidad
              FROM venta_detalle d
              JOIN ventas v ON v.id = d.venta_id
              JOIN productos p ON p.id = d.producto_id
@@ -56,11 +61,11 @@ final class Reporte
         );
 
         $porCategoria = Bd::consultar(
-            "SELECT c.nombre AS categoria,
+            'SELECT c.nombre AS categoria,
                     SUM(d.cantidad) AS unidades,
-                    SUM(d.subtotal) AS ingresos,
+                    ' . self::INGRESOS_LINEA . ' AS ingresos,
                     SUM(d.costo_unitario * d.cantidad) AS costo,
-                    SUM(d.subtotal) - SUM(d.costo_unitario * d.cantidad) AS utilidad
+                    ' . self::INGRESOS_LINEA . " - SUM(d.costo_unitario * d.cantidad) AS utilidad
              FROM venta_detalle d
              JOIN ventas v ON v.id = d.venta_id
              JOIN productos p ON p.id = d.producto_id
@@ -151,8 +156,6 @@ final class Reporte
             ? round((($ventasHoy['total'] - $ventasAyer['total']) / $ventasAyer['total']) * 100, 1)
             : 0.0;
 
-        $mes = self::rentabilidad(['desde' => date('Y-m-01'), 'hasta' => $hoy]);
-
         $topProductos = Bd::consultar(
             "SELECT d.nombre_producto AS nombre, SUM(d.cantidad) AS unidades, SUM(d.total) AS total
              FROM venta_detalle d
@@ -173,12 +176,16 @@ final class Reporte
             [date('Y-m-d', strtotime('-6 days')) . ' 00:00:00']
         );
 
-        return [
+        // El resumen financiero del mes es un reporte de rentabilidad: exige el mismo permiso
+        $mes = Autenticacion::tienePermiso('reportes.ver')
+            ? ['mes' => self::rentabilidad(['desde' => date('Y-m-01'), 'hasta' => $hoy])['totales']]
+            : [];
+
+        return $mes + [
             'ventas_hoy'       => $ventasHoy,
             'variacion_ayer'   => $variacion,
             'alertas'          => Alerta::resumen(),
             'movimientos_hoy'  => Inventario::resumenMovimientos($hoy),
-            'mes'              => $mes['totales'],
             'top_productos'    => array_map(static fn (array $p): array => [
                 'nombre'   => (string) $p['nombre'],
                 'unidades' => (float) $p['unidades'],
@@ -189,24 +196,7 @@ final class Reporte
                 'total'         => round((float) $d['total'], 2),
                 'transacciones' => (int) $d['transacciones'],
             ], $ultimaSemana),
-            'ultimas_ventas'   => array_slice(Venta::listar([]), 0, 8),
+            'ultimas_ventas'   => Venta::listar([], 8),
         ];
-    }
-
-    public static function inventarioValorizado(): array
-    {
-        return array_map(static fn (array $p): array => [
-            'sku'              => (string) $p['sku'],
-            'nombre'           => (string) $p['nombre'],
-            'categoria'        => (string) $p['categoria'],
-            'proveedor'        => (string) ($p['proveedor'] ?? ''),
-            'unidad_medida'    => (string) $p['unidad_medida'],
-            'stock_actual'     => (float) $p['stock_actual'],
-            'punto_reorden'    => (float) $p['punto_reorden'],
-            'precio_costo'     => (float) $p['precio_costo'],
-            'precio_venta'     => (float) $p['precio_venta'],
-            'valor_inventario' => (float) $p['valor_inventario'],
-            'estado_stock'     => (string) $p['estado_stock'],
-        ], Bd::consultar('SELECT * FROM v_estado_inventario WHERE activo = 1 ORDER BY categoria, nombre'));
     }
 }

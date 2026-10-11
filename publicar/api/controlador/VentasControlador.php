@@ -107,7 +107,14 @@ final class VentasControlador
         $desde = (string) $peticion->consulta('desde', date('Y-m-01'));
         $hasta = (string) $peticion->consulta('hasta', date('Y-m-d'));
 
-        $ventas = Venta::listar(['desde' => $desde, 'hasta' => $hasta, 'estado' => $peticion->consulta('estado', '')]);
+        $ventas = Venta::listar([
+            'desde'       => $desde,
+            'hasta'       => $hasta,
+            'busqueda'    => $peticion->consulta('busqueda', ''),
+            'estado'      => $peticion->consulta('estado', ''),
+            'usuario_id'  => $peticion->consulta('usuario_id', ''),
+            'metodo_pago' => $peticion->consulta('metodo_pago', ''),
+        ]);
 
         $encabezados = ['Folio', 'Fecha', 'Cajero', 'Cliente', 'Ítems', 'Descuento', 'Impuesto', 'Total', 'Pago', 'Estado'];
         $filas = array_map(static fn (array $v): array => [
