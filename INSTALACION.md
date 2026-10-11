@@ -23,11 +23,12 @@ activadas por defecto en XAMPP.
 
 El script borra la base `kerico` si existe, la vuelve a crear y carga:
 
-- 20 tablas y 4 vistas de consulta
+- 21 tablas y 1 vista de consulta
 - 4 roles y 22 permisos
 - 4 usuarios de prueba
 - 6 categorías, 12 proveedores y 23 productos del menú real
-- 8 compras, 22 ventas con su detalle y sus comprobantes
+- 8 compras, 22 ventas con su detalle y sus comprobantes, con fechas recientes: al importar,
+  la semilla corre todas sus fechas para que la última venta quede en el día de ayer
 - 94 movimientos de inventario, 7 alertas y la bitácora inicial
 
 Si prefiere la consola:
@@ -140,7 +141,7 @@ el backend ya combinados.
 
 ```bash
 cd backend
-php -S 127.0.0.1:8199 servidor.php
+php -S 127.0.0.1:8199 index.php
 ```
 
 **Terminal 2 — Vista:**
@@ -198,7 +199,64 @@ mysql -u root kerico < backend/respaldos/kerico-20260914-020000.sql
 
 ---
 
-## 7. Problemas frecuentes
+## 7. Envío de correo (SMTP)
+
+Con un servidor de correo configurado el sistema puede:
+
+- **Enviar por correo todo lo que se descarga.** Junto a cada botón de descarga (comprobantes,
+  reportes en PDF, CSV o Excel, respaldos) aparece el botón **✉ Correo**: pide la dirección
+  de destino y envía el mismo archivo como adjunto. Exige el mismo permiso que la descarga.
+- **Avisar las alertas de stock.** Cuando un producto pasa a stock bajo, crítico o agotado,
+  llega un aviso al correo definido en `Administración → Configuración → Notificaciones por
+  correo`. Admite varias direcciones separadas por coma; vacío significa no avisar.
+- **Recuperar contraseñas.** «Olvidé mi contraseña» envía un código al correo registrado de
+  la cuenta; con ese código se define la contraseña nueva en la misma pantalla.
+
+Los correos salen en HTML con la identidad de la marca: colores, firma y logotipo según el
+manual de identidad (C.09). Llevan además una versión de texto para los lectores que no
+muestran HTML. El logotipo va dentro del mensaje (`backend/recursos/logo-correo.png`), así
+que se ve aunque el lector bloquee las imágenes externas.
+
+Sin servidor configurado nada de esto se rompe: el botón de correo no aparece, no salen
+avisos y la recuperación de contraseña queda como solicitud para el administrador.
+
+El servidor se define con variables de entorno, igual que la base de datos:
+
+| Variable | Qué es | Ejemplo |
+|---|---|---|
+| `KERICO_SMTP_HOST` | Servidor SMTP. Vacío: correo desactivado | `smtp.gmail.com` |
+| `KERICO_SMTP_PORT` | Puerto. `587` usa STARTTLS, `465` usa TLS directo | `587` |
+| `KERICO_SMTP_USER` | Usuario de la cuenta | `tienda@gmail.com` |
+| `KERICO_SMTP_PASS` | Contraseña de la cuenta | *(contraseña de aplicación)* |
+| `KERICO_SMTP_FROM` | Remitente. Si falta se usa el usuario | `tienda@gmail.com` |
+
+En XAMPP van en `C:\xampp\apache\conf\httpd.conf`, y hay que reiniciar Apache:
+
+```apache
+SetEnv KERICO_SMTP_HOST smtp.gmail.com
+SetEnv KERICO_SMTP_PORT 587
+SetEnv KERICO_SMTP_USER tienda@gmail.com
+SetEnv KERICO_SMTP_PASS abcdabcdabcdabcd
+```
+
+Con Gmail la contraseña normal no sirve: active la verificación en dos pasos de la cuenta y
+cree una **contraseña de aplicación** en <https://myaccount.google.com/apppasswords>.
+
+El sistema nunca envía la contraseña por una conexión sin cifrar y comprueba el certificado
+del servidor. La página de diagnóstico muestra si el correo quedó configurado. Un adjunto
+puede pesar hasta 10 MB; lo que pese más se descarga.
+
+Una base creada con una versión anterior no tiene el ajuste del correo de avisos. Se agrega
+sin perder datos con:
+
+```sql
+INSERT IGNORE INTO configuracion (clave, valor, tipo, descripcion) VALUES
+  ('notificaciones_correo', '', 'texto', 'Correo que recibe las alertas de stock (vacío: no se envían)');
+```
+
+---
+
+## 8. Problemas frecuentes
 
 **«No hay conexión con el servidor»**
 Apache o MySQL están apagados. Ábralos desde el XAMPP Control Panel.
@@ -293,7 +351,7 @@ Es el comportamiento esperado tras 15 minutos sin actividad. El tiempo se cambia
 `Administración → Configuración`, campo `sesion_minutos_inactividad`.
 
 
-## 8. Llevar el proyecto a otra máquina
+## 9. Llevar el proyecto a otra máquina
 
 Requisitos en la máquina destino: **Apache con `mod_rewrite`**, **PHP 8.1 o superior** con
 las extensiones `pdo_mysql`, `mbstring`, `json`, `fileinfo` y `zip`, y **MySQL o MariaDB**.
@@ -310,8 +368,9 @@ partir de su propia ubicación, así que funciona igual en `htdocs/kerico`, en
 ### Comprobar el entorno
 
 `http://localhost/<nombre>/api/diagnostico.php` revisa versión de PHP, extensiones,
-`mod_rewrite`, conexión a MySQL, las 21 tablas, las 4 vistas, los datos de arranque y el
+`mod_rewrite`, conexión a MySQL, las 21 tablas, la vista de inventario, los datos de arranque y el
 juego de caracteres. Devuelve HTTP 500 mientras haya algo crítico sin resolver.
+Solo responde desde el mismo equipo donde corre el servidor; desde otro equipo devuelve 404.
 
 ### Comprobar que publicar/ está al día
 

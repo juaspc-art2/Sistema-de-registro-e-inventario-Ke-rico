@@ -12,7 +12,7 @@ como modelo y controlador, y una aplicación React 19 como vista.
 
 1. Instale [XAMPP](https://www.apachefriends.org/) e inicie **Apache** y **MySQL**.
 2. Abra <http://localhost/phpmyadmin>, pestaña **Importar**, y cargue
-   `database/kerico_seed.sql`. Crea la base `kerico`, las 21 tablas, las 4 vistas y los
+   `database/kerico_seed.sql`. Crea la base `kerico`, las 21 tablas, la vista de inventario y los
    datos de arranque. Es lo único que hay que importar.
 3. Copie la carpeta `publicar/` dentro de la carpeta `htdocs` de XAMPP. Puede llamarla
    como quiera; `kerico` es lo habitual. No hay nada que editar: la aplicación descubre
@@ -20,8 +20,9 @@ como modelo y controlador, y una aplicación React 19 como vista.
 4. Entre a <http://localhost/kerico/>.
 
 Si algo no arranca, abra <http://localhost/kerico/api/diagnostico.php>: revisa la versión
-de PHP, las extensiones, `mod_rewrite`, la conexión a MySQL, las 21 tablas, las 4 vistas y
-el juego de caracteres, y dice exactamente qué falta.
+de PHP, las extensiones, `mod_rewrite`, la conexión a MySQL, las 21 tablas, la vista de inventario y
+el juego de caracteres, y dice exactamente qué falta. Por seguridad solo responde cuando se
+abre desde el mismo equipo donde corre el servidor.
 
 **Usuario:** `admin` · **Contraseña:** `123`
 
@@ -38,7 +39,7 @@ contraseña `123` y su hash se guarda cifrado con bcrypt en la base de datos.
 | Usuario | Rol | Qué puede hacer |
 |---|---|---|
 | `admin` | Administrador | Todo: reportes, precios, usuarios, respaldos, configuración |
-| `gerente` | Gerente | Reportes, rentabilidad, proveedores, promociones, bitácora |
+| `gerente` | Gerente | Consultar ventas y comprobantes, promociones, proveedores y compras, puntos de reorden, bitácora |
 | `cajero` | Cajero | Registrar ventas, emitir comprobantes, aplicar códigos de descuento |
 | `inventario` | Inventario | Productos, ajustes de stock, compras, alertas |
 
@@ -67,9 +68,29 @@ contraseña `123` y su hash se guarda cifrado con bcrypt en la base de datos.
 │   └── src/api.js              Cliente HTTP con token y CSRF
 ├── publicar/                   Carpeta lista para copiar a htdocs (frontend + api/)
 ├── herramientas/publicar.mjs   Regenera publicar/ desde frontend/dist y backend/
+├── herramientas/diagrama-er.mjs  Regenera docs/diagrama-er.svg desde database/kerico.sql
 ├── docs/                       Requerimientos, matriz del proyecto y manual de identidad
 └── diseno/                     Tablero de referencia y landing de la marca
 ```
+
+---
+
+## Modelo de datos
+
+![Diagrama entidad-relación](docs/diagrama-er.svg)
+
+Las 21 tablas se agrupan en cinco módulos. El diagrama se genera desde el esquema con
+`node herramientas/diagrama-er.mjs`, así que no se desactualiza: si el SQL gana una tabla o
+una relación que el diagrama no ubica, el script se detiene y lo dice.
+
+---
+
+## Correo
+
+Con un servidor SMTP configurado, todo lo que se descarga (comprobantes, reportes,
+respaldos) también se puede enviar por correo con el botón **✉ Correo**; las alertas de
+stock llegan al correo de avisos y «Olvidé mi contraseña» envía un código al usuario.
+La configuración está en [INSTALACION.md](INSTALACION.md#7-envío-de-correo-smtp).
 
 ---
 
@@ -85,7 +106,7 @@ contraseña `123` y su hash se guarda cifrado con bcrypt en la base de datos.
 | RF6 | Gestión de proveedores | `Proveedores` · NIT, contacto, suministros y compras asociadas |
 | RF7 | Análisis de rentabilidad | `Rentabilidad` · cruza costo de compra contra precio de venta |
 | RF8 | Registro de actividad (logs) | `Registro de actividad` · bitácora completa con nivel e IP |
-| RF9 | Inicio de sesión | Pantalla de acceso · bcrypt, bloqueo por intentos, recuperación |
+| RF9 | Inicio de sesión | Pantalla de acceso · bcrypt, bloqueo por intentos, recuperación con código por correo |
 
 ## Requerimientos no funcionales
 
@@ -140,7 +161,7 @@ compras y movimientos permanece intacto.
 Los precios del catálogo son **precios finales al público**: ya incluyen el impuesto.
 El sistema separa la base gravable del impuesto en cada línea de venta y en cada
 comprobante. Los alimentos preparados usan 8 % de impuesto al consumo y las bebidas
-envasadas 19 % de IVA; ambos valores se editan en `Administración → Configuración`.
+envasadas 19 % de IVA; el porcentaje se define en cada producto, desde `Inventario`.
 
 ---
 
