@@ -6,8 +6,13 @@ MySQL para comprobar lo que quedó guardado.
 
 | Archivo | Qué comprueba | Casos |
 |---|---|---|
-| `requerimientos.mjs` | Los nueve requerimientos funcionales y los quince no funcionales | 138 |
+| `requerimientos.mjs` | Los nueve requerimientos funcionales y los quince no funcionales | 147 |
 | `revision.mjs` | La lista de verificación de la revisión de la aplicación | 176 |
+
+`correo.mjs` es aparte: prueba el cliente SMTP contra un servidor falso que levanta en el
+mismo equipo. No necesita Apache ni MySQL, no modifica datos y ningún correo sale a
+Internet. Se ejecuta con `node pruebas/correo.mjs` (20 casos); si PHP no está en
+`C:/xampp/php/php.exe`, indique su ruta en la variable `KERICO_PHP`.
 
 ## Antes de ejecutar
 
@@ -36,6 +41,7 @@ antes de ejecutar:
 | `KERICO_MYSQL` | `C:/xampp/mysql/bin/mysql.exe` |
 | `KERICO_DB_USER` | `root` |
 | `KERICO_DB_PORT` | `3306` |
+| `KERICO_DB_NAME` | `kerico` |
 
 Ejemplo en modo desarrollo, con el servidor de PHP en el puerto 8199:
 
@@ -62,6 +68,6 @@ node pruebas/requerimientos.mjs
 ## Resultado esperado
 
 ```
-PASADAS: 138   FALLIDAS: 0
+PASADAS: 147   FALLIDAS: 0
 PASADAS: 176   FALLIDAS: 0
 ```

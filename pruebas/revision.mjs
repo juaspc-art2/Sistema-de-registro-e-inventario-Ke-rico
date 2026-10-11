@@ -38,11 +38,20 @@ async function entrar(usuario, password) {
 }
 
 function sql(consulta) {
-  return execFileSync(MARIADB, ['-u', process.env.KERICO_DB_USER || 'root', '-h', '127.0.0.1', '-P', process.env.KERICO_DB_PORT || '3306', 'kerico', '-B', '-N', '-e', consulta],
+  return execFileSync(MARIADB, ['-u', process.env.KERICO_DB_USER || 'root', '-h', '127.0.0.1', '-P', process.env.KERICO_DB_PORT || '3306', process.env.KERICO_DB_NAME || 'kerico', '-B', '-N', '-e', consulta],
     { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).split(String.fromCharCode(13)).join('').trim();
 }
 
 const items = (r) => (r.j?.datos?.items ?? r.j?.datos ?? []);
+
+// La semilla corre sus fechas al importarse: los rangos se cuentan desde el día de su primera venta
+const primerDia = sql('SELECT DATE(MIN(fecha)) FROM ventas');
+const dia = (n) => {
+  const f = new Date(primerDia + 'T12:00:00');
+  f.setDate(f.getDate() + n - 1);
+  return f.toLocaleDateString('en-CA');
+};
+const RANGO = 'desde=' + dia(1) + '&hasta=' + dia(30);
 
 const admin = await entrar('admin', '123');
 const TA = admin.j.datos.token;
@@ -128,7 +137,7 @@ ok('2.2 serie semanal agregada por dia', Array.isArray(d.semana) && d.semana.len
 ok('2.2 cada punto trae dia y total', d.semana.every((x) => x.dia && typeof x.total === 'number'));
 ok('2.2 top de productos agregado', Array.isArray(d.top_productos) && d.top_productos.length > 0);
 ok('2.2 el top trae unidades sumadas', d.top_productos.every((p) => typeof p.unidades === 'number' && p.unidades > 0));
-const rent = await api('GET', '/reportes/rentabilidad?desde=2026-09-01&hasta=2026-09-30', { token: TA });
+const rent = await api('GET', '/reportes/rentabilidad?' + RANGO, { token: TA });
 ok('2.2 distribucion por categoria', rent.j.datos.categorias.length > 0);
 ok('2.2 distribucion por dia', rent.j.datos.dias.length > 0);
 const sumaCat = rent.j.datos.categorias.reduce((a, c) => a + c.ingresos, 0);
@@ -266,26 +275,26 @@ ok('3.4 protege al ultimo administrador',
 
 // ─── 4. Informes ──────────────────────────────────────────────────────────────
 seccion('4.1 Filtro por fechas');
-const sept = await api('GET', '/ventas?desde=2026-09-01&hasta=2026-09-05&por_pagina=100', { token: TA });
-ok('4.1 filtra por rango', sept.status === 200);
+const rango = await api('GET', '/ventas?desde=' + dia(1) + '&hasta=' + dia(5) + '&por_pagina=100', { token: TA });
+ok('4.1 filtra por rango', rango.status === 200 && rango.j.datos.items.length > 0);
 ok('4.1 solo devuelve fechas del rango',
-  sept.j.datos.items.every((v) => v.fecha >= '2026-09-01' && v.fecha <= '2026-09-05 23:59:59'),
-  'n=' + sept.j.datos.items.length);
+  rango.j.datos.items.every((v) => v.fecha >= dia(1) && v.fecha <= dia(5) + ' 23:59:59'),
+  'n=' + rango.j.datos.items.length);
 const fueraRango = await api('GET', '/ventas?desde=2020-01-01&hasta=2020-01-31', { token: TA });
 ok('4.1 un rango sin datos devuelve vacio', fueraRango.j.datos.total === 0, 'total=' + fueraRango.j.datos.total);
-const rentRango = await api('GET', '/reportes/rentabilidad?desde=2026-09-01&hasta=2026-09-05', { token: TA });
-const rentMes = await api('GET', '/reportes/rentabilidad?desde=2026-09-01&hasta=2026-09-30', { token: TA });
+const rentRango = await api('GET', '/reportes/rentabilidad?desde=' + dia(1) + '&hasta=' + dia(5), { token: TA });
+const rentMes = await api('GET', '/reportes/rentabilidad?' + RANGO, { token: TA });
 ok('4.1 el rango corto factura menos que el mes',
   rentRango.j.datos.totales.ingresos_brutos < rentMes.j.datos.totales.ingresos_brutos,
   `${rentRango.j.datos.totales.ingresos_brutos} < ${rentMes.j.datos.totales.ingresos_brutos}`);
 ok('4.1 el reporte confirma el rango pedido',
-  rentRango.j.datos.desde === '2026-09-01' && rentRango.j.datos.hasta === '2026-09-05');
-const movRango = await api('GET', '/inventario/movimientos?desde=2026-09-02&hasta=2026-09-03&por_pagina=100', { token: TI });
+  rentRango.j.datos.desde === dia(1) && rentRango.j.datos.hasta === dia(5));
+const movRango = await api('GET', '/inventario/movimientos?desde=' + dia(2) + '&hasta=' + dia(3) + '&por_pagina=100', { token: TI });
 ok('4.1 los movimientos tambien filtran por fecha',
-  movRango.j.datos.items.every((m) => m.fecha >= '2026-09-02' && m.fecha <= '2026-09-03 23:59:59'));
+  movRango.j.datos.items.every((m) => m.fecha >= dia(2) && m.fecha <= dia(3) + ' 23:59:59'));
 
 seccion('4.2 Exportacion PDF');
-const pdf = await api('GET', '/reportes/rentabilidad/exportar?formato=pdf&desde=2026-09-01&hasta=2026-09-30', { token: TA, raw: true });
+const pdf = await api('GET', '/reportes/rentabilidad/exportar?formato=pdf&' + RANGO, { token: TA, raw: true });
 ok('4.2 responde un PDF', pdf.status === 200 && pdf.buf.slice(0, 5).toString() === '%PDF-');
 const texto = pdf.buf.toString('latin1');
 ok('4.2 el PDF declara version', /^%PDF-1\.\d/.test(texto));
@@ -300,7 +309,7 @@ ok('4.2 cierra la estructura del documento', texto.includes('%%EOF') && texto.in
 ok('4.2 tiene tabla de referencias cruzadas', texto.includes('xref') && texto.includes('trailer'));
 const paginas = (texto.match(/\/Type \/Page[^s]/g) || []).length;
 ok('4.2 pagina el contenido largo', paginas >= 1, 'paginas=' + paginas);
-const pdfBit = await api('GET', '/sistema/bitacora/exportar?formato=pdf&desde=2026-09-01&hasta=2026-09-30', { token: TA, raw: true });
+const pdfBit = await api('GET', '/sistema/bitacora/exportar?formato=pdf&' + RANGO, { token: TA, raw: true });
 ok('4.2 tambien exporta la bitacora en PDF', pdfBit.status === 200 && pdfBit.buf.slice(0, 5).toString() === '%PDF-');
 ok('4.2 el nombre del archivo viaja en la cabecera', (pdf.headers.get('X-Nombre-Archivo') || '').endsWith('.pdf'),
   pdf.headers.get('X-Nombre-Archivo'));
@@ -517,7 +526,7 @@ const rutasMedidas = [
   ['/reportes/panel', TA],
   ['/inventario/productos?por_pagina=50', TI],
   ['/ventas?por_pagina=50', TA],
-  ['/reportes/rentabilidad?desde=2026-09-01&hasta=2026-09-30', TA],
+  ['/reportes/rentabilidad?' + RANGO, TA],
   ['/sistema/bitacora?por_pagina=100', TA],
   ['/inventario/movimientos?por_pagina=100', TI],
   ['/proveedores?por_pagina=50', TA],

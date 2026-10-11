@@ -1,3 +1,5 @@
+import zlib from 'node:zlib';
+
 const BASE = process.env.KERICO_API || 'http://localhost/kerico/api';
 let pasadas = 0, fallidas = 0;
 const fallos = [];
@@ -28,10 +30,32 @@ async function api(metodo, ruta, { token, body, raw } = {}) {
 
 const seccion = (t) => console.log('\n=== ' + t + ' ===');
 
+// La semilla corre sus fechas al importarse (su última venta queda en el día de ayer),
+// así que los reportes se piden sobre los últimos 45 días y no sobre un mes fijo
+const haceDias = (n) => new Date(Date.now() - n * 864e5).toLocaleDateString('en-CA');
+const RANGO = 'desde=' + haceDias(45) + '&hasta=' + haceDias(0);
+
 function registrarCsrf(respuesta) {
   const d = respuesta && respuesta.j && respuesta.j.datos;
   if (d && d.token && d.csrf_token) CSRF.set(d.token, d.csrf_token);
   return respuesta;
+}
+
+// Devuelve el XML de la hoja de un .xlsx leyendo el directorio central del zip
+function hojaXlsx(buf) {
+  const fin = buf.lastIndexOf(Buffer.from([0x50, 0x4b, 0x05, 0x06]));
+  let p = buf.readUInt32LE(fin + 16);
+  for (let i = buf.readUInt16LE(fin + 10); i > 0; i--) {
+    const largoNombre = buf.readUInt16LE(p + 28);
+    if (buf.toString('utf8', p + 46, p + 46 + largoNombre) === 'xl/worksheets/sheet1.xml') {
+      const local = buf.readUInt32LE(p + 42);
+      const inicio = local + 30 + buf.readUInt16LE(local + 26) + buf.readUInt16LE(local + 28);
+      const datos = buf.subarray(inicio, inicio + buf.readUInt32LE(p + 20));
+      return (buf.readUInt16LE(p + 10) === 0 ? datos : zlib.inflateRawSync(datos)).toString('utf8');
+    }
+    p += 46 + largoNombre + buf.readUInt16LE(p + 30) + buf.readUInt16LE(p + 32);
+  }
+  return '';
 }
 
 function lista(respuesta) {
@@ -61,6 +85,10 @@ ok('RNF4 bloquea token invalido', tokenFalso.status === 401);
 const sesion = await api('GET', '/auth/sesion', { token: TA });
 ok('RF9 devuelve sesion vigente', sesion.status === 200 && sesion.j.datos.usuario.usuario === 'admin');
 ok('RNF6 expone ventana de inactividad de 15 min', sesion.j?.datos?.minutos_sesion === 15, 'min=' + sesion.j?.datos?.minutos_sesion);
+
+const recuperacion = await api('POST', '/auth/recuperar', { body: { correo: admin.j?.datos?.usuario?.correo } });
+ok('RF9 la recuperacion no entrega el token en la respuesta',
+  recuperacion.status === 200 && recuperacion.j?.datos?.token === undefined, JSON.stringify(recuperacion.j).slice(0, 160));
 
 const cajero = registrarCsrf(await api('POST', '/auth/login', { body: { usuario: 'cajero', password: '123' } }));
 ok('RF9 login cajero', cajero.status === 200);
@@ -214,6 +242,12 @@ const manualCajero = await api('POST', '/ventas', {
 });
 ok('RF3 cajero no aplica descuento manual', manualCajero.status === 403);
 
+const regalo = await api('POST', '/ventas', {
+  token: TC, body: { items: [{ producto_id: emp.id, cantidad: 1, descuento_unitario: emp.precio_venta }], metodo_pago: 'Tarjeta' },
+});
+ok('RF3 ignora un descuento por linea enviado por el cliente',
+  regalo.status === 201 && Math.abs(regalo.j.datos.venta.total - emp.precio_venta) < 0.01, 'total=' + regalo.j?.datos?.venta?.total);
+
 const nuevaPromo = await api('POST', '/descuentos', {
   token: TA,
   body: { codigo: 'PRUEBA' + Date.now().toString().slice(-5), descripcion: 'Promocion de prueba', tipo: 'fijo', valor: 2000, alcance: 'venta' },
@@ -345,7 +379,7 @@ ok('RF6 recibe compra pendiente', recibida.status === 200 && recibida.j.datos.es
 
 // ---------- RF7 : Rentabilidad ----------
 seccion('RF7 Analisis de rentabilidad');
-const rent = await api('GET', '/reportes/rentabilidad?desde=2026-09-01&hasta=2026-09-30', { token: TA });
+const rent = await api('GET', '/reportes/rentabilidad?' + RANGO, { token: TA });
 ok('RF7 genera reporte de rentabilidad', rent.status === 200);
 ok('RNF2 reporte mensual en menos de 10 s', rent.ms < 10000, rent.ms + ' ms');
 const t = rent.j.datos.totales;
@@ -360,6 +394,13 @@ ok('RF7 desglosa por periodo de tiempo', rent.j.datos.dias.length > 0);
 const prod0 = rent.j.datos.productos[0];
 ok('RF7 margen por producto coherente',
   Math.abs(prod0.utilidad - (prod0.ingresos - prod0.costo)) < 0.05);
+
+const rentTodo = await api('GET', '/reportes/rentabilidad?desde=2000-01-01&hasta=2100-01-01', { token: TA });
+const tTodo = rentTodo.j.datos.totales;
+const sumaProductos = rentTodo.j.datos.productos.reduce((a, p) => a + p.ingresos, 0);
+ok('RF7 los ingresos por producto suman la base gravable aun con descuentos',
+  tTodo.descuentos > 0 && Math.abs(sumaProductos - tTodo.base_gravable) < 1 + tTodo.transacciones * 0.02,
+  `productos=${sumaProductos} base=${tTodo.base_gravable} descuentos=${tTodo.descuentos}`);
 
 const panel = await api('GET', '/reportes/panel', { token: TA });
 ok('RF7 panel principal consolida indicadores', panel.status === 200 && !!panel.j.datos.ventas_hoy && !!panel.j.datos.alertas);
@@ -398,20 +439,25 @@ ok('RNF14 el PDF cierra correctamente', pdfInv.buf.slice(-6).toString().includes
 const xlsInv = await api('GET', '/inventario/exportar?formato=excel', { token: TA, raw: true });
 ok('RNF14 exporta inventario en Excel', xlsInv.status === 200 && xlsInv.buf.slice(0, 2).toString() === 'PK');
 ok('RNF14 el xlsx tiene contenido', xlsInv.buf.length > 1000, xlsInv.buf.length + ' bytes');
+const empHoy = (await api('GET', '/inventario/productos/' + emp.id, { token: TA })).j.datos;
+const precioEnPesos = String(Math.round(empHoy.precio_venta)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+const filaEmp = hojaXlsx(xlsInv.buf).split('<row ').find(f => f.includes('>EMP-CAR<')) || '';
+ok('RNF14 el Excel muestra los valores en pesos completos', filaEmp.includes('<t>' + precioEnPesos + '</t>'),
+  'esperado ' + precioEnPesos + ' en ' + filaEmp.slice(0, 400));
 
-const pdfRent = await api('GET', '/reportes/rentabilidad/exportar?formato=pdf&desde=2026-09-01&hasta=2026-09-30', { token: TA, raw: true });
+const pdfRent = await api('GET', '/reportes/rentabilidad/exportar?formato=pdf&' + RANGO, { token: TA, raw: true });
 ok('RNF14 exporta rentabilidad en PDF', pdfRent.status === 200 && pdfRent.buf.slice(0, 5).toString() === '%PDF-');
 
-const xlsRent = await api('GET', '/reportes/rentabilidad/exportar?formato=excel&desde=2026-09-01&hasta=2026-09-30', { token: TA, raw: true });
+const xlsRent = await api('GET', '/reportes/rentabilidad/exportar?formato=excel&' + RANGO, { token: TA, raw: true });
 ok('RNF14 exporta rentabilidad en Excel', xlsRent.status === 200 && xlsRent.buf.slice(0, 2).toString() === 'PK');
 
-const pdfMov = await api('GET', '/inventario/movimientos/exportar?formato=pdf&desde=2026-09-01&hasta=2026-09-30', { token: TA, raw: true });
+const pdfMov = await api('GET', '/inventario/movimientos/exportar?formato=pdf&' + RANGO, { token: TA, raw: true });
 ok('RNF14 exporta auditoria de movimientos en PDF', pdfMov.status === 200 && pdfMov.buf.slice(0, 5).toString() === '%PDF-');
 
-const csvVentas = await api('GET', '/ventas/exportar?formato=csv&desde=2026-09-01&hasta=2026-09-30', { token: TA, raw: true });
+const csvVentas = await api('GET', '/ventas/exportar?formato=csv&' + RANGO, { token: TA, raw: true });
 ok('RNF14 exporta ventas en CSV', csvVentas.status === 200 && csvVentas.buf.length > 100);
 
-const pdfBit = await api('GET', '/sistema/bitacora/exportar?formato=pdf&desde=2026-09-01&hasta=2026-09-30', { token: TA, raw: true });
+const pdfBit = await api('GET', '/sistema/bitacora/exportar?formato=pdf&' + RANGO, { token: TA, raw: true });
 ok('RNF14 exporta bitacora en PDF', pdfBit.status === 200 && pdfBit.buf.slice(0, 5).toString() === '%PDF-');
 
 const formatoMalo = await api('GET', '/inventario/exportar?formato=doc', { token: TA });
@@ -463,6 +509,21 @@ const logout = await api('POST', '/auth/logout', { token: TI });
 ok('Cierra sesion manualmente', logout.status === 200);
 const trasLogout = await api('GET', '/auth/sesion', { token: TI });
 ok('El token deja de servir tras cerrar sesion', trasLogout.status === 401);
+
+// ---------- RF9 : el bloqueo no delata que cuentas existen ----------
+seccion('RF9 Bloqueo por intentos fallidos');
+const intento = (usuario, password) => api('POST', '/auth/login', { body: { usuario, password } });
+let quinto = null;
+for (let i = 0; i < 5; i++) quinto = await intento('gerente', 'incorrecta');
+const fantasma = await intento('noexiste', 'incorrecta');
+ok('RF9 la cuenta que se bloquea responde igual que una inexistente',
+  quinto.status === fantasma.status && quinto.j?.mensaje === fantasma.j?.mensaje, quinto.status + ' ' + quinto.j?.mensaje);
+const bloqueada = await intento('gerente', '123');
+ok('RF9 la cuenta bloqueada no entra ni con la clave correcta, y tampoco se delata',
+  bloqueada.status === fantasma.status && bloqueada.j?.mensaje === fantasma.j?.mensaje, bloqueada.status + ' ' + bloqueada.j?.mensaje);
+const desbloqueo = await api('POST', '/sistema/usuarios/' + gerente.j.datos.usuario.id + '/desbloquear', { token: TA });
+ok('RF9 el administrador desbloquea y la cuenta vuelve a entrar',
+  desbloqueo.status === 200 && (await intento('gerente', '123')).status === 200, 'status=' + desbloqueo.status);
 
 console.log('\n================================');
 console.log('PASADAS: ' + pasadas + '   FALLIDAS: ' + fallidas);
