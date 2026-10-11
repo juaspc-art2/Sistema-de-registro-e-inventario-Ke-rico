@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
-import { api, cantidad, consulta, descargar, dinero, fechaCorta, fechaHora, hoy, primerDiaDelMes } from '../api.js';
+import { api, cantidad, consulta, dinero, fechaCorta, fechaHora, hoy, primerDiaDelMes } from '../api.js';
 import { useSesion } from '../contexto/Sesion.jsx';
+import Exportar from './Exportar.jsx';
 import { useListado } from '../ganchos/useListado.js';
 import {
   Aviso, Boton, Cargando, EncabezadoOrden, Entrada, EtiquetaEstado, Metrica, Modal,
@@ -177,10 +178,11 @@ function Directorio() {
           onChange={(e) => lista.cambiarFiltro('estado', e.target.value)} vacio="Todos"
           opciones={opcionesEstado(ESTADOS)} />
         {puede('reportes.exportar') ? (
-          <>
-            <Boton onClick={() => descargar('/proveedores/exportar?formato=pdf', 'proveedores.pdf')}>PDF</Boton>
-            <Boton onClick={() => descargar('/proveedores/exportar?formato=csv', 'proveedores.csv')}>CSV</Boton>
-          </>
+          <Exportar
+            ruta={(f) => '/proveedores/exportar' + consulta({ estado: lista.filtros.estado, formato: f })}
+            formatos={['pdf', 'csv']}
+            nombre="proveedores"
+          />
         ) : null}
         {puede('proveedores.gestionar') ? (
           <>
@@ -484,7 +486,7 @@ function Compras() {
           {nueva.items.length === 0 ? (
             <p style={{ fontSize: 13.5, color: 'var(--piedra)' }}>Agregue al menos un producto.</p>
           ) : nueva.items.map((l, i) => (
-            <div key={i} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr auto', gap: 10, alignItems: 'flex-end' }}>
+            <div key={i} className="linea-compra">
               <Seleccion etiqueta={i === 0 ? 'Producto' : ''} value={l.producto_id}
                 onChange={(e) => cambiarLinea(i, 'producto_id', e.target.value)}
                 vacio="Seleccione" opciones={productos.map((p) => ({ valor: p.id, texto: p.nombre }))} />

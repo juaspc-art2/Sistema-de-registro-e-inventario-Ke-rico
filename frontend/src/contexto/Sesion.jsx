@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { alExpirarSesion, api, guardarCsrf, guardarToken, leerToken } from '../api.js';
+import { alExpirarSesion, api, ErrorApi, guardarCsrf, guardarToken, leerToken } from '../api.js';
 import { escribirRuta } from '../rutas.js';
 
 const ContextoSesion = createContext(null);
@@ -8,6 +8,7 @@ export function ProveedorSesion({ children }) {
   const [usuario, setUsuario] = useState(null);
   const [permisos, setPermisos] = useState([]);
   const [empresa, setEmpresa] = useState({});
+  const [correoActivo, setCorreoActivo] = useState(false);
   const [minutosSesion, setMinutosSesion] = useState(15);
   const [cargando, setCargando] = useState(() => Boolean(leerToken()));
   const [mensajeSalida, setMensajeSalida] = useState('');
@@ -34,14 +35,10 @@ export function ProveedorSesion({ children }) {
     setUsuario(datos.usuario);
     setPermisos(datos.permisos || []);
     setEmpresa(datos.empresa || {});
+    setCorreoActivo(Boolean(datos.correo_activo));
     setMinutosSesion(datos.minutos_sesion || 15);
     ultimaActividad.current = Date.now();
   }, []);
-
-  const cargarSesion = useCallback(
-    () => api.get('/auth/sesion').then(aplicarSesion),
-    [aplicarSesion]
-  );
 
   useEffect(() => {
     if (!leerToken()) return undefined;
@@ -67,6 +64,7 @@ export function ProveedorSesion({ children }) {
     try {
       const sesion = await api.get('/auth/sesion');
       setEmpresa(sesion.empresa || {});
+      setCorreoActivo(Boolean(sesion.correo_activo));
     } catch {
       setEmpresa({});
     }
@@ -114,6 +112,14 @@ export function ProveedorSesion({ children }) {
   }, []);
 
   useEffect(() => {
+    const mostrar = (e) => {
+      if (e.reason instanceof ErrorApi && e.reason.estado !== 401) avisar(e.reason.message, 'error');
+    };
+    window.addEventListener('unhandledrejection', mostrar);
+    return () => window.removeEventListener('unhandledrejection', mostrar);
+  }, [avisar]);
+
+  useEffect(() => {
     if (!notificacion) return undefined;
     const t = setTimeout(() => setNotificacion(null), 4200);
     return () => clearTimeout(t);
@@ -125,6 +131,7 @@ export function ProveedorSesion({ children }) {
     usuario,
     permisos,
     empresa,
+    correoActivo,
     cargando,
     mensajeSalida,
     notificacion,
@@ -134,10 +141,9 @@ export function ProveedorSesion({ children }) {
     salir,
     puede,
     avisar,
-    refrescar: cargarSesion,
     limpiarMensajeSalida: () => setMensajeSalida(''),
-  }), [usuario, permisos, empresa, cargando, mensajeSalida, notificacion, porExpirar,
-       minutosSesion, ingresar, salir, puede, avisar, cargarSesion]);
+  }), [usuario, permisos, empresa, correoActivo, cargando, mensajeSalida, notificacion, porExpirar,
+       minutosSesion, ingresar, salir, puede, avisar]);
 
   return <ContextoSesion.Provider value={valor}>{children}</ContextoSesion.Provider>;
 }

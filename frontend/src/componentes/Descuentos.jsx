@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { api, consulta, descargar, dinero, fechaCorta, fechaHora, hoy, primerDiaDelMes } from '../api.js';
+import { api, consulta, dinero, fechaCorta, fechaHora, hoy, primerDiaDelMes } from '../api.js';
 import { useSesion } from '../contexto/Sesion.jsx';
+import Exportar from './Exportar.jsx';
 import { useListado } from '../ganchos/useListado.js';
 import {
   Aviso, Boton, Cargando, EncabezadoOrden, Entrada, EtiquetaEstado, Metrica, Modal,
@@ -315,14 +316,11 @@ function Historial() {
           onChange={(e) => lista.cambiarFiltro('hasta', e.target.value)} />
         <Entrada etiqueta="Código" value={lista.filtros.codigo}
           onChange={(e) => lista.cambiarFiltro('codigo', e.target.value.toUpperCase())} />
-        <Boton onClick={() => descargar(
-          '/descuentos/exportar' + consulta({ formato: 'pdf', desde: lista.filtros.desde, hasta: lista.filtros.hasta }),
-          'descuentos.pdf'
-        )}>PDF</Boton>
-        <Boton onClick={() => descargar(
-          '/descuentos/exportar' + consulta({ formato: 'csv', desde: lista.filtros.desde, hasta: lista.filtros.hasta }),
-          'descuentos.csv'
-        )}>CSV</Boton>
+        <Exportar
+          ruta={(f) => '/descuentos/exportar' + consulta({ ...lista.filtros, formato: f })}
+          formatos={['pdf', 'csv']}
+          nombre="descuentos"
+        />
       </div>
 
       <Tarjeta plana>

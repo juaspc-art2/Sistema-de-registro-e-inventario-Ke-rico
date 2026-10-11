@@ -70,8 +70,7 @@ export class ErrorApi extends Error {
   }
 }
 
-async function peticion(metodo, ruta, { cuerpo, sinToken } = {}) {
-  const cabeceras = {};
+async function peticion(metodo, ruta, { cuerpo, sinToken, cabeceras = {} } = {}) {
   if (cuerpo !== undefined) cabeceras['Content-Type'] = 'application/json';
   const token = leerToken();
   if (token && !sinToken) {
@@ -122,6 +121,11 @@ export const api = {
     post: (ruta, cuerpo) => peticion('POST', ruta, { cuerpo, sinToken: true }),
   },
 };
+
+// Con la cabecera X-Enviar-A el servidor no devuelve el archivo: lo envía a ese correo
+export function enviarArchivo(ruta, correo) {
+  return peticion('GET', ruta, { cabeceras: { 'X-Enviar-A': correo } });
+}
 
 export async function descargar(ruta, nombrePorDefecto) {
   const token = leerToken();

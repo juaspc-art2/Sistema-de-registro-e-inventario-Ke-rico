@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { api, fechaHora } from '../api.js';
 import { useSesion } from '../contexto/Sesion.jsx';
+import Exportar from './Exportar.jsx';
 import { useListado } from '../ganchos/useListado.js';
 import {
   Aviso, Boton, Cargando, EncabezadoOrden, Entrada, EtiquetaEstado, Metrica, Modal,
@@ -434,9 +435,13 @@ function Respaldos() {
                 </td>
                 <td style={{ textAlign: 'right' }}>
                   {r.estado === 'Completado' ? (
-                    <Boton pequeno onClick={() => window.open(
-                      (window.KERICO_API || '/api') + '/sistema/respaldos/' + r.id + '/descargar', '_blank'
-                    )}>Descargar</Boton>
+                    <Exportar
+                      pequeno
+                      ruta={() => '/sistema/respaldos/' + r.id + '/descargar'}
+                      formatos={['sql']}
+                      etiqueta="Descargar"
+                      nombre="respaldo"
+                    />
                   ) : null}
                 </td>
               </>
@@ -484,10 +489,10 @@ function Configuracion() {
 
   const grupos = {
     'Datos de la empresa': valores.filter((v) => v.clave.startsWith('empresa_')),
-    'Facturación': valores.filter((v) => v.clave.startsWith('comprobante_') || v.clave === 'resolucion_dian' || v.clave.startsWith('impuesto_')),
+    'Facturación': valores.filter((v) => v.clave.startsWith('comprobante_') || v.clave === 'resolucion_dian'),
     'Seguridad y sesiones': valores.filter((v) => v.clave.startsWith('sesion_') || v.clave.startsWith('intentos_') || v.clave.startsWith('bloqueo_')),
-    'Inventario y respaldos': valores.filter((v) => v.clave.startsWith('alerta_') || v.clave.startsWith('respaldo_')),
-    'Moneda': valores.filter((v) => v.clave.startsWith('moneda_')),
+    'Respaldos': valores.filter((v) => v.clave === 'respaldo_intervalo_horas'),
+    'Notificaciones por correo': valores.filter((v) => v.clave === 'notificaciones_correo'),
   };
 
   return (

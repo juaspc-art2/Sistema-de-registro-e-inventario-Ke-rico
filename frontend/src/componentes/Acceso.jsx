@@ -15,11 +15,15 @@ export default function Acceso() {
   const [usuario, setUsuario] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [exito, setExito] = useState('');
   const [errores, setErrores] = useState({});
   const [enviando, setEnviando] = useState(false);
   const [recuperando, setRecuperando] = useState(false);
   const [correo, setCorreo] = useState('');
-  const [avisoRecuperacion, setAvisoRecuperacion] = useState('');
+  const [conCodigo, setConCodigo] = useState(false);
+  const [codigo, setCodigo] = useState('');
+  const [nueva, setNueva] = useState('');
+  const [avisoRecuperacion, setAvisoRecuperacion] = useState(null);
 
   const validar = () => {
     const nuevos = {};
@@ -33,6 +37,7 @@ export default function Acceso() {
   const enviar = async (e) => {
     e.preventDefault();
     setError('');
+    setExito('');
     limpiarMensajeSalida();
     if (!validar()) return;
 
@@ -47,18 +52,40 @@ export default function Acceso() {
     }
   };
 
-  const recuperar = async (e) => {
-    e.preventDefault();
-    setAvisoRecuperacion('');
+  const cerrarRecuperacion = () => {
+    setRecuperando(false);
+    setConCodigo(false);
+    setCodigo('');
+    setNueva('');
+    setAvisoRecuperacion(null);
+  };
+
+  const recuperar = async () => {
+    setAvisoRecuperacion(null);
     try {
-      const datos = await api.publico.post('/auth/recuperar', { correo });
-      setAvisoRecuperacion(
-        datos && datos.token
-          ? 'Enlace generado. Token de recuperación: ' + datos.token
-          : 'Si el correo está registrado, el administrador verá el token en el registro de actividad.'
-      );
+      const r = await api.publico.post('/auth/recuperar', { correo });
+      setConCodigo(Boolean(r && r.por_correo));
+      setAvisoRecuperacion({
+        tipo: 'info',
+        texto: r && r.por_correo
+          ? 'Si el correo está registrado, en unos minutos recibirá un código. Escríbalo aquí con su contraseña nueva.'
+          : 'Si el correo está registrado, el administrador verá la solicitud en el registro de actividad y le asignará una contraseña nueva.',
+      });
     } catch (err) {
-      setAvisoRecuperacion(err.message);
+      setAvisoRecuperacion({ tipo: 'error', texto: err.message });
+    }
+  };
+
+  const restablecer = async () => {
+    try {
+      await api.publico.post('/auth/restablecer', { token: codigo.trim(), password: nueva });
+      cerrarRecuperacion();
+      setErrores({});
+      setError('');
+      setPassword('');
+      setExito('Contraseña restablecida. Ya puede iniciar sesión.');
+    } catch (err) {
+      setAvisoRecuperacion({ tipo: 'error', texto: err.message });
     }
   };
 
@@ -95,6 +122,7 @@ export default function Acceso() {
           </div>
 
           {mensajeSalida ? <Aviso tipo="info">{mensajeSalida}</Aviso> : null}
+          {exito ? <Aviso tipo="exito">{exito}</Aviso> : null}
           {error ? <Aviso tipo="error">{error}</Aviso> : null}
 
           <Entrada
@@ -155,25 +183,48 @@ export default function Acceso() {
         <Modal
           titulo="Recuperar contraseña"
           angosto
-          onCerrar={() => { setRecuperando(false); setAvisoRecuperacion(''); }}
+          onCerrar={cerrarRecuperacion}
           pie={
             <>
-              <Boton onClick={() => { setRecuperando(false); setAvisoRecuperacion(''); }}>Cerrar</Boton>
-              <Boton variante="primario" onClick={recuperar}>Generar enlace</Boton>
+              <Boton onClick={cerrarRecuperacion}>Cerrar</Boton>
+              {conCodigo ? (
+                <Boton variante="primario" onClick={restablecer} disabled={!codigo.trim() || nueva.length < 3}>
+                  Cambiar contraseña
+                </Boton>
+              ) : (
+                <Boton variante="primario" onClick={recuperar}>Enviar solicitud</Boton>
+              )}
             </>
           }
         >
           <p style={{ margin: 0, fontSize: 14, color: 'var(--piedra)' }}>
-            Escriba el correo de su cuenta y el sistema generará un enlace de recuperación
-            válido por una hora.
+            Escriba el correo de su cuenta para pedir una contraseña nueva.
           </p>
           <Entrada
             etiqueta="Correo"
             type="email"
             value={correo}
             onChange={(e) => setCorreo(e.target.value)}
+            disabled={conCodigo}
           />
-          {avisoRecuperacion ? <Aviso tipo="info">{avisoRecuperacion}</Aviso> : null}
+          {avisoRecuperacion ? <Aviso tipo={avisoRecuperacion.tipo}>{avisoRecuperacion.texto}</Aviso> : null}
+          {conCodigo ? (
+            <>
+              <Entrada
+                etiqueta="Código recibido"
+                value={codigo}
+                onChange={(e) => setCodigo(e.target.value)}
+                autoComplete="one-time-code"
+              />
+              <Entrada
+                etiqueta="Contraseña nueva"
+                type="password"
+                value={nueva}
+                onChange={(e) => setNueva(e.target.value)}
+                autoComplete="new-password"
+              />
+            </>
+          ) : null}
         </Modal>
       ) : null}
     </div>

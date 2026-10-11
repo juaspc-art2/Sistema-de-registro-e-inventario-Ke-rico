@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { api, cantidad, consulta, descargar, dinero, fechaHora, hoy, primerDiaDelMes } from '../api.js';
+import { api, cantidad, consulta, dinero, fechaHora, hoy, primerDiaDelMes } from '../api.js';
 import { useSesion } from '../contexto/Sesion.jsx';
+import Exportar from './Exportar.jsx';
 import { useListado } from '../ganchos/useListado.js';
 import {
   Aviso, Boton, Cargando, EncabezadoOrden, Entrada, EtiquetaEstado, Metrica, Modal,
@@ -91,16 +92,11 @@ export default function Auditoria() {
         </div>
         <div className="acciones">
           {puede('reportes.exportar') ? (
-            <>
-              <Boton onClick={() => descargar(
-                '/inventario/movimientos/exportar' + consulta({ formato: 'pdf', desde: lista.filtros.desde, hasta: lista.filtros.hasta, tipo: lista.filtros.tipo }),
-                'auditoria.pdf'
-              )}>PDF</Boton>
-              <Boton onClick={() => descargar(
-                '/inventario/movimientos/exportar' + consulta({ formato: 'csv', desde: lista.filtros.desde, hasta: lista.filtros.hasta, tipo: lista.filtros.tipo }),
-                'auditoria.csv'
-              )}>CSV</Boton>
-            </>
+            <Exportar
+              ruta={(f) => '/inventario/movimientos/exportar' + consulta({ ...lista.filtros, formato: f })}
+              formatos={['pdf', 'csv']}
+              nombre="auditoria"
+            />
           ) : null}
           {puede('inventario.ajustar') ? (
             <Boton variante="primario" onClick={() => { setRegistrando(true); setErrorForm(''); setErrores({}); }}>

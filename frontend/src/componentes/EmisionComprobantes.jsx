@@ -7,6 +7,7 @@ import {
   Paginacion, Seleccion, Tarjeta,
   opcionesEstado,
 } from '../ui/Componentes.jsx';
+import Exportar from './Exportar.jsx';
 import { Tirilla } from './GestionVentas.jsx';
 
 const TIPOS = ['Tirilla POS', 'Factura de venta', 'Nota credito', 'Nota debito'];
@@ -105,16 +106,11 @@ export default function EmisionComprobantes() {
             opciones={[{ valor: 'Emitido', texto: 'Emitido' }, { valor: 'Anulado', texto: 'Anulado' }]}
           />
           {puede('reportes.exportar') ? (
-            <>
-              <Boton onClick={() => descargar(
-                '/comprobantes/exportar' + consulta({ formato: 'pdf', desde: lista.filtros.desde, hasta: lista.filtros.hasta }),
-                'comprobantes.pdf'
-              )}>PDF</Boton>
-              <Boton onClick={() => descargar(
-                '/comprobantes/exportar' + consulta({ formato: 'csv', desde: lista.filtros.desde, hasta: lista.filtros.hasta }),
-                'comprobantes.csv'
-              )}>CSV</Boton>
-            </>
+            <Exportar
+              ruta={(f) => '/comprobantes/exportar' + consulta({ ...lista.filtros, formato: f })}
+              formatos={['pdf', 'csv']}
+              nombre="comprobantes"
+            />
           ) : null}
         </div>
 
@@ -184,12 +180,13 @@ export default function EmisionComprobantes() {
           pie={
             <>
               <Boton onClick={() => setDetalle(null)}>Cerrar</Boton>
-              <Boton onClick={() => descargar('/comprobantes/' + detalle.id + '/descargar?formato=excel', 'comprobante.xlsx')}>
-                Excel
-              </Boton>
-              <Boton variante="primario" onClick={() => descargar('/comprobantes/' + detalle.id + '/descargar?formato=pdf', 'comprobante.pdf')}>
-                Descargar PDF
-              </Boton>
+              <Exportar
+                ruta={(f) => '/comprobantes/' + detalle.id + '/descargar?formato=' + f}
+                formatos={['excel', 'pdf']}
+                principal="pdf"
+                nombre="comprobante"
+                correoInicial={(detalle.cliente && detalle.cliente.correo) || ''}
+              />
             </>
           }
         >

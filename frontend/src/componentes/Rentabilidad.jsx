@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { api, cantidad, consulta, descargar, dinero, fechaCorta, hoy, porcentaje, primerDiaDelMes } from '../api.js';
+import { api, cantidad, consulta, dinero, fechaCorta, hoy, porcentaje, primerDiaDelMes } from '../api.js';
 import { useSesion } from '../contexto/Sesion.jsx';
+import Exportar from './Exportar.jsx';
 import {
   Anillo, Aviso, Barras, Boton, Cargando, Columnas, Entrada, Metrica, Tabla, Tarjeta,
 } from '../ui/Componentes.jsx';
@@ -40,15 +41,12 @@ export default function Rentabilidad() {
         </div>
         {puede('reportes.exportar') ? (
           <div className="acciones">
-            <Boton onClick={() => descargar(
-              '/reportes/rentabilidad/exportar' + consulta({ ...rango, formato: 'pdf' }), 'rentabilidad.pdf'
-            )}>PDF</Boton>
-            <Boton onClick={() => descargar(
-              '/reportes/rentabilidad/exportar' + consulta({ ...rango, formato: 'csv' }), 'rentabilidad.csv'
-            )}>CSV</Boton>
-            <Boton variante="primario" onClick={() => descargar(
-              '/reportes/rentabilidad/exportar' + consulta({ ...rango, formato: 'excel' }), 'rentabilidad.xlsx'
-            )}>Excel</Boton>
+            <Exportar
+              ruta={(f) => '/reportes/rentabilidad/exportar' + consulta({ ...rango, formato: f })}
+              formatos={['pdf', 'csv', 'excel']}
+              principal="excel"
+              nombre="rentabilidad"
+            />
           </div>
         ) : null}
       </div>
@@ -81,7 +79,7 @@ export default function Rentabilidad() {
               <Metrica etiqueta="Compras del periodo" valor={dinero(datos.totales.compras)} tono="neutro" />
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 20 }}>
+            <div className="rejilla-tarjetas">
               <Tarjeta titulo="Utilidad por día" sub={'Del ' + fechaCorta(datos.desde) + ' al ' + fechaCorta(datos.hasta)}>
                 {datos.dias.length === 0 ? (
                   <Aviso tipo="info">No hubo ventas en el rango seleccionado.</Aviso>

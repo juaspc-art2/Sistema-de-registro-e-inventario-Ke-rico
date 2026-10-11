@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { api, cantidad, consulta, descargar, dinero, fechaHora, hoy, primerDiaDelMes } from '../api.js';
+import { api, cantidad, consulta, dinero, fechaHora, hoy, primerDiaDelMes } from '../api.js';
 import { useSesion } from '../contexto/Sesion.jsx';
 import { useListado } from '../ganchos/useListado.js';
 import {
   Aviso, Boton, Cargando, EncabezadoOrden, Entrada, EtiquetaEstado, Metrica, Modal,
   Paginacion, Pestanas, Seleccion, Tabla, Tarjeta,
 } from '../ui/Componentes.jsx';
+import Exportar from './Exportar.jsx';
 
 function Punto({ avisar, alRegistrar }) {
   const { puede } = useSesion();
@@ -343,12 +344,14 @@ function Punto({ avisar, alRegistrar }) {
           pie={
             <>
               <Boton onClick={() => setRecibo(null)}>Cerrar</Boton>
-              <Boton
-                variante="primario"
-                onClick={() => descargar('/comprobantes/' + recibo.id + '/descargar?formato=pdf', 'comprobante.pdf')}
-              >
-                Descargar PDF
-              </Boton>
+              <Exportar
+                ruta={(f) => '/comprobantes/' + recibo.id + '/descargar?formato=' + f}
+                formatos={['pdf']}
+                principal="pdf"
+                etiqueta="Descargar PDF"
+                nombre="comprobante"
+                correoInicial={(recibo.cliente && recibo.cliente.correo) || ''}
+              />
             </>
           }
         >
@@ -479,22 +482,11 @@ function Historial() {
           vacio="Todos"
           opciones={[{ valor: 'Completada', texto: 'Completada' }, { valor: 'Anulada', texto: 'Anulada' }]}
         />
-        <Boton
-          onClick={() => descargar(
-            '/ventas/exportar' + consulta({ formato: 'pdf', desde: lista.filtros.desde, hasta: lista.filtros.hasta, estado: lista.filtros.estado }),
-            'ventas.pdf'
-          )}
-        >
-          PDF
-        </Boton>
-        <Boton
-          onClick={() => descargar(
-            '/ventas/exportar' + consulta({ formato: 'csv', desde: lista.filtros.desde, hasta: lista.filtros.hasta, estado: lista.filtros.estado }),
-            'ventas.csv'
-          )}
-        >
-          CSV
-        </Boton>
+        <Exportar
+          ruta={(f) => '/ventas/exportar' + consulta({ ...lista.filtros, formato: f })}
+          formatos={['pdf', 'csv']}
+          nombre="ventas"
+        />
       </div>
 
       <Tarjeta plana>
@@ -561,8 +553,12 @@ function Historial() {
           <div className="rejilla-metricas">
             <Metrica etiqueta="Total" valor={dinero(detalle.total)} />
             <Metrica etiqueta="Impuesto" valor={dinero(detalle.impuesto_total)} tono="amarillo" />
-            <Metrica etiqueta="Costo" valor={dinero(detalle.costo_total)} tono="neutro" />
-            <Metrica etiqueta="Utilidad" valor={dinero(detalle.utilidad)} tono="exito" />
+            {detalle.utilidad !== undefined ? (
+              <>
+                <Metrica etiqueta="Costo" valor={dinero(detalle.costo_total)} tono="neutro" />
+                <Metrica etiqueta="Utilidad" valor={dinero(detalle.utilidad)} tono="exito" />
+              </>
+            ) : null}
           </div>
 
           <Tabla
@@ -598,12 +594,14 @@ function Historial() {
 
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             {detalle.comprobantes.map((c) => (
-              <Boton
+              <Exportar
                 key={c.id}
-                onClick={() => descargar('/comprobantes/' + c.id + '/descargar?formato=pdf', 'comprobante.pdf')}
-              >
-                Descargar {c.numero}
-              </Boton>
+                ruta={(f) => '/comprobantes/' + c.id + '/descargar?formato=' + f}
+                formatos={['pdf']}
+                etiqueta={'Descargar ' + c.numero}
+                nombre="comprobante"
+                correoInicial=""
+              />
             ))}
           </div>
         </Modal>
@@ -668,7 +666,9 @@ export default function GestionVentas() {
             <Metrica etiqueta="Ventas de hoy" valor={dinero(resumen.total)} nota={resumen.transacciones + ' transacciones'} />
             <Metrica etiqueta="Unidades vendidas" valor={cantidad(resumen.unidades)} tono="amarillo" />
             <Metrica etiqueta="Descuentos de hoy" valor={dinero(resumen.descuentos)} tono="info" />
-            <Metrica etiqueta="Utilidad de hoy" valor={dinero(resumen.utilidad)} tono="exito" />
+            {resumen.utilidad !== undefined ? (
+              <Metrica etiqueta="Utilidad de hoy" valor={dinero(resumen.utilidad)} tono="exito" />
+            ) : null}
           </div>
         ) : null}
 

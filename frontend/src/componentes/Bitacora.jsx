@@ -1,5 +1,6 @@
-import { consulta, descargar, fechaHora, hoy, primerDiaDelMes } from '../api.js';
+import { consulta, fechaHora, hoy, primerDiaDelMes } from '../api.js';
 import { useSesion } from '../contexto/Sesion.jsx';
+import Exportar from './Exportar.jsx';
 import { useListado } from '../ganchos/useListado.js';
 import {
   Anillo, Aviso, Boton, Cargando, EncabezadoOrden, Entrada, EtiquetaEstado, Metrica,
@@ -55,20 +56,11 @@ export default function Bitacora() {
         </div>
         <div className="acciones">
           <Boton onClick={lista.recargar}>Actualizar</Boton>
-          <Boton onClick={() => descargar(
-            '/sistema/bitacora/exportar' + consulta({
-              formato: 'pdf', desde: lista.filtros.desde, hasta: lista.filtros.hasta,
-              nivel: lista.filtros.nivel, modulo: lista.filtros.modulo,
-            }),
-            'bitacora.pdf'
-          )}>PDF</Boton>
-          <Boton onClick={() => descargar(
-            '/sistema/bitacora/exportar' + consulta({
-              formato: 'csv', desde: lista.filtros.desde, hasta: lista.filtros.hasta,
-              nivel: lista.filtros.nivel, modulo: lista.filtros.modulo,
-            }),
-            'bitacora.csv'
-          )}>CSV</Boton>
+          <Exportar
+            ruta={(f) => '/sistema/bitacora/exportar' + consulta({ ...lista.filtros, formato: f })}
+            formatos={['pdf', 'csv']}
+            nombre="bitacora"
+          />
         </div>
       </div>
 

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { api, cantidad, descargar, dinero, fechaHora } from '../api.js';
+import { api, cantidad, dinero, fechaHora } from '../api.js';
 import { useSesion } from '../contexto/Sesion.jsx';
+import Exportar from './Exportar.jsx';
 import { useListado } from '../ganchos/useListado.js';
 import {
   Aviso, Boton, Cargando, EncabezadoOrden, Entrada, EtiquetaEstado, Metrica, Modal,
@@ -261,11 +262,11 @@ export default function Inventario() {
         </div>
         <div className="acciones">
           {puede('reportes.exportar') ? (
-            <>
-              <Boton onClick={() => descargar('/inventario/exportar?formato=pdf', 'inventario.pdf')}>PDF</Boton>
-              <Boton onClick={() => descargar('/inventario/exportar?formato=csv', 'inventario.csv')}>CSV</Boton>
-              <Boton onClick={() => descargar('/inventario/exportar?formato=excel', 'inventario.xlsx')}>Excel</Boton>
-            </>
+            <Exportar
+              ruta={(f) => '/inventario/exportar?formato=' + f}
+              formatos={['pdf', 'csv', 'excel']}
+              nombre="inventario"
+            />
           ) : null}
           {puede('productos.gestionar') ? (
             <>
