@@ -142,7 +142,7 @@ export default function AlertasStock({ onAlertasPendientes }) {
           <Metrica etiqueta="Alertas sin revisar" valor={String(resumen.pendientes)} tono="info" />
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 20 }}>
+        <div className="rejilla-tarjetas">
           <Tarjeta titulo="Distribución del inventario" sub="Referencias activas por estado">
             <Anillo
               datos={distribucion}

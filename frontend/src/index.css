@@ -565,8 +565,22 @@ table.tabla .tenue {
 
 .rejilla-formulario {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
   gap: 14px;
+}
+
+/* min(…, 100%): la columna nunca exige más ancho del que tiene la pantalla */
+.rejilla-tarjetas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+  gap: 20px;
+}
+
+.linea-compra {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr auto;
+  gap: 10px;
+  align-items: flex-end;
 }
 
 .aviso {
@@ -639,6 +653,7 @@ table.tabla .tenue {
   border-top: 1px solid var(--arena);
   display: flex;
   justify-content: flex-end;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
@@ -993,10 +1008,12 @@ table.tabla .tenue {
   gap: 8px;
   height: 150px;
   padding-top: 8px;
+  overflow-x: auto;
 }
 
 .columnas .columna {
   flex: 1;
+  min-width: 34px;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -1130,7 +1147,7 @@ table.tabla .tenue {
   padding: 12px 16px;
   box-shadow: var(--sombra);
   font-size: 13px;
-  max-width: 320px;
+  max-width: min(320px, calc(100vw - 40px));
 }
 
 .cerrar-aviso {
@@ -1161,7 +1178,7 @@ table.tabla .tenue {
   padding: 12px 16px;
   box-shadow: var(--sombra);
   font-size: 13.5px;
-  max-width: 380px;
+  max-width: min(380px, calc(100vw - 40px));
   display: flex;
   align-items: flex-start;
   gap: 10px;
@@ -1186,14 +1203,40 @@ table.tabla .tenue {
 
 @media (max-width: 768px) {
   .app { flex-direction: column; }
+  /* Barra superior: marca y usuario en un renglón, módulos en otro que se desliza */
   .barra {
     width: 100%;
     height: auto;
     position: static;
     border-right: none;
     border-bottom: 1px solid var(--arena);
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .barra-marca {
+    flex: 1 1 auto;
+    padding: 10px 14px;
+  }
+  .barra-pie {
+    order: 1;
+    min-width: 0;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    border-top: none;
+    padding: 8px 14px;
+  }
+  .barra-pie .usuario {
+    max-width: 34vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .barra nav {
+    order: 2;
+    flex: 0 0 100%;
+    min-width: 0;
     flex-direction: row;
     overflow-x: auto;
     padding: 0 8px 8px;
@@ -1211,6 +1254,30 @@ table.tabla .tenue {
   .barra-titulo { display: none; }
   .encabezado { padding: 18px 18px 0; }
   .panel { padding: 16px 18px 32px; }
+  .filtros .campo { flex: 1 1 150px; }
+  /* Aquí la tabla ya se desliza dentro de su envoltura: folios y cifras no se parten en dos renglones */
+  table.tabla .tabular { white-space: nowrap; }
+  .linea-compra { grid-template-columns: 1fr 1fr auto; }
+  .linea-compra > :first-child { grid-column: 1 / -1; }
+}
+
+@media (max-width: 480px) {
+  .encabezado { padding: 14px 12px 0; }
+  .encabezado h1 { font-size: 21px; }
+  .panel { padding: 14px 12px 28px; gap: 16px; }
+  .tarjeta { padding: 16px 14px; }
+  .rejilla-metricas {
+    grid-template-columns: repeat(auto-fit, minmax(min(148px, 100%), 1fr));
+    gap: 10px;
+  }
+  .metrica { padding: 12px 14px; }
+  .metrica .valor { font-size: 18px; overflow-wrap: anywhere; }
+  .capa { padding: 16px 10px; }
+  .modal-cabecera { padding: 14px 16px; }
+  .modal-cuerpo { padding: 16px; }
+  .modal-pie { padding: 12px 16px; }
+  .acceso-formulario { padding: 28px 18px; }
+  .barra-dato { grid-template-columns: minmax(0, 96px) 1fr 54px; }
 }
 
 @media print {
@@ -1354,4 +1421,17 @@ table.tabla th.ordenable .flecha.activa {
   font-family: var(--titular);
   font-weight: 700;
   color: var(--carbon);
+}
+
+/* Portátiles: celdas más ceñidas para que las acciones de la última columna quepan sin deslizar */
+@media (max-width: 1400px) {
+  table.tabla th,
+  table.tabla td {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+  table.tabla th.ordenable button {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
 }

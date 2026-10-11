@@ -102,13 +102,15 @@ export default function Panel({ onAlertasPendientes, irA }) {
             nota={(alertas.Agotado || 0) + ' agotadas, ' + (alertas.Critico || 0) + ' críticas'}
             tono={alertas.Agotado > 0 ? 'error' : 'amarillo'}
           />
-          <Metrica
-            etiqueta="Margen del mes"
-            valor={porcentaje(mes.margen)}
-            nota={'Utilidad ' + dinero(mes.utilidad_bruta)}
-            tono="exito"
-            tendencia={mes.margen > 0 ? 'sube' : undefined}
-          />
+          {mes ? (
+            <Metrica
+              etiqueta="Margen del mes"
+              valor={porcentaje(mes.margen)}
+              nota={'Utilidad ' + dinero(mes.utilidad_bruta)}
+              tono="exito"
+              tendencia={mes.margen > 0 ? 'sube' : undefined}
+            />
+          ) : null}
           <Metrica
             etiqueta="Movimientos de hoy"
             valor={String(movs.total)}
@@ -123,7 +125,7 @@ export default function Panel({ onAlertasPendientes, irA }) {
           />
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 20 }}>
+        <div className="rejilla-tarjetas">
           <Tarjeta titulo="Ventas de la última semana" sub="Total facturado por día">
             {serieSemana.length === 0 ? (
               <Aviso tipo="info">Todavía no hay ventas registradas en la última semana.</Aviso>
@@ -141,7 +143,7 @@ export default function Panel({ onAlertasPendientes, irA }) {
           </Tarjeta>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 20 }}>
+        <div className="rejilla-tarjetas">
           <Tarjeta titulo="Productos más vendidos" sub="Unidades del mes en curso">
             {topBarras.length === 0 ? (
               <Aviso tipo="info">Aún no hay ventas registradas este mes.</Aviso>
@@ -150,18 +152,20 @@ export default function Panel({ onAlertasPendientes, irA }) {
             )}
           </Tarjeta>
 
-          <Tarjeta titulo="Resumen financiero del mes" sub={'Del 1 al ' + fechaCorta(new Date().toISOString())}>
-            <div className="totales">
-              <div className="fila"><span>Ingresos brutos</span><span className="tabular">{dinero(mes.ingresos_brutos)}</span></div>
-              <div className="fila"><span>Base gravable</span><span className="tabular">{dinero(mes.base_gravable)}</span></div>
-              <div className="fila"><span>Impuestos</span><span className="tabular">{dinero(mes.impuestos)}</span></div>
-              <div className="fila descuento"><span>Descuentos aplicados</span><span className="tabular">- {dinero(mes.descuentos)}</span></div>
-              <div className="fila"><span>Costo de ventas</span><span className="tabular">{dinero(mes.costo_ventas)}</span></div>
-              <div className="fila"><span>Compras del periodo</span><span className="tabular">{dinero(mes.compras)}</span></div>
-              <div className="fila"><span>Ticket promedio</span><span className="tabular">{dinero(mes.ticket_promedio)}</span></div>
-              <div className="fila grande"><span>Utilidad bruta</span><span className="tabular">{dinero(mes.utilidad_bruta)}</span></div>
-            </div>
-          </Tarjeta>
+          {mes ? (
+            <Tarjeta titulo="Resumen financiero del mes" sub={'Del 1 al ' + fechaCorta(new Date().toISOString())}>
+              <div className="totales">
+                <div className="fila"><span>Ingresos brutos</span><span className="tabular">{dinero(mes.ingresos_brutos)}</span></div>
+                <div className="fila"><span>Base gravable</span><span className="tabular">{dinero(mes.base_gravable)}</span></div>
+                <div className="fila"><span>Impuestos</span><span className="tabular">{dinero(mes.impuestos)}</span></div>
+                <div className="fila descuento"><span>Descuentos aplicados</span><span className="tabular">- {dinero(mes.descuentos)}</span></div>
+                <div className="fila"><span>Costo de ventas</span><span className="tabular">{dinero(mes.costo_ventas)}</span></div>
+                <div className="fila"><span>Compras del periodo</span><span className="tabular">{dinero(mes.compras)}</span></div>
+                <div className="fila"><span>Ticket promedio</span><span className="tabular">{dinero(mes.ticket_promedio)}</span></div>
+                <div className="fila grande"><span>Utilidad bruta</span><span className="tabular">{dinero(mes.utilidad_bruta)}</span></div>
+              </div>
+            </Tarjeta>
+          ) : null}
         </div>
 
         <Tarjeta
