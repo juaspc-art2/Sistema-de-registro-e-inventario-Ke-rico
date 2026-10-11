@@ -2,6 +2,12 @@
 
 declare(strict_types=1);
 
+// Tarea de consola: por web cualquiera podría lanzar respaldos sin iniciar sesión
+if (PHP_SAPI !== 'cli') {
+    http_response_code(404);
+    exit;
+}
+
 use Kerico\Modelo\Sistema;
 use Kerico\Nucleo\Bd;
 

@@ -124,11 +124,7 @@ final class Peticion
         if (preg_match('/Bearer\s+(.+)/i', $autorizacion, $coincidencias) === 1) {
             return trim($coincidencias[1]);
         }
-        $alterno = $this->cabecera('X-Token-Kerico');
-        if ($alterno !== '') {
-            return trim($alterno);
-        }
-        return (string) ($this->consulta['token'] ?? '');
+        return '';
     }
 
     public function csrf(): string

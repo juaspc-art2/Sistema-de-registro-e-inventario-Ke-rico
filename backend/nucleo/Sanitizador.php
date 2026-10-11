@@ -24,9 +24,4 @@ final class Sanitizador
         }
         return $limpio;
     }
-
-    public static function html(string $valor): string
-    {
-        return htmlspecialchars($valor, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-    }
 }

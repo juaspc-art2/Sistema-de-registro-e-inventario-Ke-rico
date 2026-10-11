@@ -39,6 +39,8 @@ final class Bd
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
                 PDO::ATTR_EMULATE_PREPARES   => false,
                 PDO::ATTR_STRINGIFY_FETCHES  => false,
+                // El código mezcla date() de PHP con NOW() de MySQL: ambos deben usar el mismo reloj
+                PDO::MYSQL_ATTR_INIT_COMMAND => "SET time_zone = '" . date('P') . "'",
             ]);
         } catch (PDOException $e) {
             throw new RuntimeException('No fue posible conectar con la base de datos: ' . $e->getMessage(), 500, $e);
