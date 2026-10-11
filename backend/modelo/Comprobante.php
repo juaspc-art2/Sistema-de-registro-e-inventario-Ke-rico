@@ -8,6 +8,7 @@ use Kerico\Nucleo\Ajustes;
 use Kerico\Nucleo\Bd;
 use Kerico\Nucleo\Bitacora;
 use Kerico\Nucleo\ErrorHttp;
+use Kerico\Nucleo\Exportador;
 use Kerico\Nucleo\Paginador;
 
 final class Comprobante
@@ -155,12 +156,14 @@ final class Comprobante
         return [$sql, $parametros];
     }
 
+    private const COLUMNAS = 'SELECT c.*, v.folio, v.metodo_pago, v.fecha AS fecha_venta,
+                    CONCAT(u.nombre, " ", u.apellido) AS cajero';
+
     public static function paginar(array $filtros = []): array
     {
         [$desde, $parametros] = self::filtrar($filtros);
         return Paginador::consultar(
-            'SELECT c.*, v.folio, v.metodo_pago, v.fecha AS fecha_venta,
-                    CONCAT(u.nombre, " ", u.apellido) AS cajero',
+            self::COLUMNAS,
             $desde,
             $parametros,
             $filtros,
@@ -172,39 +175,8 @@ final class Comprobante
 
     public static function listar(array $filtros = []): array
     {
-        $sql = 'SELECT c.*, v.folio, v.metodo_pago, v.fecha AS fecha_venta,
-                       CONCAT(u.nombre, " ", u.apellido) AS cajero
-                FROM comprobantes c
-                JOIN ventas v ON v.id = c.venta_id
-                JOIN usuarios u ON u.id = v.usuario_id
-                WHERE 1 = 1';
-        $parametros = [];
-
-        if (!empty($filtros['busqueda'])) {
-            $sql .= ' AND (c.numero LIKE ? OR v.folio LIKE ? OR c.cliente LIKE ?)';
-            $termino = '%' . $filtros['busqueda'] . '%';
-            $parametros[] = $termino;
-            $parametros[] = $termino;
-            $parametros[] = $termino;
-        }
-        if (!empty($filtros['tipo'])) {
-            $sql .= ' AND c.tipo = ?';
-            $parametros[] = $filtros['tipo'];
-        }
-        if (!empty($filtros['estado'])) {
-            $sql .= ' AND c.estado = ?';
-            $parametros[] = $filtros['estado'];
-        }
-        if (!empty($filtros['desde'])) {
-            $sql .= ' AND c.fecha_emision >= ?';
-            $parametros[] = $filtros['desde'] . ' 00:00:00';
-        }
-        if (!empty($filtros['hasta'])) {
-            $sql .= ' AND c.fecha_emision <= ?';
-            $parametros[] = $filtros['hasta'] . ' 23:59:59';
-        }
-
-        $sql .= ' ORDER BY c.fecha_emision DESC, c.id DESC LIMIT 500';
+        [$desde, $parametros] = self::filtrar($filtros);
+        $sql = self::COLUMNAS . $desde . ' ORDER BY c.fecha_emision DESC, c.id DESC LIMIT ' . (Exportador::MAXIMO_FILAS + 1);
 
         return array_map([self::class, 'normalizar'], Bd::consultar($sql, $parametros));
     }

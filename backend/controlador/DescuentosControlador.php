@@ -79,8 +79,8 @@ final class DescuentosControlador
         Autenticacion::exigir('descuentos.gestionar');
         $datos = self::datos($peticion);
 
-        if (Promocion::porCodigo($datos['codigo']) !== null) {
-            throw ErrorHttp::validacion('Ya existe una promoción con ese código', ['codigo' => 'Debe ser único']);
+        if (Promocion::porCodigo($datos['codigo'], true) !== null) {
+            throw ErrorHttp::validacion('Ya existe una promoción con ese código, activa o en la papelera', ['codigo' => 'Debe ser único']);
         }
 
         $id = Promocion::crear($datos, Autenticacion::idUsuario());
@@ -104,9 +104,9 @@ final class DescuentosControlador
         $antes = Promocion::porId($id);
         $datos = self::datos($peticion);
 
-        $existente = Promocion::porCodigo($datos['codigo']);
+        $existente = Promocion::porCodigo($datos['codigo'], true);
         if ($existente !== null && $existente['id'] !== $id) {
-            throw ErrorHttp::validacion('Ya existe una promoción con ese código', ['codigo' => 'Debe ser único']);
+            throw ErrorHttp::validacion('Ya existe una promoción con ese código, activa o en la papelera', ['codigo' => 'Debe ser único']);
         }
 
         Promocion::actualizar($id, $datos);
@@ -188,7 +188,11 @@ final class DescuentosControlador
         $formato = (string) $peticion->consulta('formato', 'pdf');
         $desde = (string) $peticion->consulta('desde', date('Y-m-01'));
         $hasta = (string) $peticion->consulta('hasta', date('Y-m-d'));
-        $historial = Promocion::historial(['desde' => $desde, 'hasta' => $hasta]);
+        $historial = Promocion::historial([
+            'desde'  => $desde,
+            'hasta'  => $hasta,
+            'codigo' => $peticion->consulta('codigo', ''),
+        ]);
 
         $encabezados = ['Fecha', 'Folio', 'Código', 'Tipo', 'Valor original', 'Descuento', 'Valor final', 'Motivo', 'Autorizado por'];
         $filas = array_map(static fn (array $d): array => [

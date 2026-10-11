@@ -53,11 +53,27 @@ final class ComprobantesControlador
         $comprobante = Comprobante::porId((int) $peticion->parametro('id'));
         $formato = strtolower((string) $peticion->consulta('formato', 'pdf'));
 
+        // Si el comprobante sale por correo lo lee el cliente: se le escribe a él, no como a un reporte interno
+        $nombreCliente = trim((string) ($comprobante['cliente']['nombre'] ?? ''));
+        Respuesta::redactarCorreo([
+            $nombreCliente === '' || $nombreCliente === 'Consumidor final' ? 'Hola,' : 'Hola ' . $nombreCliente . ',',
+            $comprobante['estado'] === 'Anulado'
+                ? 'Adjunto encontrará el comprobante de su compra, que fue anulado.'
+                : 'Gracias por su compra. Adjunto encontrará su comprobante.',
+            ['datos' => [
+                'Comprobante' => $comprobante['tipo'] . ' N.º ' . $comprobante['numero'],
+                'Fecha'       => date('d/m/Y h:i a', (int) strtotime($comprobante['fecha_emision'])),
+                'Total'       => '$' . number_format((float) $comprobante['total'], 0, ',', '.'),
+            ]],
+            'Si tiene alguna pregunta sobre su compra, con gusto le atendemos.',
+        ]);
+
         if ($formato === 'pdf') {
             Respuesta::archivo(
                 (new TirillaPdf($comprobante))->generar(),
                 'comprobante-' . $comprobante['numero'] . '.pdf',
-                'application/pdf'
+                'application/pdf',
+                $comprobante['tipo'] . ' N.º ' . $comprobante['numero']
             );
             return;
         }
@@ -136,7 +152,13 @@ final class ComprobantesControlador
         $formato = (string) $peticion->consulta('formato', 'pdf');
         $desde = (string) $peticion->consulta('desde', date('Y-m-01'));
         $hasta = (string) $peticion->consulta('hasta', date('Y-m-d'));
-        $comprobantes = Comprobante::listar(['desde' => $desde, 'hasta' => $hasta]);
+        $comprobantes = Comprobante::listar([
+            'desde'    => $desde,
+            'hasta'    => $hasta,
+            'busqueda' => $peticion->consulta('busqueda', ''),
+            'tipo'     => $peticion->consulta('tipo', ''),
+            'estado'   => $peticion->consulta('estado', ''),
+        ]);
 
         $encabezados = ['Número', 'Tipo', 'Folio venta', 'Fecha', 'Cliente', 'Base', 'Impuesto', 'Total', 'Estado'];
         $filas = array_map(static fn (array $c): array => [

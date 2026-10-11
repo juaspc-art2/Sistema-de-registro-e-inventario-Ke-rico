@@ -8,6 +8,9 @@ use ZipArchive;
 
 final class Exportador
 {
+    // Tope de filas por archivo. Medido: 20.000 filas en PDF usan menos de 256 MB de memoria
+    public const MAXIMO_FILAS = 20000;
+
     public static function csv(array $encabezados, array $filas): string
     {
         $manejador = fopen('php://temp', 'r+');
@@ -99,8 +102,8 @@ final class Exportador
             $xml .= '<row r="' . $numero . '">';
             foreach (array_values($fila) as $i => $celda) {
                 $ref = self::columna($i) . $numero;
-                if (is_int($celda) || is_float($celda) || (is_string($celda) && $celda !== '' && is_numeric($celda))) {
-                    $xml .= '<c r="' . $ref . '"><v>' . (0 + $celda) . '</v></c>';
+                if (is_int($celda) || is_float($celda)) {
+                    $xml .= '<c r="' . $ref . '"><v>' . $celda . '</v></c>';
                 } else {
                     $xml .= '<c r="' . $ref . '" t="inlineStr"><is><t>' . self::escapar((string) $celda) . '</t></is></c>';
                 }

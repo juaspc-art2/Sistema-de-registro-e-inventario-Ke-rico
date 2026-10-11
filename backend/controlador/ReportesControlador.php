@@ -87,10 +87,4 @@ final class ReportesControlador
             ]
         );
     }
-
-    public static function inventarioValorizado(Peticion $peticion): void
-    {
-        Autenticacion::exigir('reportes.ver');
-        Respuesta::exito(Reporte::inventarioValorizado());
-    }
 }

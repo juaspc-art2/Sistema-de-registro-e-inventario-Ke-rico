@@ -6,35 +6,11 @@ namespace Kerico\Modelo;
 
 use Kerico\Nucleo\Bd;
 use Kerico\Nucleo\ErrorHttp;
+use Kerico\Nucleo\Exportador;
 use Kerico\Nucleo\Paginador;
 
 final class Promocion
 {
-    public static function listar(array $filtros = []): array
-    {
-        $sql = 'SELECT p.*, pr.nombre AS producto_nombre, c.nombre AS categoria_nombre
-                FROM promociones p
-                LEFT JOIN productos pr ON pr.id = p.producto_id
-                LEFT JOIN categorias c ON c.id = p.categoria_id
-                WHERE p.deleted_at IS NULL';
-        $parametros = [];
-
-        if (isset($filtros['activa']) && $filtros['activa'] !== null) {
-            $sql .= ' AND p.activa = ?';
-            $parametros[] = (int) $filtros['activa'];
-        }
-        if (!empty($filtros['busqueda'])) {
-            $sql .= ' AND (p.codigo LIKE ? OR p.descripcion LIKE ?)';
-            $termino = '%' . $filtros['busqueda'] . '%';
-            $parametros[] = $termino;
-            $parametros[] = $termino;
-        }
-
-        $sql .= ' ORDER BY p.activa DESC, p.codigo ASC';
-
-        return array_map([self::class, 'normalizar'], Bd::consultar($sql, $parametros));
-    }
-
     private const ORDEN = [
         'codigo' => 'p.codigo',
         'valor'  => 'p.valor',
@@ -128,14 +104,15 @@ final class Promocion
         return self::normalizar($fila);
     }
 
-    public static function porCodigo(string $codigo): ?array
+    // $conPapelera: el código es único en toda la tabla, también contra las promociones borradas
+    public static function porCodigo(string $codigo, bool $conPapelera = false): ?array
     {
         $fila = Bd::primero(
             'SELECT p.*, pr.nombre AS producto_nombre, c.nombre AS categoria_nombre
              FROM promociones p
              LEFT JOIN productos pr ON pr.id = p.producto_id
              LEFT JOIN categorias c ON c.id = p.categoria_id
-             WHERE UPPER(p.codigo) = UPPER(?) AND p.deleted_at IS NULL',
+             WHERE UPPER(p.codigo) = UPPER(?)' . ($conPapelera ? '' : ' AND p.deleted_at IS NULL'),
             [$codigo]
         );
         return $fila === null ? null : self::normalizar($fila);
@@ -329,7 +306,7 @@ final class Promocion
             $parametros[] = $filtros['codigo'];
         }
 
-        $sql .= ' ORDER BY d.creado_en DESC LIMIT 500';
+        $sql .= ' ORDER BY d.creado_en DESC LIMIT ' . (Exportador::MAXIMO_FILAS + 1);
 
         return array_map(static fn (array $d): array => [
             'id'              => (int) $d['id'],
