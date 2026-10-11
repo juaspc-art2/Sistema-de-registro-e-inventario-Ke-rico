@@ -258,6 +258,7 @@ function Punto({ avisar, alRegistrar }) {
           <Tarjeta titulo="Código de descuento">
             <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
               <Entrada
+                formato="codigo"
                 value={codigo}
                 onChange={(e) => setCodigo(e.target.value.toUpperCase())}
                 placeholder="BIENVENIDO10"
@@ -304,6 +305,7 @@ function Punto({ avisar, alRegistrar }) {
                 etiqueta="Monto recibido"
                 type="number"
                 min="0"
+                max="9999999999"
                 value={recibido}
                 onChange={(e) => setRecibido(e.target.value)}
                 placeholder={String(Math.ceil(total / 1000) * 1000)}
@@ -625,6 +627,7 @@ function Historial() {
           </Aviso>
           <Entrada
             etiqueta="Motivo de la anulación"
+            maxLength={255}
             value={motivo}
             onChange={(e) => setMotivo(e.target.value)}
             error={errorAnular}

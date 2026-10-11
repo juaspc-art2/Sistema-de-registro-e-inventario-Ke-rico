@@ -233,6 +233,7 @@ export default function AlertasStock({ onAlertasPendientes }) {
             etiqueta={'Punto de reorden en ' + ajustando.unidad_medida}
             type="number"
             min="0"
+            max="999999.999"
             value={nuevoReorden}
             onChange={(e) => setNuevoReorden(e.target.value)}
             error={errorReorden}

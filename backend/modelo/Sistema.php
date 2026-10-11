@@ -11,6 +11,7 @@ use Kerico\Nucleo\Bitacora;
 use Kerico\Nucleo\ErrorHttp;
 use Kerico\Nucleo\Exportador;
 use Kerico\Nucleo\Paginador;
+use Kerico\Nucleo\Validador;
 use Kerico\Nucleo\Vocabulario;
 use PDO;
 
@@ -333,6 +334,11 @@ final class Sistema
         ];
     }
 
+    // Ajustes de texto que no son texto libre, con el formato de Validador que deben cumplir
+    private const FORMATO_AJUSTE = ['empresa_telefono' => 'telefono', 'empresa_nit' => 'NIT', 'comprobante_prefijo' => 'codigo'];
+    // Sin ellos el comprobante sale sin nombre de empresa o sin numeración
+    private const AJUSTES_OBLIGATORIOS = ['empresa_nombre', 'comprobante_prefijo'];
+
     public static function actualizarConfiguracion(array $valores): array
     {
         $actuales = array_column(Ajustes::todos(), null, 'clave');
@@ -350,6 +356,20 @@ final class Sistema
                     $etiqueta . ': debe ser un número entero mayor que cero',
                     [$clave => 'Debe ser un número entero mayor que cero']
                 );
+            }
+            $formato = self::FORMATO_AJUSTE[$clave] ?? null;
+            // El prefijo va delante de cada número de comprobante, que tiene 30 caracteres en total
+            $tope = $clave === 'comprobante_prefijo' ? 6 : 255;
+            $falta = match (true) {
+                $valor === ''               => in_array($clave, self::AJUSTES_OBLIGATORIOS, true) ? 'es obligatorio' : null,
+                mb_strlen($valor) > $tope   => 'no puede superar ' . $tope . ' caracteres',
+                $formato !== null           => Validador::faltaFormato($formato, $valor),
+                $clave === 'empresa_correo' => filter_var($valor, FILTER_VALIDATE_EMAIL) === false ? 'no tiene un formato válido' : null,
+                default                     => null,
+            };
+            if ($falta !== null) {
+                $etiqueta = $actuales[$clave]['descripcion'] ?: $clave;
+                throw ErrorHttp::validacion($etiqueta . ': ' . $falta, [$clave => $falta]);
             }
             if ($clave === 'notificaciones_correo') {
                 foreach (preg_split('/[\s,;]+/', $valor, -1, PREG_SPLIT_NO_EMPTY) ?: [] as $direccion) {

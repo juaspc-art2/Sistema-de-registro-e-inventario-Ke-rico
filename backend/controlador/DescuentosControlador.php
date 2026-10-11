@@ -34,17 +34,17 @@ final class DescuentosControlador
     {
         $validador = new Validador($peticion->cuerpo());
         $datos = [
-            'codigo'                => strtoupper($validador->texto('codigo', 'El codigo', true, 30, 3)),
+            'codigo'                => strtoupper($validador->formato('codigo', 'El código', 'codigo', true, 30, 3)),
             'descripcion'           => $validador->texto('descripcion', 'La descripcion', true, 180),
             'tipo'                  => $validador->opcion('tipo', 'El tipo', ['porcentaje', 'fijo'], true),
-            'valor'                 => $validador->decimal('valor', 'El valor', true, 0.01),
+            'valor'                 => $validador->decimal('valor', 'El valor', true, 0.01, Validador::DINERO_MAXIMO),
             'alcance'               => $validador->opcion('alcance', 'El alcance', ['venta', 'producto', 'categoria'], false, 'venta'),
             'producto_id'           => $validador->entero('producto_id', 'El producto', false, 1),
             'categoria_id'          => $validador->entero('categoria_id', 'La categoria', false, 1),
-            'monto_minimo'          => $validador->decimal('monto_minimo', 'El monto mínimo', false, 0) ?? 0.0,
-            'fecha_inicio'          => $validador->fecha('fecha_inicio', 'La fecha de inicio', false),
-            'fecha_fin'             => $validador->fecha('fecha_fin', 'La fecha de fin', false),
-            'usos_maximos'          => $validador->entero('usos_maximos', 'Los usos maximos', false, 0) ?? 0,
+            'monto_minimo'          => $validador->decimal('monto_minimo', 'El monto mínimo', false, 0, Validador::DINERO_MAXIMO) ?? 0.0,
+            'fecha_inicio'          => $validador->fecha('fecha_inicio', 'La fecha de inicio', false, '2000-01-01', '2100-12-31'),
+            'fecha_fin'             => $validador->fecha('fecha_fin', 'La fecha de fin', false, '2000-01-01', '2100-12-31'),
+            'usos_maximos'          => $validador->entero('usos_maximos', 'Los usos máximos', false, 0, 1000000) ?? 0,
             'requiere_autorizacion' => $validador->booleano('requiere_autorizacion', false),
             'activa'                => $validador->booleano('activa', true),
         ];

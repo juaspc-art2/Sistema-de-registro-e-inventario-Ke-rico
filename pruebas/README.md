@@ -7,7 +7,7 @@ MySQL para comprobar lo que quedó guardado.
 | Archivo | Qué comprueba | Casos |
 |---|---|---|
 | `requerimientos.mjs` | Los nueve requerimientos funcionales y los quince no funcionales | 147 |
-| `revision.mjs` | La lista de verificación de la revisión de la aplicación | 176 |
+| `revision.mjs` | La lista de verificación de la revisión de la aplicación | 202 |
 
 `correo.mjs` es aparte: prueba el cliente SMTP contra un servidor falso que levanta en el
 mismo equipo. No necesita Apache ni MySQL, no modifica datos y ningún correo sale a
@@ -58,7 +58,8 @@ node pruebas/requerimientos.mjs
    comprueba que las gráficas traigan datos agregados.
 3. **CRUD** — validación en el servidor, paginación, filtros de texto, ordenamiento
    ascendente y descendente, precarga del formulario de edición y borrado lógico que
-   conserva la fila en la base de datos.
+   conserva la fila en la base de datos. También el formato de cada campo: teléfonos,
+   documentos, nombres, códigos, fechas reales y números dentro de sus topes.
 4. **Informes** — filtro por rango de fechas, PDF con encabezado, tabla y numeración de
    páginas, y CSV delimitado con BOM UTF-8 que respeta las tildes.
 5. **Seguridad** — seis cargas de inyección SQL, inyección de etiquetas `<script>`,
@@ -69,5 +70,5 @@ node pruebas/requerimientos.mjs
 
 ```
 PASADAS: 147   FALLIDAS: 0
-PASADAS: 176   FALLIDAS: 0
+PASADAS: 202   FALLIDAS: 0
 ```

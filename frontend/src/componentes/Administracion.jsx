@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { api, fechaHora } from '../api.js';
+import { api, fechaHora, hoy } from '../api.js';
 import { useSesion } from '../contexto/Sesion.jsx';
 import Exportar from './Exportar.jsx';
 import { useListado } from '../ganchos/useListado.js';
@@ -7,6 +7,9 @@ import {
   Aviso, Boton, Cargando, EncabezadoOrden, Entrada, EtiquetaEstado, Metrica, Modal,
   Paginacion, Pestanas, Seleccion, Tabla, Tarjeta, nombreEstado,
 } from '../ui/Componentes.jsx';
+
+// Ajustes que no son texto libre y el formato que filtra lo que se escribe en ellos
+const FORMATO_AJUSTE = { empresa_telefono: 'telefono', empresa_nit: 'NIT', comprobante_prefijo: 'codigo' };
 
 const DOCUMENTOS = ['CC', 'TI', 'CE', 'PA', 'NIT'];
 
@@ -90,25 +93,25 @@ function FormularioUsuario({ usuario, roles, onCerrar, onGuardado, avisar }) {
       {error ? <Aviso tipo="error">{error}</Aviso> : null}
 
       <div className="rejilla-formulario">
-        <Entrada etiqueta="Usuario" value={datos.usuario}
+        <Entrada etiqueta="Usuario" formato="usuario" value={datos.usuario}
           onChange={(e) => poner('usuario', e.target.value)} error={errores.usuario} />
-        <Entrada etiqueta="Nombre" value={datos.nombre}
+        <Entrada etiqueta="Nombre" formato="nombre" maxLength={80} value={datos.nombre}
           onChange={(e) => poner('nombre', e.target.value)} error={errores.nombre} />
-        <Entrada etiqueta="Apellido" value={datos.apellido}
+        <Entrada etiqueta="Apellido" formato="nombre" maxLength={80} value={datos.apellido}
           onChange={(e) => poner('apellido', e.target.value)} error={errores.apellido} />
         <Seleccion etiqueta="Tipo de documento" value={datos.tipo_documento}
           onChange={(e) => poner('tipo_documento', e.target.value)}
           opciones={DOCUMENTOS.map((d) => ({ valor: d, texto: d }))} />
-        <Entrada etiqueta="Documento" value={datos.documento}
+        <Entrada etiqueta="Documento" formato={datos.tipo_documento} value={datos.documento}
           onChange={(e) => poner('documento', e.target.value)} error={errores.documento} />
-        <Entrada etiqueta="Fecha de nacimiento" type="date" value={datos.fecha_nac}
-          onChange={(e) => poner('fecha_nac', e.target.value)} />
-        <Entrada etiqueta="Correo" type="email" value={datos.correo}
+        <Entrada etiqueta="Fecha de nacimiento" type="date" min="1900-01-01" max={hoy()} value={datos.fecha_nac}
+          onChange={(e) => poner('fecha_nac', e.target.value)} error={errores.fecha_nac} />
+        <Entrada etiqueta="Correo" type="email" maxLength={120} value={datos.correo}
           onChange={(e) => poner('correo', e.target.value)} error={errores.correo} />
-        <Entrada etiqueta="Teléfono" value={datos.telefono}
-          onChange={(e) => poner('telefono', e.target.value)} />
-        <Entrada etiqueta="Cargo" value={datos.cargo}
-          onChange={(e) => poner('cargo', e.target.value)} />
+        <Entrada etiqueta="Teléfono" formato="telefono" value={datos.telefono}
+          onChange={(e) => poner('telefono', e.target.value)} error={errores.telefono} placeholder="300 123 4567" />
+        <Entrada etiqueta="Cargo" maxLength={80} value={datos.cargo}
+          onChange={(e) => poner('cargo', e.target.value)} error={errores.cargo} />
         <Seleccion etiqueta="Rol" value={datos.rol_id}
           onChange={(e) => poner('rol_id', e.target.value)} error={errores.rol_id}
           vacio="Seleccione" opciones={roles.map((r) => ({ valor: r.id, texto: r.nombre }))} />
@@ -516,7 +519,11 @@ function Configuracion() {
                   etiqueta={c.descripcion || c.clave.replace(/_/g, ' ')}
                   value={editados[c.clave] !== undefined ? editados[c.clave] : c.valor}
                   onChange={(e) => setEditados((v) => ({ ...v, [c.clave]: e.target.value }))}
-                  type={c.tipo === 'entero' || c.tipo === 'decimal' ? 'number' : 'text'}
+                  type={c.tipo === 'entero' || c.tipo === 'decimal' ? 'number' : c.clave === 'empresa_correo' ? 'email' : 'text'}
+                  formato={FORMATO_AJUSTE[c.clave]}
+                  min={c.tipo === 'entero' ? 1 : undefined}
+                  step={c.tipo === 'entero' ? 1 : undefined}
+                  maxLength={c.clave === 'comprobante_prefijo' ? 6 : 255}
                   ancho={c.valor.length > 60}
                 />
               ))}

@@ -121,9 +121,9 @@ function Formulario({ producto, categorias, proveedores, onCerrar, onGuardado, a
       ) : null}
 
       <div className="rejilla-formulario">
-        <Entrada etiqueta="Código SKU" value={datos.sku}
+        <Entrada etiqueta="Código SKU" formato="codigo" value={datos.sku}
           onChange={(e) => poner('sku', e.target.value.toUpperCase())} error={errores.sku} />
-        <Entrada etiqueta="Nombre" value={datos.nombre}
+        <Entrada etiqueta="Nombre" maxLength={120} value={datos.nombre}
           onChange={(e) => poner('nombre', e.target.value)} error={errores.nombre} />
         <Seleccion etiqueta="Categoría" value={datos.categoria_id}
           onChange={(e) => poner('categoria_id', e.target.value)} error={errores.categoria_id}
@@ -131,31 +131,31 @@ function Formulario({ producto, categorias, proveedores, onCerrar, onGuardado, a
         <Seleccion etiqueta="Proveedor" value={datos.proveedor_id}
           onChange={(e) => poner('proveedor_id', e.target.value)}
           vacio="Sin proveedor" opciones={proveedores.map((p) => ({ valor: p.id, texto: p.nombre_empresa }))} />
-        <Entrada etiqueta="Unidad de medida" value={datos.unidad_medida}
-          onChange={(e) => poner('unidad_medida', e.target.value)} />
-        <Entrada etiqueta="Precio de costo" type="number" min="0" value={datos.precio_costo}
+        <Entrada etiqueta="Unidad de medida" formato="unidad" value={datos.unidad_medida}
+          onChange={(e) => poner('unidad_medida', e.target.value)} error={errores.unidad_medida} />
+        <Entrada etiqueta="Precio de costo" type="number" min="0" max="99999999.99" value={datos.precio_costo}
           onChange={(e) => poner('precio_costo', e.target.value)} error={errores.precio_costo}
           disabled={producto && !puedePrecio} />
-        <Entrada etiqueta="Precio de venta" type="number" min="0" value={datos.precio_venta}
+        <Entrada etiqueta="Precio de venta" type="number" min="0" max="99999999.99" value={datos.precio_venta}
           onChange={(e) => poner('precio_venta', e.target.value)} error={errores.precio_venta}
           disabled={(producto && !puedePrecio) || datos.es_insumo} />
         <Entrada etiqueta="Impuesto (%)" type="number" min="0" max="100" value={datos.iva_porcentaje}
           onChange={(e) => poner('iva_porcentaje', e.target.value)} error={errores.iva_porcentaje} />
-        <Entrada etiqueta="Punto de reorden" type="number" min="0" value={datos.punto_reorden}
+        <Entrada etiqueta="Punto de reorden" type="number" min="0" max="999999.999" value={datos.punto_reorden}
           onChange={(e) => poner('punto_reorden', e.target.value)} error={errores.punto_reorden} />
-        <Entrada etiqueta="Stock máximo" type="number" min="0" value={datos.stock_maximo}
-          onChange={(e) => poner('stock_maximo', e.target.value)} />
+        <Entrada etiqueta="Stock máximo" type="number" min="0" max="999999.999" value={datos.stock_maximo}
+          onChange={(e) => poner('stock_maximo', e.target.value)} error={errores.stock_maximo} />
         {!producto ? (
-          <Entrada etiqueta="Existencias iniciales" type="number" min="0" value={datos.stock_inicial}
-            onChange={(e) => poner('stock_inicial', e.target.value)} />
+          <Entrada etiqueta="Existencias iniciales" type="number" min="0" max="999999.999" value={datos.stock_inicial}
+            onChange={(e) => poner('stock_inicial', e.target.value)} error={errores.stock_inicial} />
         ) : null}
-        <Entrada etiqueta="Ruta de imagen" value={datos.imagen}
-          onChange={(e) => poner('imagen', e.target.value)}
+        <Entrada etiqueta="Ruta de imagen" formato="imagen" value={datos.imagen}
+          onChange={(e) => poner('imagen', e.target.value)} error={errores.imagen}
           placeholder="marca/productos/empanaditas.jpg" />
       </div>
 
-      <Entrada etiqueta="Descripción" value={datos.descripcion}
-        onChange={(e) => poner('descripcion', e.target.value)} ancho />
+      <Entrada etiqueta="Descripción" maxLength={255} value={datos.descripcion}
+        onChange={(e) => poner('descripcion', e.target.value)} error={errores.descripcion} ancho />
 
       <label style={{ display: 'flex', gap: 8, alignItems: 'center', fontSize: 14 }}>
         <input type="checkbox" checked={datos.es_insumo} onChange={(e) => poner('es_insumo', e.target.checked)} />

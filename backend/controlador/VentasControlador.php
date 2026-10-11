@@ -86,11 +86,12 @@ final class VentasControlador
         Autenticacion::exigir('ventas.registrar');
 
         $validador = new Validador($peticion->cuerpo());
+        $tipoDocumento = $validador->opcion('tipo_documento', 'El tipo de documento', ['CC', 'TI', 'CE', 'PA', 'NIT', 'NA'], false, 'CC');
         $datos = [
-            'tipo_documento' => $validador->opcion('tipo_documento', 'El tipo de documento', ['CC', 'TI', 'CE', 'PA', 'NIT', 'NA'], false, 'CC'),
-            'documento'      => $validador->texto('documento', 'El documento', false, 30),
-            'nombre'         => $validador->texto('nombre', 'El nombre', true, 120),
-            'telefono'       => $validador->texto('telefono', 'El telefono', false, 30),
+            'tipo_documento' => $tipoDocumento,
+            'documento'      => $validador->formato('documento', 'El documento', $tipoDocumento, false, 30),
+            'nombre'         => $validador->texto('nombre', 'El nombre', true, 120, 2),
+            'telefono'       => $validador->formato('telefono', 'El teléfono', 'telefono', false, 30),
             'correo'         => $validador->correo('correo', 'El correo', false),
             'direccion'      => $validador->texto('direccion', 'La direccion', false, 180),
         ];

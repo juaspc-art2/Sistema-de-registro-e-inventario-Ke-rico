@@ -42,24 +42,28 @@ final class InventarioControlador
     {
         $validador = new Validador($peticion->cuerpo());
         $datos = [
-            'sku'            => strtoupper($validador->texto('sku', 'El SKU', true, 30)),
+            'sku'            => strtoupper($validador->formato('sku', 'El SKU', 'codigo', true, 30, 2)),
             'nombre'         => $validador->texto('nombre', 'El nombre', true, 120),
             'descripcion'    => $validador->texto('descripcion', 'La descripcion', false, 255),
             'categoria_id'   => $validador->entero('categoria_id', 'La categoria', true, 1),
             'proveedor_id'   => $validador->entero('proveedor_id', 'El proveedor', false, 1),
-            'unidad_medida'  => $validador->texto('unidad_medida', 'La unidad de medida', false, 20) ?: 'unidad',
-            'precio_costo'   => $validador->decimal('precio_costo', 'El precio de costo', true, 0),
-            'precio_venta'   => $validador->decimal('precio_venta', 'El precio de venta', true, 0),
+            'unidad_medida'  => $validador->formato('unidad_medida', 'La unidad de medida', 'unidad', false, 20) ?: 'unidad',
+            'precio_costo'   => $validador->decimal('precio_costo', 'El precio de costo', true, 0, Validador::DINERO_MAXIMO),
+            'precio_venta'   => $validador->decimal('precio_venta', 'El precio de venta', true, 0, Validador::DINERO_MAXIMO),
             'iva_porcentaje' => $validador->decimal('iva_porcentaje', 'El impuesto', false, 0, 100) ?? 0.0,
-            'punto_reorden'  => $validador->decimal('punto_reorden', 'El punto de reorden', false, 0) ?? 0.0,
-            'stock_maximo'   => $validador->decimal('stock_maximo', 'El stock máximo', false, 0) ?? 0.0,
+            'punto_reorden'  => $validador->decimal('punto_reorden', 'El punto de reorden', false, 0, Validador::CANTIDAD_MAXIMA) ?? 0.0,
+            'stock_maximo'   => $validador->decimal('stock_maximo', 'El stock máximo', false, 0, Validador::CANTIDAD_MAXIMA) ?? 0.0,
             'es_insumo'      => $validador->booleano('es_insumo', false),
-            'imagen'         => $validador->texto('imagen', 'La imagen', false, 180),
+            'imagen'         => $validador->formato('imagen', 'La imagen', 'imagen', false, 180),
             'activo'         => $validador->booleano('activo', true),
         ];
 
         if ($creando) {
-            $datos['stock_inicial'] = $validador->decimal('stock_inicial', 'El stock inicial', false, 0) ?? 0.0;
+            $datos['stock_inicial'] = $validador->decimal('stock_inicial', 'El stock inicial', false, 0, Validador::CANTIDAD_MAXIMA) ?? 0.0;
+        }
+
+        if ($datos['stock_maximo'] > 0 && $datos['stock_maximo'] < $datos['punto_reorden']) {
+            $validador->agregarError('stock_maximo', 'El stock máximo no puede ser menor que el punto de reorden');
         }
 
         if (!$datos['es_insumo'] && ($datos['precio_venta'] ?? 0) <= 0) {
@@ -119,7 +123,7 @@ final class InventarioControlador
         $validador = new Validador($peticion->cuerpo());
         $productoId = $validador->entero('producto_id', 'El producto', true, 1);
         $tipo = $validador->opcion('tipo', 'El tipo de movimiento', Inventario::TIPOS, true);
-        $cantidad = $validador->decimal('cantidad', 'La cantidad', true, 0.001);
+        $cantidad = $validador->decimal('cantidad', 'La cantidad', true, 0.001, Validador::CANTIDAD_MAXIMA);
         $motivo = $validador->texto('motivo', 'El motivo', true, 120, 3);
         $observaciones = $validador->texto('observaciones', 'Las observaciones', false, 255);
         $validador->validar();
@@ -179,7 +183,7 @@ final class InventarioControlador
         Autenticacion::exigir('alertas.configurar');
 
         $validador = new Validador($peticion->cuerpo());
-        $punto = $validador->decimal('punto_reorden', 'El punto de reorden', true, 0);
+        $punto = $validador->decimal('punto_reorden', 'El punto de reorden', true, 0, Validador::CANTIDAD_MAXIMA);
         $validador->validar();
 
         Respuesta::exito(

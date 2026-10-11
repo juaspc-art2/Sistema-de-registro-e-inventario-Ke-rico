@@ -85,30 +85,30 @@ function Formulario({ proveedor, onCerrar, onGuardado, avisar }) {
       {error ? <Aviso tipo="error">{error}</Aviso> : null}
 
       <div className="rejilla-formulario">
-        <Entrada etiqueta="Nombre de la empresa" value={datos.nombre_empresa}
+        <Entrada etiqueta="Nombre de la empresa" maxLength={120} value={datos.nombre_empresa}
           onChange={(e) => poner('nombre_empresa', e.target.value)} error={errores.nombre_empresa} />
-        <Entrada etiqueta="NIT" value={datos.nit}
+        <Entrada etiqueta="NIT" formato="NIT" value={datos.nit}
           onChange={(e) => poner('nit', e.target.value)} error={errores.nit} placeholder="900.100.001-1" />
-        <Entrada etiqueta="Teléfono" value={datos.telefono}
-          onChange={(e) => poner('telefono', e.target.value)} />
-        <Entrada etiqueta="Correo" type="email" value={datos.correo}
+        <Entrada etiqueta="Teléfono" formato="telefono" value={datos.telefono}
+          onChange={(e) => poner('telefono', e.target.value)} error={errores.telefono} placeholder="601 123 4567" />
+        <Entrada etiqueta="Correo" type="email" maxLength={120} value={datos.correo}
           onChange={(e) => poner('correo', e.target.value)} error={errores.correo} />
-        <Entrada etiqueta="Persona de contacto" value={datos.contacto_nombre}
-          onChange={(e) => poner('contacto_nombre', e.target.value)} />
+        <Entrada etiqueta="Persona de contacto" formato="nombre" maxLength={120} value={datos.contacto_nombre}
+          onChange={(e) => poner('contacto_nombre', e.target.value)} error={errores.contacto_nombre} />
         <Seleccion etiqueta="Estado" value={datos.estado}
           onChange={(e) => poner('estado', e.target.value)}
           opciones={opcionesEstado(ESTADOS)} />
         <Entrada etiqueta="Calificación (0 a 5)" type="number" min="0" max="5" step="0.1"
           value={datos.calificacion} onChange={(e) => poner('calificacion', e.target.value)}
           error={errores.calificacion} />
-        <Entrada etiqueta="Dirección" value={datos.direccion}
-          onChange={(e) => poner('direccion', e.target.value)} />
+        <Entrada etiqueta="Dirección" maxLength={180} value={datos.direccion}
+          onChange={(e) => poner('direccion', e.target.value)} error={errores.direccion} />
       </div>
 
-      <Entrada etiqueta="Qué productos suministra" value={datos.tipo_productos}
+      <Entrada etiqueta="Qué productos suministra" maxLength={180} value={datos.tipo_productos}
         onChange={(e) => poner('tipo_productos', e.target.value)} error={errores.tipo_productos} ancho />
-      <Entrada etiqueta="Notas" value={datos.notas}
-        onChange={(e) => poner('notas', e.target.value)} ancho />
+      <Entrada etiqueta="Notas" maxLength={255} value={datos.notas}
+        onChange={(e) => poner('notas', e.target.value)} error={errores.notas} ancho />
     </Modal>
   );
 }
@@ -490,9 +490,9 @@ function Compras() {
               <Seleccion etiqueta={i === 0 ? 'Producto' : ''} value={l.producto_id}
                 onChange={(e) => cambiarLinea(i, 'producto_id', e.target.value)}
                 vacio="Seleccione" opciones={productos.map((p) => ({ valor: p.id, texto: p.nombre }))} />
-              <Entrada etiqueta={i === 0 ? 'Cantidad' : ''} type="number" min="0" step="0.001" value={l.cantidad}
+              <Entrada etiqueta={i === 0 ? 'Cantidad' : ''} type="number" min="0" max="999999.999" step="0.001" value={l.cantidad}
                 onChange={(e) => cambiarLinea(i, 'cantidad', e.target.value)} />
-              <Entrada etiqueta={i === 0 ? 'Costo unitario' : ''} type="number" min="0" value={l.costo_unitario}
+              <Entrada etiqueta={i === 0 ? 'Costo unitario' : ''} type="number" min="0" max="99999999.99" value={l.costo_unitario}
                 onChange={(e) => cambiarLinea(i, 'costo_unitario', e.target.value)} />
               <Boton variante="sutil" onClick={() => quitarLinea(i)}>✕</Boton>
             </div>
@@ -502,7 +502,7 @@ function Compras() {
             <div className="fila grande"><span>Total de la compra</span><span className="tabular">{dinero(totalNueva)}</span></div>
           </div>
 
-          <Entrada etiqueta="Observaciones" value={nueva.observaciones}
+          <Entrada etiqueta="Observaciones" maxLength={255} value={nueva.observaciones}
             onChange={(e) => setNueva((n) => ({ ...n, observaciones: e.target.value }))} ancho />
         </Modal>
       ) : null}

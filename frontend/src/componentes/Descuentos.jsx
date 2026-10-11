@@ -94,11 +94,12 @@ function Formulario({ promocion, categorias, productos, onCerrar, onGuardado, av
       {error ? <Aviso tipo="error">{error}</Aviso> : null}
 
       <div className="rejilla-formulario">
-        <Entrada etiqueta="Código" value={datos.codigo}
+        <Entrada etiqueta="Código" formato="codigo" value={datos.codigo}
           onChange={(e) => poner('codigo', e.target.value.toUpperCase())} error={errores.codigo} />
         <Seleccion etiqueta="Tipo" value={datos.tipo} onChange={(e) => poner('tipo', e.target.value)}
           opciones={[{ valor: 'porcentaje', texto: 'Porcentaje (%)' }, { valor: 'fijo', texto: 'Monto fijo ($)' }]} />
         <Entrada etiqueta={datos.tipo === 'porcentaje' ? 'Porcentaje' : 'Monto'} type="number" min="0"
+          max={datos.tipo === 'porcentaje' ? '100' : '99999999.99'}
           value={datos.valor} onChange={(e) => poner('valor', e.target.value)} error={errores.valor} />
         <Seleccion etiqueta="Alcance" value={datos.alcance} onChange={(e) => poner('alcance', e.target.value)}
           opciones={[
@@ -119,17 +120,17 @@ function Formulario({ promocion, categorias, productos, onCerrar, onGuardado, av
             vacio="Seleccione" opciones={categorias.map((c) => ({ valor: c.id, texto: c.nombre }))} />
         ) : null}
 
-        <Entrada etiqueta="Monto mínimo de venta" type="number" min="0" value={datos.monto_minimo}
-          onChange={(e) => poner('monto_minimo', e.target.value)} />
-        <Entrada etiqueta="Usos máximos (0 = sin límite)" type="number" min="0" value={datos.usos_maximos}
-          onChange={(e) => poner('usos_maximos', e.target.value)} />
-        <Entrada etiqueta="Vigente desde" type="date" value={datos.fecha_inicio}
-          onChange={(e) => poner('fecha_inicio', e.target.value)} />
-        <Entrada etiqueta="Vigente hasta" type="date" value={datos.fecha_fin}
+        <Entrada etiqueta="Monto mínimo de venta" type="number" min="0" max="99999999.99" value={datos.monto_minimo}
+          onChange={(e) => poner('monto_minimo', e.target.value)} error={errores.monto_minimo} />
+        <Entrada etiqueta="Usos máximos (0 = sin límite)" type="number" min="0" max="1000000" step="1" value={datos.usos_maximos}
+          onChange={(e) => poner('usos_maximos', e.target.value)} error={errores.usos_maximos} />
+        <Entrada etiqueta="Vigente desde" type="date" min="2000-01-01" max="2100-12-31" value={datos.fecha_inicio}
+          onChange={(e) => poner('fecha_inicio', e.target.value)} error={errores.fecha_inicio} />
+        <Entrada etiqueta="Vigente hasta" type="date" min={datos.fecha_inicio || '2000-01-01'} max="2100-12-31" value={datos.fecha_fin}
           onChange={(e) => poner('fecha_fin', e.target.value)} error={errores.fecha_fin} />
       </div>
 
-      <Entrada etiqueta="Descripción visible al cliente" value={datos.descripcion}
+      <Entrada etiqueta="Descripción visible al cliente" maxLength={180} value={datos.descripcion}
         onChange={(e) => poner('descripcion', e.target.value)} error={errores.descripcion} ancho />
 
       <label style={{ display: 'flex', gap: 8, alignItems: 'center', fontSize: 14 }}>

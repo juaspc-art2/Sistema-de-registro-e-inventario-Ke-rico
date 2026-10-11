@@ -273,6 +273,63 @@ ok('3.4 el usuario queda con deleted_at', sql('SELECT deleted_at IS NOT NULL FRO
 ok('3.4 protege al ultimo administrador',
   (await api('DELETE', '/sistema/usuarios/1', { token: TA })).status === 409);
 
+seccion('3.5 Formato de los campos');
+const sufijo = Date.now().toString().slice(-6);
+// Cada caso envía un registro válido con un solo campo mal: debe volver 422 y señalar ese campo
+const rechaza = async (nombre, metodo, ruta, token, body, campo) => {
+  const r = await api(metodo, ruta, { token, body });
+  ok('3.5 ' + nombre, r.status === 422 && !!r.j?.errores?.[campo],
+    'status=' + r.status + ' ' + JSON.stringify(r.j?.errores || r.j?.mensaje || '').slice(0, 110));
+};
+
+const usuarioValido = {
+  usuario: 'fmt' + sufijo, nombre: 'Formato', apellido: 'Prueba', documento: '7' + sufijo + '11',
+  correo: 'fmt' + sufijo + '@kerico.co', rol_id: 3, password: '123',
+};
+await rechaza('el telefono no admite letras', 'POST', '/sistema/usuarios', TA, { ...usuarioValido, telefono: '300-ABC-1234' }, 'telefono');
+await rechaza('el telefono exige al menos 7 digitos', 'POST', '/sistema/usuarios', TA, { ...usuarioValido, telefono: '12345' }, 'telefono');
+await rechaza('el nombre de una persona no admite numeros', 'POST', '/sistema/usuarios', TA, { ...usuarioValido, nombre: 'Juan3' }, 'nombre');
+await rechaza('el usuario no admite espacios', 'POST', '/sistema/usuarios', TA, { ...usuarioValido, usuario: 'con espacio' }, 'usuario');
+await rechaza('la cedula solo admite digitos', 'POST', '/sistema/usuarios', TA, { ...usuarioValido, documento: '12.345.678' }, 'documento');
+await rechaza('la fecha de nacimiento no puede ser futura', 'POST', '/sistema/usuarios', TA, { ...usuarioValido, fecha_nac: '2999-01-01' }, 'fecha_nac');
+await rechaza('una fecha debe ser real y venir como AAAA-MM-DD', 'POST', '/sistema/usuarios', TA, { ...usuarioValido, fecha_nac: 'tomorrow' }, 'fecha_nac');
+const usuarioFmt = await api('POST', '/sistema/usuarios', {
+  token: TA, body: { ...usuarioValido, nombre: 'María-José', apellido: "D'Angelo Ñáñez", telefono: '(+57) 300 123 4567', fecha_nac: '1995-02-28' },
+});
+ok('3.5 acepta nombre con tilde, telefono con indicativo y fecha valida', usuarioFmt.status === 201,
+  JSON.stringify(usuarioFmt.j?.errores || usuarioFmt.j?.mensaje || '').slice(0, 140));
+if (usuarioFmt.j?.datos?.id) await api('DELETE', '/sistema/usuarios/' + usuarioFmt.j.datos.id, { token: TA });
+
+const proveedorValido = { nombre_empresa: 'Formato ' + sufijo, nit: '9' + sufijo + '22-1', tipo_productos: 'Pruebas de formato' };
+await rechaza('el NIT exige nueve digitos', 'POST', '/proveedores', TA, { ...proveedorValido, nit: 'ABC-123' }, 'nit');
+await rechaza('el contacto del proveedor no admite numeros', 'POST', '/proveedores', TA, { ...proveedorValido, contacto_nombre: 'Ana 123' }, 'contacto_nombre');
+await rechaza('el documento de un cliente sigue a su tipo', 'POST', '/ventas/clientes', TC, { nombre: 'Cliente formato', tipo_documento: 'NIT', documento: '12' }, 'documento');
+
+const productoValido = { sku: 'FMT-' + sufijo, nombre: 'Formato', categoria_id: 1, precio_costo: 1000, precio_venta: 2500 };
+await rechaza('el SKU no admite espacios ni simbolos', 'POST', '/inventario/productos', TI, { ...productoValido, sku: 'FMT 01!' }, 'sku');
+await rechaza('la unidad de medida solo admite letras', 'POST', '/inventario/productos', TI, { ...productoValido, unidad_medida: 'kg2' }, 'unidad_medida');
+await rechaza('la imagen debe ser una ruta del sistema', 'POST', '/inventario/productos', TI, { ...productoValido, imagen: 'https://otro.sitio/foto.jpg' }, 'imagen');
+await rechaza('un precio desmedido se rechaza sin error interno', 'POST', '/inventario/productos', TI, { ...productoValido, precio_venta: 1e15 }, 'precio_venta');
+await rechaza('un numero en notacion cientifica no pasa', 'POST', '/inventario/productos', TI, { ...productoValido, precio_costo: '1e3' }, 'precio_costo');
+await rechaza('el stock maximo no queda bajo el punto de reorden', 'POST', '/inventario/productos', TI, { ...productoValido, punto_reorden: 50, stock_maximo: 10 }, 'stock_maximo');
+await rechaza('una cantidad desmedida no entra al inventario', 'POST', '/inventario/movimientos', TI,
+  { producto_id: 1, tipo: 'Entrada', cantidad: 1e12, motivo: 'Prueba de formato' }, 'cantidad');
+
+const promoValida = { codigo: 'FMT' + sufijo, descripcion: 'Prueba de formato', tipo: 'porcentaje', valor: 10 };
+await rechaza('el codigo de promocion no admite espacios', 'POST', '/descuentos', TA, { ...promoValida, codigo: 'CON ESPACIO' }, 'codigo');
+await rechaza('rechaza una fecha que no existe', 'POST', '/descuentos', TA, { ...promoValida, fecha_inicio: '2026-02-31' }, 'fecha_inicio');
+
+await rechaza('una compra desmedida se rechaza sin error interno', 'POST', '/proveedores/compras', TA,
+  { proveedor_id: 1, items: [{ producto_id: 1, cantidad: 1e9, costo_unitario: 1000 }] }, 'items');
+await rechaza('un monto recibido desmedido se rechaza sin error interno', 'POST', '/ventas', TC,
+  { items: [{ producto_id: 1, cantidad: 1 }], metodo_pago: 'Efectivo', monto_recibido: 1e15 }, 'monto_recibido');
+
+const telefonoEmpresa = sql("SELECT valor FROM configuracion WHERE clave='empresa_telefono'");
+await rechaza('el telefono de la empresa no admite letras', 'PUT', '/sistema/configuracion', TA, { empresa_telefono: 'llame ya' }, 'empresa_telefono');
+await rechaza('el correo de la empresa debe ser un correo', 'PUT', '/sistema/configuracion', TA, { empresa_correo: 'no-es-correo' }, 'empresa_correo');
+await rechaza('el nombre de la empresa no puede quedar vacio', 'PUT', '/sistema/configuracion', TA, { empresa_nombre: '' }, 'empresa_nombre');
+ok('3.5 un ajuste rechazado no se guarda', sql("SELECT valor FROM configuracion WHERE clave='empresa_telefono'") === telefonoEmpresa);
+
 // ─── 4. Informes ──────────────────────────────────────────────────────────────
 seccion('4.1 Filtro por fechas');
 const rango = await api('GET', '/ventas?desde=' + dia(1) + '&hasta=' + dia(5) + '&por_pagina=100', { token: TA });

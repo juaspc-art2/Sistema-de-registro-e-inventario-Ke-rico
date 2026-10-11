@@ -177,10 +177,43 @@ export function Campo({ etiqueta, error, children, ancho }) {
   );
 }
 
-export function Entrada({ etiqueta, error, ancho, ...resto }) {
+// Caracteres que cada formato NO deja escribir. El servidor revisa el valor completo con las mismas reglas (Validador::FORMATOS)
+const FORMATOS = {
+  telefono: { fuera: /[^\d\s()+-]/g, inputMode: 'tel', maxLength: 30 },
+  nombre: { fuera: /[^\p{L}\p{M}\s.'-]/gu },
+  usuario: { fuera: /[^A-Za-z0-9._-]/g, maxLength: 40 },
+  codigo: { fuera: /[^A-Za-z0-9_-]/g, maxLength: 30 },
+  unidad: { fuera: /[^\p{L}\s.]/gu, maxLength: 20 },
+  imagen: { fuera: /[^\w\-/.]/g, maxLength: 180 },
+  alfanumerico: { fuera: /[^A-Za-z0-9]/g },
+  // Documentos de identidad, con el nombre de su tipo
+  CC: { fuera: /\D/g, inputMode: 'numeric', maxLength: 12 },
+  TI: { fuera: /\D/g, inputMode: 'numeric', maxLength: 12 },
+  CE: { fuera: /[^A-Za-z0-9]/g, maxLength: 15 },
+  PA: { fuera: /[^A-Za-z0-9]/g, maxLength: 15 },
+  NIT: { fuera: /[^\d.-]/g, inputMode: 'numeric', maxLength: 13 },
+};
+
+export function Entrada({ etiqueta, error, ancho, formato, onChange, onKeyDown, ...resto }) {
+  const regla = FORMATOS[formato];
+  const filtrar = (e) => {
+    e.target.value = e.target.value.replace(regla.fuera, '');
+    onChange(e);
+  };
+  // El campo numérico del navegador deja escribir "e", "+" y "-", y aquí ningún número es negativo ni científico
+  const soloNumero = (e) => {
+    if (['e', 'E', '+', '-'].includes(e.key)) e.preventDefault();
+    if (onKeyDown) onKeyDown(e);
+  };
   return (
     <Campo etiqueta={etiqueta} error={error} ancho={ancho}>
-      <input {...resto} />
+      <input
+        maxLength={regla?.maxLength}
+        inputMode={regla?.inputMode}
+        {...resto}
+        onChange={regla && onChange ? filtrar : onChange}
+        onKeyDown={resto.type === 'number' ? soloNumero : onKeyDown}
+      />
     </Campo>
   );
 }

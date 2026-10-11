@@ -209,7 +209,7 @@ export default function Auditoria() {
             <Seleccion etiqueta="Tipo de movimiento" value={form.tipo}
               onChange={(e) => poner('tipo', e.target.value)}
               opciones={opcionesEstado(TIPOS)} />
-            <Entrada etiqueta="Cantidad" type="number" min="0" step="0.001" value={form.cantidad}
+            <Entrada etiqueta="Cantidad" type="number" min="0" max="999999.999" step="0.001" value={form.cantidad}
               onChange={(e) => poner('cantidad', e.target.value)} error={errores.cantidad} />
             <Seleccion etiqueta="Motivo" value={form.motivo}
               onChange={(e) => poner('motivo', e.target.value)} error={errores.motivo}
@@ -227,8 +227,8 @@ export default function Auditoria() {
             </Aviso>
           ) : null}
 
-          <Entrada etiqueta="Observaciones" value={form.observaciones}
-            onChange={(e) => poner('observaciones', e.target.value)} ancho />
+          <Entrada etiqueta="Observaciones" maxLength={255} value={form.observaciones}
+            onChange={(e) => poner('observaciones', e.target.value)} error={errores.observaciones} ancho />
         </Modal>
       ) : null}
 

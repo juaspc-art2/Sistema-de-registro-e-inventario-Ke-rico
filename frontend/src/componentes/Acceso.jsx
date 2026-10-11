@@ -212,6 +212,8 @@ export default function Acceso() {
             <>
               <Entrada
                 etiqueta="Código recibido"
+                formato="alfanumerico"
+                maxLength={64}
                 value={codigo}
                 onChange={(e) => setCodigo(e.target.value)}
                 autoComplete="one-time-code"
