@@ -68,11 +68,7 @@ final class Usuario
         self::exigirOtroAdministrador($usuario);
 
         Bd::ejecutar('UPDATE usuarios SET activo = 0, deleted_at = NOW() WHERE id = ?', [$id]);
-        Bd::ejecutar(
-            "UPDATE sesiones SET cerrada_en = NOW(), motivo_cierre = 'Forzado'
-             WHERE usuario_id = ? AND cerrada_en IS NULL",
-            [$id]
-        );
+        Autenticacion::cerrarSesionesDe($id);
 
         Bitacora::registrar(
             'USUARIO_ELIMINAR',
@@ -178,6 +174,7 @@ final class Usuario
         self::validarUnico('usuario', $datos['usuario'], null, 'El nombre de usuario ya está en uso');
         self::validarUnico('correo', $datos['correo'], null, 'El correo ya está registrado');
         self::validarUnico('documento', $datos['documento'], null, 'El documento ya está registrado');
+        self::exigirRol((int) $datos['rol_id']);
 
         $id = Bd::insertar(
             'INSERT INTO usuarios
@@ -215,6 +212,7 @@ final class Usuario
         self::validarUnico('usuario', $datos['usuario'], $id, 'El nombre de usuario ya está en uso');
         self::validarUnico('correo', $datos['correo'], $id, 'El correo ya está registrado');
         self::validarUnico('documento', $datos['documento'], $id, 'El documento ya está registrado');
+        self::exigirRol((int) $datos['rol_id']);
 
         if ($id === Autenticacion::idUsuario() && !$datos['activo']) {
             throw ErrorHttp::conflicto('No puede desactivar su propia cuenta');
@@ -240,6 +238,8 @@ final class Usuario
                 'UPDATE usuarios SET password_hash = ? WHERE id = ?',
                 [password_hash($datos['password'], PASSWORD_BCRYPT), $id]
             );
+            // Quien tuviera abierta una sesión con la contraseña anterior queda fuera; la del propio administrador sigue
+            Autenticacion::cerrarSesionesDe($id, (string) Autenticacion::tokenActual());
             Bitacora::registrar(
                 'PASSWORD_RESTABLECER',
                 'Usuarios',
@@ -251,11 +251,7 @@ final class Usuario
         }
 
         if (!$datos['activo']) {
-            Bd::ejecutar(
-                "UPDATE sesiones SET cerrada_en = NOW(), motivo_cierre = 'Forzado'
-                 WHERE usuario_id = ? AND cerrada_en IS NULL",
-                [$id]
-            );
+            Autenticacion::cerrarSesionesDe($id);
         }
 
         Bitacora::registrar(
@@ -293,6 +289,8 @@ final class Usuario
         }
 
         Bd::ejecutar('UPDATE usuarios SET password_hash = ? WHERE id = ?', [password_hash($nueva, PASSWORD_BCRYPT), $id]);
+        // Las demás sesiones del usuario se cierran: si alguien más entró con la clave anterior, queda fuera
+        Autenticacion::cerrarSesionesDe($id, (string) Autenticacion::tokenActual());
 
         Bitacora::registrar(
             'PASSWORD_CAMBIAR',
@@ -319,10 +317,11 @@ final class Usuario
             return;
         }
 
+        // En la base queda la huella del código, no el código: quien lea la tabla o un respaldo no puede usarlo
         $token = bin2hex(random_bytes(24));
         Bd::ejecutar(
             'UPDATE usuarios SET token_recuperacion = ?, token_expira = ? WHERE id = ?',
-            [$token, date('Y-m-d H:i:s', time() + 3600), (int) $fila['id']]
+            [hash('sha256', $token), date('Y-m-d H:i:s', time() + 3600), (int) $fila['id']]
         );
 
         Correo::encolar(
@@ -357,7 +356,7 @@ final class Usuario
 
         $fila = Bd::primero(
             'SELECT id, usuario FROM usuarios WHERE token_recuperacion = ? AND token_expira > NOW() AND deleted_at IS NULL',
-            [$token]
+            [hash('sha256', $token)]
         );
         if ($fila === null) {
             throw ErrorHttp::validacion('El enlace de recuperación no es válido o ya venció', ['token' => 'Inválido']);
@@ -369,6 +368,7 @@ final class Usuario
              WHERE id = ?',
             [password_hash($nueva, PASSWORD_BCRYPT), (int) $fila['id']]
         );
+        Autenticacion::cerrarSesionesDe((int) $fila['id']);
 
         Bitacora::registrar(
             'PASSWORD_RESTABLECER',
@@ -402,6 +402,13 @@ final class Usuario
              WHERE s.cerrada_en IS NULL
              ORDER BY s.ultima_actividad DESC'
         ));
+    }
+
+    private static function exigirRol(int $rolId): void
+    {
+        if (Bd::valor('SELECT id FROM roles WHERE id = ?', [$rolId]) === null) {
+            throw ErrorHttp::validacion('El rol seleccionado no existe', ['rol_id' => 'Seleccione un rol de la lista']);
+        }
     }
 
     // Impide que el sistema se quede sin su último administrador activo

@@ -281,23 +281,6 @@ final class TirillaPdf
             $recursos
         );
 
-        // La segunda línea, con bytes altos, avisa a quien transporte el archivo de que es binario
-        $pdf = "%PDF-1.4\n%\xE2\xE3\xCF\xD3\n";
-        $posiciones = [];
-        foreach ($objetos as $id => $cuerpo) {
-            $posiciones[$id] = strlen($pdf);
-            $pdf .= $id . " 0 obj\n" . $cuerpo . "\nendobj\n";
-        }
-
-        $inicioXref = strlen($pdf);
-        $maximo = max(array_keys($objetos));
-        $pdf .= "xref\n0 " . ($maximo + 1) . "\n0000000000 65535 f \n";
-        for ($i = 1; $i <= $maximo; $i++) {
-            $pdf .= sprintf("%010d 00000 n \n", $posiciones[$i]);
-        }
-        $pdf .= "trailer\n<< /Size " . ($maximo + 1) . " /Root 1 0 R >>\n";
-        $pdf .= 'startxref' . "\n" . $inicioXref . "\n%%EOF";
-
-        return $pdf;
+        return DocumentoPdf::ensamblar($objetos);
     }
 }

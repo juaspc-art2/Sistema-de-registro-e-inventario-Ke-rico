@@ -6,6 +6,10 @@ namespace Kerico\Nucleo;
 
 final class Respuesta
 {
+    // Archivos que un usuario puede enviar por correo en una hora. El correo sale por la cuenta del negocio,
+    // que tiene un cupo diario: sin tope, una sola persona podía agotarlo y dejar al sistema sin avisos
+    private const CORREOS_POR_HORA = 30;
+
     private static string $correoDestino = '';
     private static array $cuerpoCorreo = [];
 
@@ -59,6 +63,16 @@ final class Respuesta
 
         if (self::$correoDestino !== '') {
             $usuario = Autenticacion::usuarioActual() ?? [];
+            $recientes = (int) Bd::valor(
+                "SELECT COUNT(*) FROM bitacora WHERE accion = 'ARCHIVO_ENVIAR' AND usuario_id = ? AND creado_en >= ?",
+                [$usuario['id'] ?? 0, date('Y-m-d H:i:s', time() - 3600)]
+            );
+            if ($recientes >= self::CORREOS_POR_HORA) {
+                throw new ErrorHttp(
+                    'Ya envió ' . self::CORREOS_POR_HORA . ' archivos por correo en la última hora. Espere un momento o descargue el archivo.',
+                    429
+                );
+            }
             Correo::enviar(
                 self::$correoDestino,
                 $descripcion !== '' ? $descripcion : $nombre,
@@ -97,6 +111,27 @@ final class Respuesta
         header('Content-Length: ' . strlen($contenido));
         header('X-Nombre-Archivo: ' . $nombre);
         echo $contenido;
+    }
+
+    // Igual que archivo(), para uno que ya está en disco: se entrega por partes, sin cargarlo entero en memoria
+    public static function archivoEnDisco(string $ruta, string $nombre, string $tipo, string $descripcion = ''): void
+    {
+        if (self::$correoDestino !== '') {
+            Correo::exigirTamano((int) filesize($ruta));
+            self::archivo((string) file_get_contents($ruta), $nombre, $tipo, $descripcion);
+            return;
+        }
+
+        $nombre = preg_replace('/[^A-Za-z0-9._-]+/', '_', $nombre) ?? 'archivo';
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
+        http_response_code(200);
+        header('Content-Type: ' . $tipo);
+        header('Content-Disposition: attachment; filename="' . $nombre . '"');
+        header('Content-Length: ' . filesize($ruta));
+        header('X-Nombre-Archivo: ' . $nombre);
+        readfile($ruta);
     }
 
     // Entrega ya la respuesta y deja vivo el proceso para lo que el cliente no debe esperar

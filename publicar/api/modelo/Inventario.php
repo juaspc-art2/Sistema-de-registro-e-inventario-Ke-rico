@@ -194,7 +194,14 @@ final class Inventario
                 ]
             );
 
-            self::evaluarAlerta($productoId, $nuevo, (float) $producto['punto_reorden'], (string) $producto['nombre'], (string) $producto['unidad_medida']);
+            self::evaluarAlerta(
+                $productoId,
+                $nuevo,
+                (float) $producto['punto_reorden'],
+                (string) $producto['nombre'],
+                (string) $producto['unidad_medida'],
+                (int) $producto['activo'] === 1
+            );
 
             return [
                 'id'             => $movimientoId,
@@ -205,11 +212,12 @@ final class Inventario
         });
     }
 
-    public static function evaluarAlerta(int $productoId, float $stock, float $reorden, string $nombre, string $unidad): void
+    // Un producto inactivo no se vende ni se repone: sus alertas se cierran y no se abren nuevas
+    public static function evaluarAlerta(int $productoId, float $stock, float $reorden, string $nombre, string $unidad, bool $activo = true): void
     {
         $estado = self::estadoStock($stock, $reorden);
 
-        if ($estado === 'Disponible') {
+        if ($estado === 'Disponible' || !$activo) {
             Bd::ejecutar(
                 "UPDATE alertas_stock SET estado = 'Resuelta', resuelta_en = NOW()
                  WHERE producto_id = ? AND estado <> 'Resuelta'",
@@ -400,8 +408,8 @@ final class Inventario
                 SUM(CASE WHEN tipo = 'Salida' THEN 1 ELSE 0 END) AS salidas,
                 SUM(CASE WHEN tipo IN ('Ajuste','Merma') THEN 1 ELSE 0 END) AS ajustes
              FROM movimientos_inventario
-             WHERE DATE(creado_en) = ?",
-            [$dia]
+             WHERE creado_en >= ? AND creado_en < ? + INTERVAL 1 DAY",
+            [$dia, $dia]
         );
 
         return [

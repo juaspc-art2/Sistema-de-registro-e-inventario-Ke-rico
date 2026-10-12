@@ -8,6 +8,19 @@ final class Autenticacion
 {
     private const HASH_SENUELO = '$2y$10$OenjZa2Me9AZ6EswgdESW.haK4/TTbcrCNBrtXuveW.zbDhSlLJDG';
 
+    // Duración máxima de una sesión, por mucho que se use: un turno largo
+    private const HORAS_MAXIMAS = 12;
+
+    // Cierra las sesiones abiertas de un usuario, menos la indicada. Se usa al cambiar su contraseña o desactivarlo
+    public static function cerrarSesionesDe(int $usuarioId, string $excepto = ''): void
+    {
+        Bd::ejecutar(
+            "UPDATE sesiones SET cerrada_en = NOW(), motivo_cierre = 'Forzado'
+             WHERE usuario_id = ? AND cerrada_en IS NULL AND id <> ?",
+            [$usuarioId, $excepto]
+        );
+    }
+
     private static ?array $usuario = null;
     private static ?string $token = null;
     private static ?string $csrf = null;
@@ -15,15 +28,6 @@ final class Autenticacion
 
     public static function iniciarSesion(string $usuario, string $password, string $ip, string $agente): array
     {
-        $fila = Bd::primero(
-            'SELECT u.*, r.nombre AS rol
-             FROM usuarios u
-             JOIN roles r ON r.id = u.rol_id
-             WHERE (u.usuario = ? OR u.correo = ?) AND u.deleted_at IS NULL
-             LIMIT 1',
-            [$usuario, $usuario]
-        );
-
         $intentosMaximos = (int) Ajustes::obtener('intentos_maximos_login', 5);
         $bloqueoMinutos = (int) Ajustes::obtener('bloqueo_minutos', 15);
 
@@ -34,13 +38,20 @@ final class Autenticacion
             . $bloqueoMinutos . ' minutos.'
         );
 
-        if ($fila === null) {
+        $id = Bd::valor(
+            'SELECT id FROM usuarios WHERE (usuario = ? OR correo = ?) AND deleted_at IS NULL LIMIT 1',
+            [$usuario, $usuario]
+        );
+
+        if ($id === null) {
             // Mismo trabajo que con una cuenta real: el tiempo de respuesta tampoco la delata
             password_verify($password, self::HASH_SENUELO);
+            // Solo el comienzo de lo escrito: a veces lo que se teclea en este campo es la contraseña
             Bitacora::registrar(
                 'LOGIN_FALLIDO',
                 'Autenticacion',
-                'Intento de inicio de sesión con un usuario inexistente: ' . $usuario,
+                'Intento de inicio de sesión con un usuario inexistente: ' . mb_substr($usuario, 0, 3) . '… ('
+                . mb_strlen($usuario) . ' caracteres)',
                 'Error',
                 'usuarios',
                 '',
@@ -51,12 +62,24 @@ final class Autenticacion
             throw $rechazo;
         }
 
-        if ($fila['bloqueado_hasta'] !== null && strtotime((string) $fila['bloqueado_hasta']) > time()) {
-            password_verify($password, self::HASH_SENUELO);
-            throw $rechazo;
-        }
+        // Los intentos sobre una cuenta pasan de uno en uno: su fila queda tomada mientras se revisa la clave.
+        // Sin esto, muchas claves enviadas a la vez pasaban todas antes de que el contador llegara al máximo.
+        // Un rechazo devuelve null en vez de lanzar: una excepción desharía el conteo del intento.
+        $fila = Bd::transaccion(static function () use ($id, $password, $intentosMaximos, $bloqueoMinutos): ?array {
+            $fila = Bd::primero('SELECT * FROM usuarios WHERE id = ? FOR UPDATE', [$id]);
+            if ($fila === null) {
+                return null;
+            }
+            $fila['rol'] = (string) Bd::valor('SELECT nombre FROM roles WHERE id = ?', [$fila['rol_id']]);
 
-        if (!password_verify($password, (string) $fila['password_hash'])) {
+            if ($fila['bloqueado_hasta'] !== null && strtotime((string) $fila['bloqueado_hasta']) > time()) {
+                password_verify($password, self::HASH_SENUELO);
+                return null;
+            }
+            if (password_verify($password, (string) $fila['password_hash'])) {
+                return $fila;
+            }
+
             $intentos = (int) $fila['intentos_fallidos'] + 1;
             $bloqueo = null;
             if ($intentos >= $intentosMaximos) {
@@ -79,6 +102,10 @@ final class Autenticacion
                 null,
                 self::comoUsuario($fila)
             );
+            return null;
+        });
+
+        if ($fila === null) {
             throw $rechazo;
         }
 
@@ -164,7 +191,7 @@ final class Autenticacion
         }
 
         $sesion = Bd::primero(
-            'SELECT s.usuario_id, s.cerrada_en, s.ultima_actividad, s.csrf_token,
+            'SELECT s.usuario_id, s.cerrada_en, s.ultima_actividad, s.creada_en, s.csrf_token,
                     u.id, u.usuario, u.nombre, u.apellido, u.correo, u.cargo, u.activo, u.rol_id,
                     u.deleted_at, r.nombre AS rol
              FROM sesiones s
@@ -204,6 +231,12 @@ final class Autenticacion
                 self::comoUsuario($sesion)
             );
             throw ErrorHttp::noAutenticado('La sesión expiró por inactividad');
+        }
+
+        // Una sesión en uso no vence por inactividad: sin este tope, quien la robara podría mantenerla viva sin fin
+        if (time() - strtotime((string) $sesion['creada_en']) > self::HORAS_MAXIMAS * 3600) {
+            self::cerrarSesion($token, 'Expiracion');
+            throw ErrorHttp::noAutenticado('La sesión cumplió ' . self::HORAS_MAXIMAS . ' horas. Vuelva a iniciar sesión.');
         }
 
         Bd::ejecutar(

@@ -238,8 +238,9 @@ final class Proveedor
 
     private static function validarNit(string $nit, ?int $excluir): void
     {
-        $sql = 'SELECT id FROM proveedores WHERE nit = ?';
-        $parametros = [$nit];
+        // Se compara sin puntos ni guion: 900.100.001-1 y 900100001-1 son el mismo NIT
+        $sql = 'SELECT id FROM proveedores WHERE REPLACE(REPLACE(nit, ".", ""), "-", "") = ?';
+        $parametros = [str_replace(['.', '-'], '', $nit)];
         if ($excluir !== null) {
             $sql .= ' AND id <> ?';
             $parametros[] = $excluir;
@@ -445,7 +446,7 @@ final class Proveedor
             $parametros[] = $filtros['hasta'] . ' 23:59:59';
         }
 
-        $sql .= ' ORDER BY c.fecha DESC';
+        $sql .= ' ORDER BY c.fecha DESC LIMIT 500';
 
         return array_map(static fn (array $c): array => [
             'id'        => (int) $c['id'],

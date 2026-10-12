@@ -34,7 +34,7 @@ final class Comprobante
             : Bd::primero('SELECT * FROM clientes WHERE id = ?', [(int) $venta['cliente_id']]);
 
         $detalle = Bd::consultar(
-            'SELECT sku, nombre_producto, cantidad, precio_unitario, descuento_unitario,
+            'SELECT sku, nombre_producto, cantidad, precio_unitario,
                     iva_porcentaje, subtotal, impuesto, total
              FROM venta_detalle WHERE venta_id = ?',
             [$ventaId]
