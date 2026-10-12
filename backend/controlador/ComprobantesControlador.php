@@ -80,17 +80,16 @@ final class ComprobantesControlador
 
         $emisor = $comprobante['emisor'] ?? [];
         $cliente = $comprobante['cliente'] ?? [];
-        $peso = static fn ($valor): string => '$' . number_format((float) $valor, 0, ',', '.');
 
         $filas = [
             [(string) ($emisor['nombre'] ?? 'Ke-Rico!'), '', '', ''],
             [(string) ($emisor['razon_social'] ?? ''), '', '', ''],
-            ['NIT ' . (string) ($emisor['nit'] ?? ''), '', '', ''],
+            [trim((string) ($emisor['nit'] ?? '')) === '' ? '' : 'NIT ' . $emisor['nit'], '', '', ''],
             [(string) ($emisor['direccion'] ?? ''), '', '', ''],
             [(string) ($emisor['telefono'] ?? ''), '', '', ''],
             ['', '', '', ''],
             [(string) $comprobante['tipo'], 'N.º ' . (string) $comprobante['numero'], '', ''],
-            ['Fecha', (string) $comprobante['fecha_emision'], '', ''],
+            ['Fecha', Exportador::fechaLegible((string) $comprobante['fecha_emision']), '', ''],
             ['Venta', (string) ($comprobante['folio'] ?? ''), '', ''],
             ['Cajero', (string) ($comprobante['cajero'] ?? ''), '', ''],
             ['Cliente', (string) ($cliente['nombre'] ?? 'Consumidor final'), '', ''],
@@ -111,20 +110,20 @@ final class ComprobantesControlador
         foreach ($comprobante['detalle'] as $d) {
             $filas[] = [
                 (string) $d['nombre'],
-                rtrim(rtrim(number_format((float) $d['cantidad'], 3, '.', ''), '0'), '.'),
-                $peso($d['precio_unitario']),
-                $peso($d['total']),
+                Exportador::cantidad($d['cantidad']),
+                Exportador::dinero($d['precio_unitario']),
+                Exportador::dinero($d['total']),
             ];
         }
 
         $filas[] = ['', '', '', ''];
-        $filas[] = ['Subtotal', '', '', $peso($comprobante['subtotal'])];
+        $filas[] = ['Subtotal', '', '', Exportador::dinero($comprobante['subtotal'])];
         if ((float) $comprobante['descuento'] > 0) {
-            $filas[] = ['Descuento', '', '', '(' . $peso($comprobante['descuento']) . ')'];
+            $filas[] = ['Descuento', '', '', Exportador::dinero(-(float) $comprobante['descuento'])];
         }
-        $filas[] = ['Base gravable', '', '', $peso($comprobante['base_gravable'])];
-        $filas[] = ['Impuesto', '', '', $peso($comprobante['impuesto'])];
-        $filas[] = ['TOTAL', '', '', $peso($comprobante['total'])];
+        $filas[] = ['Base gravable', '', '', Exportador::dinero($comprobante['base_gravable'])];
+        $filas[] = ['Impuesto', '', '', Exportador::dinero($comprobante['impuesto'])];
+        $filas[] = ['TOTAL', '', '', Exportador::dinero($comprobante['total'])];
 
         if (($comprobante['estado'] ?? '') === 'Anulado') {
             $filas[] = ['', '', '', ''];
@@ -167,9 +166,9 @@ final class ComprobantesControlador
             $c['folio'],
             $c['fecha_emision'],
             (string) ($c['cliente']['nombre'] ?? 'Consumidor final'),
-            number_format($c['base_gravable'], 0, ',', '.'),
-            number_format($c['impuesto'], 0, ',', '.'),
-            number_format($c['total'], 0, ',', '.'),
+            Exportador::dinero($c['base_gravable']),
+            Exportador::dinero($c['impuesto']),
+            Exportador::dinero($c['total']),
             $c['estado'],
         ], $comprobantes);
 

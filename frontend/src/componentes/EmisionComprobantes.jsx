@@ -108,7 +108,7 @@ export default function EmisionComprobantes() {
           {puede('reportes.exportar') ? (
             <Exportar
               ruta={(f) => '/comprobantes/exportar' + consulta({ ...lista.filtros, formato: f })}
-              formatos={['pdf', 'csv']}
+              formatos={['pdf', 'csv', 'excel']}
               nombre="comprobantes"
             />
           ) : null}

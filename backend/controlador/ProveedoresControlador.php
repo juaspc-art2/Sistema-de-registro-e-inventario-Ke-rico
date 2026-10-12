@@ -6,6 +6,7 @@ namespace Kerico\Controlador;
 
 use Kerico\Modelo\Proveedor;
 use Kerico\Nucleo\Autenticacion;
+use Kerico\Nucleo\Exportador;
 use Kerico\Nucleo\Paginador;
 use Kerico\Nucleo\Peticion;
 use Kerico\Nucleo\Respuesta;
@@ -122,9 +123,9 @@ final class ProveedoresControlador
             $p['correo'],
             $p['tipo_productos'],
             $p['estado'],
-            number_format($p['calificacion'], 2, ',', '.'),
-            (string) $p['compras'],
-            number_format($p['monto_comprado'], 0, ',', '.'),
+            Exportador::decimal($p['calificacion']),
+            (int) $p['compras'],
+            Exportador::dinero($p['monto_comprado']),
         ], $proveedores);
 
         $activos = count(array_filter($proveedores, static fn (array $p): bool => $p['estado'] === 'Activo'));

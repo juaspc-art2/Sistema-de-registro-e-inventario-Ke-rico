@@ -447,10 +447,13 @@ const xlsInv = await api('GET', '/inventario/exportar?formato=excel', { token: T
 ok('RNF14 exporta inventario en Excel', xlsInv.status === 200 && xlsInv.buf.slice(0, 2).toString() === 'PK');
 ok('RNF14 el xlsx tiene contenido', xlsInv.buf.length > 1000, xlsInv.buf.length + ' bytes');
 const empHoy = (await api('GET', '/inventario/productos/' + emp.id, { token: TA })).j.datos;
-const precioEnPesos = String(Math.round(empHoy.precio_venta)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+const precioEnPesos = Math.round(empHoy.precio_venta);
 const filaEmp = hojaXlsx(xlsInv.buf).split('<row ').find(f => f.includes('>EMP-CAR<')) || '';
-ok('RNF14 el Excel muestra los valores en pesos completos', filaEmp.includes('<t>' + precioEnPesos + '</t>'),
+// El precio va como número y no como texto: Excel puede sumarlo y no hay punto de miles que confundir con decimales
+ok('RNF14 el Excel guarda los valores como numeros en pesos completos', filaEmp.includes('<v>' + precioEnPesos + '</v>'),
   'esperado ' + precioEnPesos + ' en ' + filaEmp.slice(0, 400));
+ok('RNF14 el Excel fija el encabezado y ajusta el ancho de las columnas',
+  hojaXlsx(xlsInv.buf).includes('<pane ySplit="1"') && hojaXlsx(xlsInv.buf).includes('<cols><col '));
 
 const pdfRent = await api('GET', '/reportes/rentabilidad/exportar?formato=pdf&' + RANGO, { token: TA, raw: true });
 ok('RNF14 exporta rentabilidad en PDF', pdfRent.status === 200 && pdfRent.buf.slice(0, 5).toString() === '%PDF-');
@@ -463,6 +466,9 @@ ok('RNF14 exporta auditoria de movimientos en PDF', pdfMov.status === 200 && pdf
 
 const csvVentas = await api('GET', '/ventas/exportar?formato=csv&' + RANGO, { token: TA, raw: true });
 ok('RNF14 exporta ventas en CSV', csvVentas.status === 200 && csvVentas.buf.length > 100);
+// Descuento, impuesto y total van como números simples: una hoja de cálculo los lee sin ambigüedad
+const filaCsv = (csvVentas.buf.toString('utf8').split('\n')[1] || '').trim();
+ok('RNF14 el CSV lleva los valores sin separador de miles', /;\d+;\d+;\d+;[^;]+;[^;]+$/.test(filaCsv), filaCsv.slice(0, 160));
 
 const pdfBit = await api('GET', '/sistema/bitacora/exportar?formato=pdf&' + RANGO, { token: TA, raw: true });
 ok('RNF14 exporta bitacora en PDF', pdfBit.status === 200 && pdfBit.buf.slice(0, 5).toString() === '%PDF-');

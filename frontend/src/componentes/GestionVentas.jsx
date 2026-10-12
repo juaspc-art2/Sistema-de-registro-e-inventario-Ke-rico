@@ -493,7 +493,7 @@ function Historial() {
         />
         <Exportar
           ruta={(f) => '/ventas/exportar' + consulta({ ...lista.filtros, formato: f })}
-          formatos={['pdf', 'csv']}
+          formatos={['pdf', 'csv', 'excel']}
           nombre="ventas"
         />
       </div>

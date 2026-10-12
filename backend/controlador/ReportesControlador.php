@@ -7,6 +7,7 @@ namespace Kerico\Controlador;
 use Kerico\Modelo\Reporte;
 use Kerico\Nucleo\Autenticacion;
 use Kerico\Nucleo\Bitacora;
+use Kerico\Nucleo\Exportador;
 use Kerico\Nucleo\Peticion;
 use Kerico\Nucleo\Respuesta;
 
@@ -52,11 +53,11 @@ final class ReportesControlador
             $p['sku'],
             $p['nombre'],
             $p['categoria'],
-            rtrim(rtrim(number_format($p['unidades'], 3, '.', ''), '0'), '.'),
-            number_format($p['ingresos'], 0, ',', '.'),
-            number_format($p['costo'], 0, ',', '.'),
-            number_format($p['utilidad'], 0, ',', '.'),
-            number_format($p['margen'], 2, ',', '.'),
+            Exportador::cantidad($p['unidades']),
+            Exportador::dinero($p['ingresos']),
+            Exportador::dinero($p['costo']),
+            Exportador::dinero($p['utilidad']),
+            Exportador::decimal($p['margen']),
         ], $datos['productos']);
 
         $t = $datos['totales'];
@@ -78,12 +79,14 @@ final class ReportesControlador
             $encabezados,
             $filas,
             [
-                'Ingresos'      => '$' . number_format($t['ingresos_brutos'], 0, ',', '.'),
-                'Costo ventas'  => '$' . number_format($t['costo_ventas'], 0, ',', '.'),
-                'Utilidad'      => '$' . number_format($t['utilidad_bruta'], 0, ',', '.'),
-                'Margen'        => number_format($t['margen'], 2, ',', '.') . ' %',
-                'Transacciones' => (string) $t['transacciones'],
-                'Ticket prom.'  => '$' . number_format($t['ticket_promedio'], 0, ',', '.'),
+                // Los mismos nombres de la página: la utilidad sale de la base gravable, no de los ingresos brutos
+                'Ingresos brutos' => '$' . number_format($t['ingresos_brutos'], 0, ',', '.'),
+                'Base gravable'   => '$' . number_format($t['base_gravable'], 0, ',', '.'),
+                'Costo de ventas' => '$' . number_format($t['costo_ventas'], 0, ',', '.'),
+                'Utilidad bruta'  => '$' . number_format($t['utilidad_bruta'], 0, ',', '.'),
+                'Margen'          => number_format($t['margen'], 2, ',', '.') . ' %',
+                'Transacciones'   => (string) $t['transacciones'],
+                'Ticket promedio' => '$' . number_format($t['ticket_promedio'], 0, ',', '.'),
             ]
         );
     }

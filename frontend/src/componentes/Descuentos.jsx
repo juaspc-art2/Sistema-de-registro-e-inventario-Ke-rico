@@ -319,7 +319,7 @@ function Historial() {
           onChange={(e) => lista.cambiarFiltro('codigo', e.target.value.toUpperCase())} />
         <Exportar
           ruta={(f) => '/descuentos/exportar' + consulta({ ...lista.filtros, formato: f })}
-          formatos={['pdf', 'csv']}
+          formatos={['pdf', 'csv', 'excel']}
           nombre="descuentos"
         />
       </div>

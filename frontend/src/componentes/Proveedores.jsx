@@ -180,7 +180,7 @@ function Directorio() {
         {puede('reportes.exportar') ? (
           <Exportar
             ruta={(f) => '/proveedores/exportar' + consulta({ estado: lista.filtros.estado, formato: f })}
-            formatos={['pdf', 'csv']}
+            formatos={['pdf', 'csv', 'excel']}
             nombre="proveedores"
           />
         ) : null}

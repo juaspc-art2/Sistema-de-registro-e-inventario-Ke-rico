@@ -8,6 +8,7 @@ use Kerico\Modelo\Promocion;
 use Kerico\Nucleo\Autenticacion;
 use Kerico\Nucleo\Bitacora;
 use Kerico\Nucleo\ErrorHttp;
+use Kerico\Nucleo\Exportador;
 use Kerico\Nucleo\Paginador;
 use Kerico\Nucleo\Peticion;
 use Kerico\Nucleo\Respuesta;
@@ -200,9 +201,9 @@ final class DescuentosControlador
             $d['folio'],
             $d['codigo'],
             $d['tipo'],
-            number_format($d['valor_original'], 0, ',', '.'),
-            number_format($d['valor_descuento'], 0, ',', '.'),
-            number_format($d['valor_final'], 0, ',', '.'),
+            Exportador::dinero($d['valor_original']),
+            Exportador::dinero($d['valor_descuento']),
+            Exportador::dinero($d['valor_final']),
             $d['motivo'],
             $d['autorizado_por'],
         ], $historial);

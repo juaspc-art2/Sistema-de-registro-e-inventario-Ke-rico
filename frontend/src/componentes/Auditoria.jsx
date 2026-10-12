@@ -94,7 +94,7 @@ export default function Auditoria() {
           {puede('reportes.exportar') ? (
             <Exportar
               ruta={(f) => '/inventario/movimientos/exportar' + consulta({ ...lista.filtros, formato: f })}
-              formatos={['pdf', 'csv']}
+              formatos={['pdf', 'csv', 'excel']}
               nombre="auditoria"
             />
           ) : null}

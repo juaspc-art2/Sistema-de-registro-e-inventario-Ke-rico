@@ -58,7 +58,7 @@ export default function Bitacora() {
           <Boton onClick={lista.recargar}>Actualizar</Boton>
           <Exportar
             ruta={(f) => '/sistema/bitacora/exportar' + consulta({ ...lista.filtros, formato: f })}
-            formatos={['pdf', 'csv']}
+            formatos={['pdf', 'csv', 'excel']}
             nombre="bitacora"
           />
         </div>

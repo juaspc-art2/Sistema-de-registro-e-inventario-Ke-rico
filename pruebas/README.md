@@ -6,7 +6,7 @@ MySQL para comprobar lo que quedó guardado.
 
 | Archivo | Qué comprueba | Casos |
 |---|---|---|
-| `requerimientos.mjs` | Los nueve requerimientos funcionales y los quince no funcionales | 149 |
+| `requerimientos.mjs` | Los nueve requerimientos funcionales y los quince no funcionales | 151 |
 | `revision.mjs` | La lista de verificación de la revisión de la aplicación | 202 |
 
 `correo.mjs` es aparte: prueba el cliente SMTP contra un servidor falso que levanta en el
@@ -69,6 +69,6 @@ node pruebas/requerimientos.mjs
 ## Resultado esperado
 
 ```
-PASADAS: 149   FALLIDAS: 0
+PASADAS: 151   FALLIDAS: 0
 PASADAS: 202   FALLIDAS: 0
 ```
