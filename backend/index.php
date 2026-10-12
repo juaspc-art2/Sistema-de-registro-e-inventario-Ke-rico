@@ -25,20 +25,7 @@ date_default_timezone_set($config['app']['zona_horaria']);
 error_reporting($config['app']['depuracion'] ? E_ALL : 0);
 ini_set('display_errors', $config['app']['depuracion'] ? '1' : '0');
 
-spl_autoload_register(static function (string $clase): void {
-    $prefijo = 'Kerico\\';
-    if (!str_starts_with($clase, $prefijo)) {
-        return;
-    }
-    $relativa = substr($clase, strlen($prefijo));
-    $mapa = ['Nucleo' => 'nucleo', 'Modelo' => 'modelo', 'Controlador' => 'controlador'];
-    $partes = explode('\\', $relativa);
-    $carpeta = $mapa[$partes[0]] ?? strtolower($partes[0]);
-    $archivo = __DIR__ . '/' . $carpeta . '/' . end($partes) . '.php';
-    if (is_file($archivo)) {
-        require $archivo;
-    }
-});
+require __DIR__ . '/nucleo/cargador.php';
 
 Bd::configurar($config['bd']);
 Correo::configurar($config['correo']);
@@ -175,6 +162,18 @@ try {
 } catch (ErrorHttp $e) {
     Respuesta::error($e->getMessage(), $e->getCode(), $e->detalles());
 } catch (Throwable $e) {
+    // Dos peticiones a la vez pueden pasar la revisión de "ya existe" y chocar en el índice único de la base (1062),
+    // o un dato elegido puede haberse borrado entre tanto (1452). No son fallos del servidor: se explican al usuario
+    $codigoBd = $e instanceof PDOException ? (int) ($e->errorInfo[1] ?? 0) : 0;
+    if ($codigoBd === 1062) {
+        Respuesta::error('Ya existe un registro con ese mismo valor. Actualice la lista e intente de nuevo.', 409);
+        return;
+    }
+    if ($codigoBd === 1452) {
+        Respuesta::error('Uno de los datos seleccionados ya no existe. Actualice la página e intente de nuevo.', 422);
+        return;
+    }
+
     $mensaje = $config['app']['depuracion']
         ? $e->getMessage() . ' en ' . $e->getFile() . ':' . $e->getLine()
         : 'Ocurrió un error inesperado en el servidor';

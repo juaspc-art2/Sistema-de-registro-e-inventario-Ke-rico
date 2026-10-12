@@ -176,7 +176,7 @@ final class SistemaControlador
     {
         Autenticacion::exigir('respaldos.gestionar');
         $archivo = Sistema::descargarRespaldo((int) $peticion->parametro('id'));
-        Respuesta::archivo($archivo['contenido'], $archivo['nombre'], 'application/sql', 'Respaldo de la base de datos');
+        Respuesta::archivoEnDisco($archivo['ruta'], $archivo['nombre'], 'application/sql', 'Respaldo de la base de datos');
     }
 
     public static function eliminarUsuario(Peticion $peticion): void

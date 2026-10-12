@@ -17,12 +17,17 @@ use PDO;
 
 final class Sistema
 {
+    // La tabla respaldos no se copia: es la lista de las propias copias, y al copiarse a sí misma
+    // la que estaba en curso quedaba para siempre "En proceso" después de restaurar
     private const TABLAS = [
         'roles', 'permisos', 'rol_permisos', 'usuarios', 'configuracion', 'categorias',
         'proveedores', 'productos', 'clientes', 'promociones', 'ventas', 'venta_detalle',
         'descuentos_aplicados', 'comprobantes', 'compras', 'compra_detalle',
-        'movimientos_inventario', 'alertas_stock', 'bitacora', 'respaldos',
+        'movimientos_inventario', 'alertas_stock', 'bitacora',
     ];
+
+    // Días que un archivo de respaldo se conserva en disco
+    private const DIAS_RESPALDO = 30;
 
     private const CARPETA_RESPALDOS = 'respaldos';
 
@@ -115,8 +120,8 @@ final class Sistema
     {
         $hoy = date('Y-m-d');
         $filas = Bd::consultar(
-            'SELECT nivel, COUNT(*) AS n FROM bitacora WHERE DATE(creado_en) = ? GROUP BY nivel',
-            [$hoy]
+            'SELECT nivel, COUNT(*) AS n FROM bitacora WHERE creado_en >= ? AND creado_en < ? + INTERVAL 1 DAY GROUP BY nivel',
+            [$hoy, $hoy]
         );
 
         $resumen = ['Info' => 0, 'Advertencia' => 0, 'Error' => 0, 'Sistema' => 0];
@@ -206,6 +211,13 @@ final class Sistema
                 [mb_substr($e->getMessage(), 0, 255), $respaldoId]
             );
             throw $e;
+        }
+
+        // Los archivos viejos se borran; su fila sigue en la lista como historial
+        foreach (glob($rutaBase . '/kerico-*.sql') ?: [] as $viejo) {
+            if (filemtime($viejo) < time() - self::DIAS_RESPALDO * 86400) {
+                @unlink($viejo);
+            }
         }
 
         $fila = Bd::primero('SELECT * FROM respaldos WHERE id = ?', [$respaldoId]);
@@ -312,11 +324,7 @@ final class Sistema
             throw ErrorHttp::noEncontrado('El archivo del respaldo ya no está disponible');
         }
 
-        $contenido = file_get_contents($ruta);
-        return [
-            'nombre'    => (string) $fila['nombre_archivo'],
-            'contenido' => $contenido === false ? '' : $contenido,
-        ];
+        return ['nombre' => (string) $fila['nombre_archivo'], 'ruta' => $ruta];
     }
 
     public static function estado(): array

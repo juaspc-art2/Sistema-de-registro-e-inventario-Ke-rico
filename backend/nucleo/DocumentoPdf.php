@@ -422,9 +422,16 @@ final class DocumentoPdf
         $objetos[$idFuenteNormal] = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>';
         $objetos[$idFuenteNegrita] = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>';
 
+        return self::ensamblar($objetos);
+    }
+
+    // Arma el archivo PDF a partir de sus objetos numerados (el 1 es el catálogo). Lo usa también TirillaPdf
+    public static function ensamblar(array $objetos): string
+    {
         ksort($objetos);
 
-        $pdf = "%PDF-1.4\n";
+        // La segunda línea, con bytes altos, avisa a quien transporte el archivo de que es binario
+        $pdf = "%PDF-1.4\n%\xE2\xE3\xCF\xD3\n";
         $posiciones = [];
         foreach ($objetos as $id => $cuerpo) {
             $posiciones[$id] = strlen($pdf);

@@ -47,12 +47,8 @@ final class Correo
         if ($destinatarios === []) {
             throw ErrorHttp::validacion('Escriba el correo de destino', ['correo' => 'Obligatorio']);
         }
-        if ($adjunto !== null && strlen($adjunto['contenido']) > self::MAXIMO_ADJUNTO) {
-            throw ErrorHttp::validacion(
-                'El archivo pesa ' . number_format(strlen($adjunto['contenido']) / 1048576, 1, ',', '.')
-                . ' MB y el máximo por correo es ' . (self::MAXIMO_ADJUNTO / 1048576) . ' MB. Descárguelo en su lugar.',
-                ['correo' => 'Archivo demasiado grande']
-            );
+        if ($adjunto !== null) {
+            self::exigirTamano(strlen($adjunto['contenido']));
         }
 
         $remitente = (string) (self::$config['remitente'] ?: self::$config['usuario']);
@@ -110,6 +106,17 @@ final class Correo
         ];
 
         self::transmitir($remitente, $destinatarios, implode("\r\n", $cabeceras) . "\r\n" . $contenido);
+    }
+
+    public static function exigirTamano(int $bytes): void
+    {
+        if ($bytes > self::MAXIMO_ADJUNTO) {
+            throw ErrorHttp::validacion(
+                'El archivo pesa ' . number_format($bytes / 1048576, 1, ',', '.')
+                . ' MB y el máximo por correo es ' . (self::MAXIMO_ADJUNTO / 1048576) . ' MB. Descárguelo en su lugar.',
+                ['correo' => 'Archivo demasiado grande']
+            );
+        }
     }
 
     // Una parte del mensaje. Todo viaja en base64: ninguna línea empieza por punto ni supera el largo que admite SMTP
@@ -310,8 +317,14 @@ final class Correo
     // Envía una orden (o solo lee, si $texto es null) y exige el código de respuesta esperado
     private static function orden($socket, ?string $texto, int $esperado): string
     {
-        if ($texto !== null && fwrite($socket, $texto . "\r\n") === false) {
-            throw new ErrorHttp('Se perdió la conexión con el servidor de correo', 502);
+        // En una conexión lenta fwrite puede aceptar solo una parte: se insiste hasta enviar el mensaje completo
+        $pendiente = $texto === null ? '' : $texto . "\r\n";
+        while ($pendiente !== '') {
+            $enviados = fwrite($socket, $pendiente);
+            if ($enviados === false || $enviados === 0) {
+                throw new ErrorHttp('Se perdió la conexión con el servidor de correo', 502);
+            }
+            $pendiente = substr($pendiente, $enviados);
         }
 
         $respuesta = '';
