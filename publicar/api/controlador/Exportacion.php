@@ -7,6 +7,7 @@ namespace Kerico\Controlador;
 use Kerico\Nucleo\ErrorHttp;
 use Kerico\Nucleo\Exportador;
 use Kerico\Nucleo\Respuesta;
+use Kerico\Nucleo\Vocabulario;
 
 final class Exportacion
 {
@@ -28,8 +29,14 @@ final class Exportacion
             );
         }
 
+        // "Critico" o "En revision" son valores internos: en el archivo van escritos como en la página
+        $filas = array_map(
+            static fn (array $fila): array => array_map(static fn ($celda) => is_string($celda) ? Vocabulario::estado($celda) : $celda, $fila),
+            $filas
+        );
+
         $formato = strtolower($formato);
-        $descripcion = trim($titulo . ' · ' . $subtitulo, ' ·');
+        $descripcion = trim($titulo . ' · ' . Exportador::fechaLegible($subtitulo), ' ·');
 
         if ($formato === 'pdf') {
             Respuesta::archivo(

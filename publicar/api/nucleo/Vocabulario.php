@@ -64,6 +64,25 @@ final class Vocabulario
         'VENTA_REGISTRAR'          => 'Venta registrada',
     ];
 
+    // Valores que la base guarda sin tilde o en minúscula, con el nombre que se le muestra a una persona.
+    // Son los mismos de NOMBRES_ESTADO en frontend/src/ui/Componentes.jsx
+    private const ESTADOS = [
+        'Critico'      => 'Crítico',
+        'Devolucion'   => 'Devolución',
+        'En revision'  => 'En revisión',
+        'Automatico'   => 'Automático',
+        'Nota credito' => 'Nota crédito',
+        'Nota debito'  => 'Nota débito',
+        'Anulacion'    => 'Anulación',
+        'porcentaje'   => 'Porcentaje',
+        'fijo'         => 'Monto fijo',
+    ];
+
+    public static function estado(string $valor): string
+    {
+        return self::ESTADOS[$valor] ?? $valor;
+    }
+
     public static function modulo(string $valor): string
     {
         return self::MODULOS[$valor] ?? $valor;

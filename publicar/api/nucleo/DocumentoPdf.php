@@ -108,33 +108,38 @@ final class DocumentoPdf
 
         $indice = 0;
         foreach ($filas as $fila) {
-            if ($this->y - $alturaFila < self::MARGEN + 24) {
+            // Un texto que no cabe en su columna baja a otro renglón y la fila crece con él
+            $celdas = [];
+            foreach (array_slice(array_values($fila), 0, $columnas) as $i => $valor) {
+                $texto = (string) $valor;
+                $celdas[$i] = $this->esNumero($texto) ? [$texto] : $this->partir($texto, $anchos[$i] - 12, 8.5);
+            }
+            $altura = $alturaFila + (max(1, ...array_map('count', $celdas)) - 1) * 10.0;
+
+            if ($this->y - $altura < self::MARGEN + 24) {
                 $this->pie();
                 $this->nuevaPagina();
                 $this->filaEncabezado($encabezados, $anchos, $alturaFila);
             }
 
             if ($indice % 2 === 1) {
-                $this->rectangulo(self::MARGEN, $this->y - $alturaFila, $disponible, $alturaFila, self::CREMA);
+                $this->rectangulo(self::MARGEN, $this->y - $altura, $disponible, $altura, self::CREMA);
             }
 
             $x = self::MARGEN;
-            $valores = array_values($fila);
-            foreach ($valores as $i => $valor) {
-                if ($i >= $columnas) {
-                    break;
-                }
-                $texto = $this->recortar((string) $valor, $anchos[$i] - 12, 8.5);
-                if ($this->esNumero((string) $valor)) {
-                    $this->textoDerecha($texto, $x + $anchos[$i] - 6, $this->y - 12, 8.5, false, self::CARBON);
-                } else {
-                    $this->texto($texto, $x + 6, $this->y - 12, 8.5, false, self::CARBON);
+            foreach ($celdas as $i => $renglones) {
+                foreach ($renglones as $n => $texto) {
+                    if (count($renglones) === 1 && $this->esNumero($texto)) {
+                        $this->textoDerecha($texto, $x + $anchos[$i] - 6, $this->y - 12, 8.5, false, self::CARBON);
+                    } else {
+                        $this->texto($texto, $x + 6, $this->y - 12 - $n * 10.0, 8.5, false, self::CARBON);
+                    }
                 }
                 $x += $anchos[$i];
             }
 
-            $this->linea(self::MARGEN, $this->y - $alturaFila, self::ANCHO - self::MARGEN, $this->y - $alturaFila, self::ARENA, 0.4);
-            $this->y -= $alturaFila;
+            $this->linea(self::MARGEN, $this->y - $altura, self::ANCHO - self::MARGEN, $this->y - $altura, self::ARENA, 0.4);
+            $this->y -= $altura;
             $indice++;
         }
 
@@ -265,6 +270,57 @@ final class DocumentoPdf
             $total += self::ANCHOS[mb_substr($texto, $i, 1)] ?? 556;
         }
         return $total / 1000 * $tamano * ($negrita ? 1.08 : 1.0);
+    }
+
+    // Parte un texto en los renglones que caben en una columna. Si necesita más de tres, el tercero termina en "…"
+    private function partir(string $texto, float $disponible, float $tamano): array
+    {
+        if ($disponible <= 0 || $this->medir($texto, $tamano, false) <= $disponible + 0.5) {
+            return [$texto];
+        }
+
+        $renglones = [];
+        $actual = '';
+        foreach (preg_split('/\s+/u', trim($texto), -1, PREG_SPLIT_NO_EMPTY) ?: [] as $palabra) {
+            // Una palabra más ancha que la columna, como un correo, se corta: tras la arroba si la tiene,
+            // si no tras un punto o un guion, y solo en último caso entre dos letras
+            while ($this->medir($palabra, $tamano, false) > $disponible) {
+                if ($actual !== '') {
+                    $renglones[] = $actual;
+                    $actual = '';
+                }
+                $corte = max(1, mb_strlen($palabra) - 1);
+                while ($corte > 1 && $this->medir(mb_substr($palabra, 0, $corte), $tamano, false) > $disponible) {
+                    $corte--;
+                }
+                $cabe = mb_substr($palabra, 0, $corte);
+                $arroba = mb_strrpos($cabe, '@');
+                if ($arroba !== false && $arroba > 0) {
+                    $corte = $arroba + 1;
+                } elseif (preg_match('/^.+[.\-_\/]/u', $cabe, $hasta) === 1) {
+                    $corte = mb_strlen($hasta[0]);
+                }
+                $renglones[] = mb_substr($palabra, 0, $corte);
+                $palabra = mb_substr($palabra, $corte);
+            }
+            $prueba = $actual === '' ? $palabra : $actual . ' ' . $palabra;
+            if ($actual !== '' && $this->medir($prueba, $tamano, false) > $disponible) {
+                $renglones[] = $actual;
+                $actual = $palabra;
+            } else {
+                $actual = $prueba;
+            }
+        }
+        if ($actual !== '') {
+            $renglones[] = $actual;
+        }
+
+        if (count($renglones) > 3) {
+            $resto = implode(' ', array_slice($renglones, 2));
+            $renglones = array_slice($renglones, 0, 2);
+            $renglones[] = $this->recortar($resto, $disponible, $tamano);
+        }
+        return $renglones;
     }
 
     private function recortar(string $texto, float $disponible, float $tamano): string

@@ -8,6 +8,7 @@ use Kerico\Modelo\Alerta;
 use Kerico\Modelo\Catalogo;
 use Kerico\Modelo\Inventario;
 use Kerico\Nucleo\Autenticacion;
+use Kerico\Nucleo\Exportador;
 use Kerico\Nucleo\Paginador;
 use Kerico\Nucleo\Peticion;
 use Kerico\Nucleo\Respuesta;
@@ -213,11 +214,11 @@ final class InventarioControlador
             $p['categoria'],
             $p['proveedor'],
             $p['unidad_medida'],
-            rtrim(rtrim(number_format($p['stock_actual'], 3, '.', ''), '0'), '.'),
-            rtrim(rtrim(number_format($p['punto_reorden'], 3, '.', ''), '0'), '.'),
-            number_format($p['precio_costo'], 0, ',', '.'),
-            number_format($p['precio_venta'], 0, ',', '.'),
-            number_format($p['valor_inventario'], 0, ',', '.'),
+            Exportador::cantidad($p['stock_actual']),
+            Exportador::cantidad($p['punto_reorden']),
+            Exportador::dinero($p['precio_costo']),
+            Exportador::dinero($p['precio_venta']),
+            Exportador::dinero($p['valor_inventario']),
             $p['estado_stock'],
         ], $productos);
 
@@ -261,9 +262,9 @@ final class InventarioControlador
             $m['sku'],
             $m['producto'],
             $m['tipo'],
-            rtrim(rtrim(number_format($m['cantidad'], 3, '.', ''), '0'), '.'),
-            rtrim(rtrim(number_format($m['stock_anterior'], 3, '.', ''), '0'), '.'),
-            rtrim(rtrim(number_format($m['stock_nuevo'], 3, '.', ''), '0'), '.'),
+            Exportador::cantidad($m['cantidad']),
+            Exportador::cantidad($m['stock_anterior']),
+            Exportador::cantidad($m['stock_nuevo']),
             $m['usuario'],
             $m['motivo'],
         ], $movimientos);
