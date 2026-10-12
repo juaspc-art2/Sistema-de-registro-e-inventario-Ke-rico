@@ -102,7 +102,7 @@ final class VentasControlador
 
     public static function exportar(Peticion $peticion): void
     {
-        Autenticacion::exigir('ventas.ver');
+        Autenticacion::exigir('reportes.exportar');
 
         $formato = (string) $peticion->consulta('formato', 'pdf');
         $desde = (string) $peticion->consulta('desde', date('Y-m-01'));

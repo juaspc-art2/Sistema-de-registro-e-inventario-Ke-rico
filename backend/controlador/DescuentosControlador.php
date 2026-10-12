@@ -71,6 +71,7 @@ final class DescuentosControlador
         if ($datos['alcance'] !== 'categoria') {
             $datos['categoria_id'] = null;
         }
+        Promocion::exigirDestino($datos['producto_id'], $datos['categoria_id']);
 
         return $datos;
     }

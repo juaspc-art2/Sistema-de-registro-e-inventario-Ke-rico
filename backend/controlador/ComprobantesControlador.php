@@ -172,7 +172,17 @@ final class ComprobantesControlador
             $c['estado'],
         ], $comprobantes);
 
-        $total = array_sum(array_map(static fn (array $c): float => $c['estado'] === 'Emitido' ? $c['total'] : 0.0, $comprobantes));
+        // Cada venta cuenta una sola vez. Una misma venta puede tener tirilla y factura, y una nota crédito
+        // repite su valor en positivo: sumarlas todas inflaba el total frente al de ventas
+        $total = 0.0;
+        $contadas = [];
+        foreach ($comprobantes as $c) {
+            $esVenta = in_array($c['tipo'], ['Tirilla POS', 'Factura de venta'], true);
+            if ($c['estado'] === 'Emitido' && $esVenta && !isset($contadas[$c['venta_id']])) {
+                $contadas[$c['venta_id']] = true;
+                $total += $c['total'];
+            }
+        }
 
         Exportacion::enviar(
             $formato,
@@ -183,7 +193,7 @@ final class ComprobantesControlador
             $filas,
             [
                 'Comprobantes' => (string) count($comprobantes),
-                'Total'        => '$' . number_format($total, 0, ',', '.'),
+                'Total vendido' => '$' . number_format($total, 0, ',', '.'),
                 'Periodo'      => $desde . ' a ' . $hasta,
             ]
         );

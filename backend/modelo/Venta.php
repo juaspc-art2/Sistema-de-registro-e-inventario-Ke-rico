@@ -15,6 +15,9 @@ final class Venta
 {
     public const METODOS = ['Efectivo', 'Tarjeta', 'Transferencia', 'Mixto'];
 
+    // Unidades que se venden por peso o volumen. Lo demás (unidad, combo, paquete) solo en cantidades enteras
+    private const SE_FRACCIONA = ['kg', 'kilo', 'g', 'gramo', 'lb', 'libra', 'oz', 'onza', 'l', 'litro', 'ml', 'm', 'metro', 'cm'];
+
     public static function registrar(array $datos): array
     {
         $items = $datos['items'] ?? [];
@@ -29,7 +32,19 @@ final class Venta
 
         $usuarioId = Autenticacion::idUsuario();
 
-        return Bd::transaccion(static function () use ($items, $datos, $metodo, $usuarioId): array {
+        // Los permisos se revisan antes de abrir la transacción: dentro de ella, el registro del intento
+        // negado en la bitácora se deshacía junto con la venta
+        $codigo = trim((string) ($datos['codigo_promocion'] ?? ''));
+        $manual = $datos['descuento_manual'] ?? null;
+        $conManual = is_array($manual) && (float) ($manual['valor'] ?? 0) > 0;
+        if ($codigo !== '') {
+            Autenticacion::exigir('descuentos.aplicar');
+        }
+        if ($conManual) {
+            Autenticacion::exigir('descuentos.gestionar');
+        }
+
+        return Bd::transaccion(static function () use ($items, $datos, $metodo, $usuarioId, $codigo, $manual, $conManual): array {
             $lineas = [];
             $bruto = 0.0;
             $costoTotal = 0.0;
@@ -52,12 +67,13 @@ final class Venta
                 $agrupado[$productoId] = ($agrupado[$productoId] ?? 0.0) + $cantidad;
             }
 
+            // Los productos se toman siempre en el mismo orden. Dos ventas simultáneas que los pedían en orden
+            // contrario se bloqueaban entre sí y una fallaba. Por lo mismo la consulta no une categorías:
+            // FOR UPDATE toma también las filas de las tablas unidas.
+            ksort($agrupado);
+
             foreach ($agrupado as $productoId => $cantidad) {
-                $producto = Bd::primero(
-                    'SELECT p.*, c.id AS cat_id FROM productos p JOIN categorias c ON c.id = p.categoria_id
-                     WHERE p.id = ? FOR UPDATE',
-                    [$productoId]
-                );
+                $producto = Bd::primero('SELECT * FROM productos WHERE id = ? FOR UPDATE', [$productoId]);
 
                 if ($producto === null) {
                     throw ErrorHttp::noEncontrado('El producto con identificador ' . $productoId . ' no existe');
@@ -67,6 +83,13 @@ final class Venta
                 }
                 if ((int) $producto['es_insumo'] === 1) {
                     throw ErrorHttp::conflicto('El insumo ' . $producto['nombre'] . ' no se puede vender directamente');
+                }
+
+                if (floor($cantidad) != $cantidad && !in_array(mb_strtolower(trim((string) $producto['unidad_medida'])), self::SE_FRACCIONA, true)) {
+                    throw ErrorHttp::validacion(
+                        $producto['nombre'] . ' se vende por ' . $producto['unidad_medida'] . ' y no admite fracciones',
+                        ['items' => 'Cantidad inválida']
+                    );
                 }
 
                 $stock = (float) $producto['stock_actual'];
@@ -85,7 +108,7 @@ final class Venta
 
                 $lineas[] = [
                     'producto_id'        => (int) $producto['id'],
-                    'categoria_id'       => (int) $producto['cat_id'],
+                    'categoria_id'       => (int) $producto['categoria_id'],
                     'sku'                => (string) $producto['sku'],
                     'nombre'             => (string) $producto['nombre'],
                     'cantidad'           => $cantidad,
@@ -109,9 +132,7 @@ final class Venta
             $motivoDescuento = '';
             $autorizadoPor = null;
 
-            $codigo = trim((string) ($datos['codigo_promocion'] ?? ''));
             if ($codigo !== '') {
-                Autenticacion::exigir('descuentos.aplicar');
                 $promocion = Promocion::porCodigo($codigo);
                 if ($promocion === null) {
                     throw ErrorHttp::validacion('El código de promoción no existe', ['codigo_promocion' => 'Código inválido']);
@@ -128,9 +149,7 @@ final class Venta
                 $autorizadoPor = $promocion['requiere_autorizacion'] ? $usuarioId : null;
             }
 
-            $manual = $datos['descuento_manual'] ?? null;
-            if (is_array($manual) && (float) ($manual['valor'] ?? 0) > 0) {
-                Autenticacion::exigir('descuentos.gestionar');
+            if ($conManual) {
                 $valorManual = round((float) $manual['valor'], 2);
                 $motivoManual = trim((string) ($manual['motivo'] ?? ''));
                 if ($motivoManual === '') {
@@ -340,7 +359,6 @@ final class Venta
                 'nombre'             => (string) $d['nombre_producto'],
                 'cantidad'           => (float) $d['cantidad'],
                 'precio_unitario'    => (float) $d['precio_unitario'],
-                'descuento_unitario' => (float) $d['descuento_unitario'],
                 'iva_porcentaje'     => (float) $d['iva_porcentaje'],
                 'subtotal'           => (float) $d['subtotal'],
                 'impuesto'           => (float) $d['impuesto'],
@@ -512,6 +530,7 @@ final class Venta
         });
     }
 
+    // El día se pide como rango y no con DATE(fecha): así la base usa el índice de la fecha
     public static function resumenDia(string $dia): array
     {
         $fila = Bd::primero(
@@ -522,15 +541,15 @@ final class Venta
                 COALESCE(SUM(impuesto_total), 0) AS impuestos,
                 COALESCE(SUM(costo_total), 0) AS costo
              FROM ventas
-             WHERE estado = 'Completada' AND DATE(fecha) = ?",
-            [$dia]
+             WHERE estado = 'Completada' AND fecha >= ? AND fecha < ? + INTERVAL 1 DAY",
+            [$dia, $dia]
         );
 
         $unidades = Bd::valor(
             "SELECT COALESCE(SUM(d.cantidad), 0) FROM venta_detalle d
              JOIN ventas v ON v.id = d.venta_id
-             WHERE v.estado = 'Completada' AND DATE(v.fecha) = ?",
-            [$dia]
+             WHERE v.estado = 'Completada' AND v.fecha >= ? AND v.fecha < ? + INTERVAL 1 DAY",
+            [$dia, $dia]
         );
 
         $total = (float) ($fila['total'] ?? 0);

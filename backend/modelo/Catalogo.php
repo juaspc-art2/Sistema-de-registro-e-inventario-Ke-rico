@@ -28,7 +28,27 @@ final class Catalogo
     public static function crearProducto(array $datos): array
     {
         self::validarSkuUnico($datos['sku'], null);
+        self::exigirCategoriaYProveedor($datos);
 
+        // Producto, existencias iniciales y alerta se guardan juntos: si algo falla no queda un producto a medias
+        $id = Bd::transaccion(static fn (): int => self::insertarProducto($datos));
+
+        Bitacora::registrar(
+            'PRODUCTO_CREAR',
+            'Inventario',
+            'Producto ' . $datos['nombre'] . ' (' . $datos['sku'] . ') creado',
+            'Info',
+            'productos',
+            $id,
+            null,
+            $datos
+        );
+
+        return Inventario::producto($id);
+    }
+
+    private static function insertarProducto(array $datos): int
+    {
         $id = Bd::insertar(
             'INSERT INTO productos
                 (sku, nombre, descripcion, categoria_id, proveedor_id, unidad_medida, precio_costo,
@@ -55,21 +75,29 @@ final class Catalogo
                 'Existencias iniciales registradas al crear el producto'
             );
         } else {
-            Inventario::evaluarAlerta($id, 0.0, (float) $datos['punto_reorden'], (string) $datos['nombre'], (string) $datos['unidad_medida']);
+            Inventario::evaluarAlerta(
+                $id,
+                0.0,
+                (float) $datos['punto_reorden'],
+                (string) $datos['nombre'],
+                (string) $datos['unidad_medida'],
+                (bool) $datos['activo']
+            );
         }
 
-        Bitacora::registrar(
-            'PRODUCTO_CREAR',
-            'Inventario',
-            'Producto ' . $datos['nombre'] . ' (' . $datos['sku'] . ') creado',
-            'Info',
-            'productos',
-            $id,
-            null,
-            $datos
-        );
+        return $id;
+    }
 
-        return Inventario::producto($id);
+    // Una categoría o un proveedor que no existe debe dar el error de su campo, no un fallo interno de la base
+    private static function exigirCategoriaYProveedor(array $datos): void
+    {
+        if (Bd::valor('SELECT id FROM categorias WHERE id = ?', [$datos['categoria_id']]) === null) {
+            throw ErrorHttp::validacion('La categoría seleccionada no existe', ['categoria_id' => 'Seleccione una categoría de la lista']);
+        }
+        if ($datos['proveedor_id'] !== null
+            && Bd::valor('SELECT id FROM proveedores WHERE id = ?', [$datos['proveedor_id']]) === null) {
+            throw ErrorHttp::validacion('El proveedor seleccionado no existe', ['proveedor_id' => 'Seleccione un proveedor de la lista']);
+        }
     }
 
     public static function actualizarProducto(int $id, array $datos): array
@@ -80,6 +108,7 @@ final class Catalogo
         }
 
         self::validarSkuUnico($datos['sku'], $id);
+        self::exigirCategoriaYProveedor($datos);
 
         $cambiaPrecio = (float) $antes['precio_venta'] !== (float) $datos['precio_venta']
             || (float) $antes['precio_costo'] !== (float) $datos['precio_costo'];
@@ -108,7 +137,8 @@ final class Catalogo
             (float) $antes['stock_actual'],
             (float) $datos['punto_reorden'],
             (string) $datos['nombre'],
-            (string) $datos['unidad_medida']
+            (string) $datos['unidad_medida'],
+            (bool) $datos['activo']
         );
 
         if ($cambiaPrecio) {
@@ -226,7 +256,8 @@ final class Catalogo
             (float) $producto['stock_actual'],
             $puntoReorden,
             (string) $producto['nombre'],
-            (string) $producto['unidad_medida']
+            (string) $producto['unidad_medida'],
+            (int) $producto['activo'] === 1
         );
 
         Bitacora::registrar(

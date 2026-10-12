@@ -223,6 +223,17 @@ final class Promocion
         return ['valido' => true, 'motivo' => '', 'descuento' => $descuento, 'base_aplicada' => round($base, 2)];
     }
 
+    // El producto o la categoría de la promoción deben existir: si no, la base rechazaba el guardado con un fallo interno
+    public static function exigirDestino(?int $productoId, ?int $categoriaId): void
+    {
+        if ($productoId !== null && Bd::valor('SELECT id FROM productos WHERE id = ?', [$productoId]) === null) {
+            throw ErrorHttp::validacion('El producto seleccionado no existe', ['producto_id' => 'Seleccione un producto de la lista']);
+        }
+        if ($categoriaId !== null && Bd::valor('SELECT id FROM categorias WHERE id = ?', [$categoriaId]) === null) {
+            throw ErrorHttp::validacion('La categoría seleccionada no existe', ['categoria_id' => 'Seleccione una categoría de la lista']);
+        }
+    }
+
     public static function crear(array $datos, int $usuarioId): int
     {
         return Bd::insertar(
