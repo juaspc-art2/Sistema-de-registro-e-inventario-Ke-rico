@@ -330,6 +330,61 @@ await rechaza('el correo de la empresa debe ser un correo', 'PUT', '/sistema/con
 await rechaza('el nombre de la empresa no puede quedar vacio', 'PUT', '/sistema/configuracion', TA, { empresa_nombre: '' }, 'empresa_nombre');
 ok('3.5 un ajuste rechazado no se guarda', sql("SELECT valor FROM configuracion WHERE clave='empresa_telefono'") === telefonoEmpresa);
 
+// Un dato elegido que no existe, o repetido con otra escritura, debe dar el error de su campo y no un fallo interno
+await rechaza('un rol que no existe da el error de su campo', 'POST', '/sistema/usuarios', TA,
+  { ...usuarioValido, usuario: 'rol' + sufijo, correo: 'rol' + sufijo + '@kerico.co', documento: '5' + sufijo + '33', rol_id: 9999 }, 'rol_id');
+await rechaza('una categoria que no existe da el error de su campo', 'POST', '/inventario/productos', TI, { ...productoValido, categoria_id: 9999 }, 'categoria_id');
+const nitRegistrado = sql('SELECT nit FROM proveedores ORDER BY id LIMIT 1');
+await rechaza('el mismo NIT sin puntos cuenta como repetido', 'POST', '/proveedores', TA, { ...proveedorValido, nit: nitRegistrado.replace(/\./g, '') }, 'nit');
+await rechaza('un producto que se vende por unidad no admite fracciones', 'POST', '/ventas', TC,
+  { items: [{ producto_id: 1, cantidad: 0.5 }], metodo_pago: 'Tarjeta' }, 'items');
+
+seccion('3.6 Concurrencia, sesiones y permisos');
+// Dos cajas venden a la vez los mismos productos en orden contrario: antes se bloqueaban entre sí y una fallaba
+let ventasFallidas = 0;
+for (let ronda = 0; ronda < 6; ronda += 1) {
+  const par = await Promise.all([0, 1].map((i) => api('POST', '/ventas', {
+    token: i ? TA : TC,
+    body: {
+      items: i ? [{ producto_id: 1, cantidad: 1 }, { producto_id: 2, cantidad: 1 }] : [{ producto_id: 2, cantidad: 1 }, { producto_id: 1, cantidad: 1 }],
+      metodo_pago: 'Tarjeta',
+    },
+  })));
+  ventasFallidas += par.filter((r) => r.status !== 201).length;
+}
+ok('3.6 dos ventas simultaneas con productos en orden contrario se registran las dos', ventasFallidas === 0, ventasFallidas + ' de 12 fallaron');
+
+// Muchas claves erradas a la vez: antes el contador quedaba en 1 y la cuenta nunca se bloqueaba
+const cuentaPrueba = {
+  usuario: 'bloq' + sufijo, nombre: 'Bloqueo', apellido: 'Prueba', documento: '6' + sufijo + '22',
+  correo: 'bloq' + sufijo + '@kerico.co', rol_id: 3, password: 'clave-correcta',
+};
+const idCuenta = (await api('POST', '/sistema/usuarios', { token: TA, body: cuentaPrueba })).j?.datos?.id;
+await Promise.all(Array.from({ length: 12 }, (_, i) => api('POST', '/auth/login', { body: { usuario: cuentaPrueba.usuario, password: 'mala' + i } })));
+ok('3.6 muchas claves erradas a la vez terminan en bloqueo',
+  sql("SELECT bloqueado_hasta IS NOT NULL FROM usuarios WHERE usuario='" + cuentaPrueba.usuario + "'") === '1');
+ok('3.6 la cuenta bloqueada rechaza tambien la clave correcta',
+  (await api('POST', '/auth/login', { body: { usuario: cuentaPrueba.usuario, password: cuentaPrueba.password } })).status === 401);
+
+await api('POST', '/sistema/usuarios/' + idCuenta + '/desbloquear', { token: TA, body: {} });
+const sesionUno = (await entrar(cuentaPrueba.usuario, cuentaPrueba.password)).j?.datos?.token;
+const sesionDos = (await entrar(cuentaPrueba.usuario, cuentaPrueba.password)).j?.datos?.token;
+const cambioClave = await api('POST', '/auth/password', { token: sesionUno, body: { password_actual: cuentaPrueba.password, password_nueva: 'otra-clave' } });
+ok('3.6 cambiar la contrasena cierra las otras sesiones de la cuenta',
+  cambioClave.status === 200 && (await api('GET', '/auth/sesion', { token: sesionDos })).status === 401);
+ok('3.6 la sesion desde la que se cambio sigue abierta', (await api('GET', '/auth/sesion', { token: sesionUno })).status === 200);
+await api('DELETE', '/sistema/usuarios/' + idCuenta, { token: TA });
+
+ok('3.6 un rol sin permiso de exportar no descarga las ventas',
+  (await api('GET', '/ventas/exportar?formato=csv', { token: TC, raw: true })).status === 403);
+// El intento negado se registra aunque ocurra dentro de una venta, que se deshace
+const negadosAntes = Number(sql("SELECT COUNT(*) FROM bitacora WHERE accion='ACCESO_DENEGADO'"));
+const descuentoCajero = await api('POST', '/ventas', {
+  token: TC, body: { items: [{ producto_id: 1, cantidad: 1 }], metodo_pago: 'Tarjeta', descuento_manual: { valor: 500, motivo: 'Prueba' } },
+});
+ok('3.6 un descuento negado dentro de una venta queda en la bitacora',
+  descuentoCajero.status === 403 && Number(sql("SELECT COUNT(*) FROM bitacora WHERE accion='ACCESO_DENEGADO'")) === negadosAntes + 1);
+
 // ─── 4. Informes ──────────────────────────────────────────────────────────────
 seccion('4.1 Filtro por fechas');
 const rango = await api('GET', '/ventas?desde=' + dia(1) + '&hasta=' + dia(5) + '&por_pagina=100', { token: TA });

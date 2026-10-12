@@ -191,11 +191,19 @@ Los archivos quedan en `backend/respaldos/` y se descargan desde la pantalla de
 Administración. Esa carpeta está protegida con un `.htaccess` que impide leerla
 directamente desde el navegador.
 
+Cada archivo se conserva 30 días: al generar un respaldo se borran del disco los más
+viejos, y su fila sigue en la lista como historial. Si necesita guardar una copia por más
+tiempo, descárguela.
+
 ### Restaurar un respaldo
 
 ```bash
 mysql -u root kerico < backend/respaldos/kerico-20260914-020000.sql
 ```
+
+El respaldo trae los datos, no la estructura: se restaura sobre una base que ya tenga las
+tablas de la misma versión del sistema. No incluye las sesiones abiertas ni la propia
+lista de respaldos.
 
 ---
 
@@ -244,7 +252,8 @@ cree una **contraseña de aplicación** en <https://myaccount.google.com/apppass
 
 El sistema nunca envía la contraseña por una conexión sin cifrar y comprueba el certificado
 del servidor. La página de diagnóstico muestra si el correo quedó configurado. Un adjunto
-puede pesar hasta 10 MB; lo que pese más se descarga.
+puede pesar hasta 10 MB; lo que pese más se descarga. Cada usuario puede enviar hasta 30
+archivos por hora, para que nadie agote el cupo diario de la cuenta de correo.
 
 Una base creada con una versión anterior no tiene el ajuste del correo de avisos. Se agrega
 sin perder datos con:

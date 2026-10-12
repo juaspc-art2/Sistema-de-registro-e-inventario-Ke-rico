@@ -488,6 +488,8 @@ ok('RNF7 controla intervalo de 24 horas', listaResp.j.datos.pendiente === false)
 
 const descargaResp = await api('GET', '/sistema/respaldos/' + resp.j.datos.id + '/descargar', { token: TA, raw: true });
 ok('RNF7 descarga el respaldo', descargaResp.status === 200 && descargaResp.buf.toString().includes('INSERT INTO'));
+// La lista de respaldos no se copia a sí misma: restaurada, mostraba el respaldo en curso como eterno "En proceso"
+ok('RNF7 el respaldo no incluye la tabla de respaldos', !descargaResp.buf.toString().includes('`respaldos`'));
 
 const cajeroResp = await api('POST', '/sistema/respaldos', { token: TC, body: {} });
 ok('RNF4 cajero no genera respaldos', cajeroResp.status === 403);

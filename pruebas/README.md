@@ -6,13 +6,18 @@ MySQL para comprobar lo que quedó guardado.
 
 | Archivo | Qué comprueba | Casos |
 |---|---|---|
-| `requerimientos.mjs` | Los nueve requerimientos funcionales y los quince no funcionales | 151 |
-| `revision.mjs` | La lista de verificación de la revisión de la aplicación | 202 |
+| `requerimientos.mjs` | Los nueve requerimientos funcionales y los quince no funcionales | 152 |
+| `revision.mjs` | La lista de verificación de la revisión de la aplicación | 213 |
 
 `correo.mjs` es aparte: prueba el cliente SMTP contra un servidor falso que levanta en el
 mismo equipo. No necesita Apache ni MySQL, no modifica datos y ningún correo sale a
 Internet. Se ejecuta con `node pruebas/correo.mjs` (20 casos); si PHP no está en
 `C:/xampp/php/php.exe`, indique su ruta en la variable `KERICO_PHP`.
+
+`tirilla.mjs` también es aparte y solo necesita PHP: genera el PDF de un comprobante fijo
+y compara el ancho y la posición de sus textos con los que midió el navegador en la
+tirilla de la página. Se ejecuta con `node pruebas/tirilla.mjs` (14 casos) después de
+tocar el comprobante, en la página o en el PDF.
 
 ## Antes de ejecutar
 
@@ -69,6 +74,6 @@ node pruebas/requerimientos.mjs
 ## Resultado esperado
 
 ```
-PASADAS: 151   FALLIDAS: 0
-PASADAS: 202   FALLIDAS: 0
+PASADAS: 152   FALLIDAS: 0
+PASADAS: 213   FALLIDAS: 0
 ```
