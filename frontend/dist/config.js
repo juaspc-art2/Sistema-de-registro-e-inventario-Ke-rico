@@ -1,1 +1,0 @@
-window.KERICO_API = '';
