@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ProveedorSesion, useSesion } from './contexto/Sesion.jsx';
 import { alCambiarRuta, escribirRuta, rutaActual } from './rutas.js';
-import { Boton, Cargando, Isotipo } from './ui/Componentes.jsx';
+import { api } from './api.js';
+import { Aviso, Boton, Cargando, Entrada, Isotipo, Modal } from './ui/Componentes.jsx';
 import Acceso from './componentes/Acceso.jsx';
 import Panel from './componentes/Panel.jsx';
 import GestionVentas from './componentes/GestionVentas.jsx';
@@ -29,8 +30,62 @@ const MODULOS = [
   { id: 'administracion', etiqueta: 'Administración', icono: '⚙', permiso: 'usuarios.gestionar', componente: Administracion },
 ];
 
+// Cada persona cambia su propia contraseña sin pasar por el administrador
+function CambiarClave({ onCerrar, avisar }) {
+  const [actual, setActual] = useState('');
+  const [nueva, setNueva] = useState('');
+  const [repetida, setRepetida] = useState('');
+  const [errores, setErrores] = useState({});
+  const [error, setError] = useState('');
+  const [guardando, setGuardando] = useState(false);
+
+  const guardar = async () => {
+    setError('');
+    if (nueva !== repetida) {
+      setErrores({ repetida: 'No coincide con la contraseña nueva' });
+      return;
+    }
+    setGuardando(true);
+    try {
+      await api.post('/auth/password', { password_actual: actual, password_nueva: nueva });
+      avisar('Contraseña actualizada. Las demás sesiones abiertas de su cuenta se cerraron.');
+      onCerrar();
+    } catch (e) {
+      setError(e.message);
+      setErrores(e.errores || {});
+    } finally {
+      setGuardando(false);
+    }
+  };
+
+  return (
+    <Modal
+      titulo="Cambiar contraseña"
+      angosto
+      onCerrar={onCerrar}
+      pie={
+        <>
+          <Boton onClick={onCerrar}>Cancelar</Boton>
+          <Boton variante="primario" onClick={guardar} disabled={guardando || !actual || !nueva}>
+            {guardando ? 'Guardando...' : 'Guardar'}
+          </Boton>
+        </>
+      }
+    >
+      {error ? <Aviso tipo="error">{error}</Aviso> : null}
+      <Entrada etiqueta="Contraseña actual" type="password" value={actual}
+        onChange={(e) => setActual(e.target.value)} error={errores.password_actual} autoComplete="current-password" autoFocus />
+      <Entrada etiqueta="Contraseña nueva" type="password" value={nueva}
+        onChange={(e) => setNueva(e.target.value)} error={errores.password_nueva} autoComplete="new-password" />
+      <Entrada etiqueta="Repita la contraseña nueva" type="password" value={repetida}
+        onChange={(e) => setRepetida(e.target.value)} error={errores.repetida} autoComplete="new-password" />
+    </Modal>
+  );
+}
+
 function Aplicacion() {
-  const { usuario, cargando, puede, salir, notificacion, porExpirar, minutosSesion, empresa } = useSesion();
+  const { usuario, cargando, puede, salir, avisar, notificacion, porExpirar, minutosSesion, empresa } = useSesion();
+  const [cambiandoClave, setCambiandoClave] = useState(false);
   const [activo, setActivo] = useState(() => rutaActual() || 'panel');
   const [alertasPendientes, setAlertasPendientes] = useState(0);
   const [negadoDescartado, setNegadoDescartado] = useState('');
@@ -118,9 +173,12 @@ function Aplicacion() {
             <div className="usuario">{usuario.nombre} {usuario.apellido}</div>
             <div className="rol">{usuario.rol}</div>
           </div>
+          <Boton pequeno variante="sutil" onClick={() => setCambiandoClave(true)}>Cambiar contraseña</Boton>
           <Boton pequeno onClick={salir}>Cerrar sesión</Boton>
         </div>
       </aside>
+
+      {cambiandoClave ? <CambiarClave onCerrar={() => setCambiandoClave(false)} avisar={avisar} /> : null}
 
       <main className="contenido">
         <Vista

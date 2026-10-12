@@ -25,6 +25,16 @@ function Punto({ avisar, alRegistrar }) {
   const [error, setError] = useState('');
   const [guardando, setGuardando] = useState(false);
   const [recibo, setRecibo] = useState(null);
+  const [buscarCliente, setBuscarCliente] = useState('');
+  const [nuevoCliente, setNuevoCliente] = useState(false);
+
+  // La lista trae hasta 200 clientes: con la búsqueda se llega a cualquiera. Se espera a que el cajero deje de escribir
+  useEffect(() => {
+    const espera = setTimeout(() => {
+      api.get('/ventas/clientes' + consulta({ busqueda: buscarCliente.trim() })).then(setClientes).catch(() => {});
+    }, 300);
+    return () => clearTimeout(espera);
+  }, [buscarCliente]);
 
   const cargarCatalogo = useCallback(() => {
     return Promise.all([
@@ -171,6 +181,7 @@ function Punto({ avisar, alRegistrar }) {
       quitarPromo();
       setRecibido('');
       setClienteId('');
+      setBuscarCliente('');
       cargarCatalogo();
       avisar('Venta ' + r.venta.folio + ' registrada por ' + dinero(r.venta.total));
       if (alRegistrar) alRegistrar();
@@ -276,14 +287,27 @@ function Punto({ avisar, alRegistrar }) {
 
         <Tarjeta titulo="Cobro">
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <Entrada
+                  etiqueta="Cliente"
+                  placeholder="Buscar por nombre o documento"
+                  value={buscarCliente}
+                  // Al buscar de nuevo se suelta el cliente elegido: si no saliera en la lista nueva,
+                  // la venta quedaría a su nombre sin que se viera en pantalla
+                  onChange={(e) => { setBuscarCliente(e.target.value); setClienteId(''); }}
+                />
+              </div>
+              <Boton onClick={() => setNuevoCliente(true)}>+ Nuevo</Boton>
+            </div>
             <Seleccion
-              etiqueta="Cliente"
               value={clienteId}
               onChange={(e) => setClienteId(e.target.value)}
               vacio="Consumidor final"
+              aria-label="Cliente de la venta"
               opciones={clientes
                 .filter((c) => c.nombre !== 'Consumidor final')
-                .map((c) => ({ valor: c.id, texto: c.nombre }))}
+                .map((c) => ({ valor: c.id, texto: c.nombre + (c.documento ? ' · ' + c.tipo_documento + ' ' + c.documento : '') }))}
             />
 
             <Seleccion
@@ -360,7 +384,82 @@ function Punto({ avisar, alRegistrar }) {
           <Tirilla comprobante={recibo} />
         </Modal>
       ) : null}
+
+      {nuevoCliente ? (
+        <FormularioCliente
+          onCerrar={() => setNuevoCliente(false)}
+          onCreado={(cliente) => {
+            setClientes((lista) => [cliente, ...lista.filter((c) => c.id !== cliente.id)]);
+            setClienteId(String(cliente.id));
+            // Con su nombre en la búsqueda, la lista que se vuelve a pedir lo sigue trayendo
+            setBuscarCliente(cliente.nombre);
+            avisar('Cliente ' + cliente.nombre + ' registrado');
+          }}
+        />
+      ) : null}
     </div>
+  );
+}
+
+const CLIENTE_VACIO = { tipo_documento: 'CC', documento: '', nombre: '', telefono: '', correo: '', direccion: '' };
+
+// Alta de un cliente sin salir de la venta: una factura necesita su nombre y su documento
+function FormularioCliente({ onCerrar, onCreado }) {
+  const [datos, setDatos] = useState(CLIENTE_VACIO);
+  const [errores, setErrores] = useState({});
+  const [error, setError] = useState('');
+  const [guardando, setGuardando] = useState(false);
+
+  const poner = (clave, valor) => setDatos((d) => ({ ...d, [clave]: valor }));
+
+  const guardar = async () => {
+    setError('');
+    if (!datos.nombre.trim()) {
+      setErrores({ nombre: 'El nombre es obligatorio' });
+      return;
+    }
+    setGuardando(true);
+    try {
+      onCreado(await api.post('/ventas/clientes', datos));
+      onCerrar();
+    } catch (e) {
+      setError(e.message);
+      setErrores(e.errores || {});
+    } finally {
+      setGuardando(false);
+    }
+  };
+
+  return (
+    <Modal
+      titulo="Nuevo cliente"
+      onCerrar={onCerrar}
+      pie={
+        <>
+          <Boton onClick={onCerrar}>Cancelar</Boton>
+          <Boton variante="primario" onClick={guardar} disabled={guardando}>
+            {guardando ? 'Guardando...' : 'Guardar'}
+          </Boton>
+        </>
+      }
+    >
+      {error ? <Aviso tipo="error">{error}</Aviso> : null}
+      <div className="rejilla-formulario">
+        <Entrada etiqueta="Nombre o razón social" maxLength={120} value={datos.nombre}
+          onChange={(e) => poner('nombre', e.target.value)} error={errores.nombre} autoFocus />
+        <Seleccion etiqueta="Tipo de documento" value={datos.tipo_documento}
+          onChange={(e) => poner('tipo_documento', e.target.value)}
+          opciones={['CC', 'TI', 'CE', 'PA', 'NIT'].map((d) => ({ valor: d, texto: d }))} />
+        <Entrada etiqueta="Documento" formato={datos.tipo_documento} value={datos.documento}
+          onChange={(e) => poner('documento', e.target.value)} error={errores.documento} />
+        <Entrada etiqueta="Teléfono" formato="telefono" value={datos.telefono}
+          onChange={(e) => poner('telefono', e.target.value)} error={errores.telefono} />
+        <Entrada etiqueta="Correo" type="email" maxLength={120} value={datos.correo}
+          onChange={(e) => poner('correo', e.target.value)} error={errores.correo} />
+        <Entrada etiqueta="Dirección" maxLength={180} value={datos.direccion}
+          onChange={(e) => poner('direccion', e.target.value)} error={errores.direccion} />
+      </div>
+    </Modal>
   );
 }
 
@@ -491,11 +590,13 @@ function Historial() {
           vacio="Todos"
           opciones={[{ valor: 'Completada', texto: 'Completada' }, { valor: 'Anulada', texto: 'Anulada' }]}
         />
-        <Exportar
-          ruta={(f) => '/ventas/exportar' + consulta({ ...lista.filtros, formato: f })}
-          formatos={['pdf', 'csv', 'excel']}
-          nombre="ventas"
-        />
+        {puede('reportes.exportar') ? (
+          <Exportar
+            ruta={(f) => '/ventas/exportar' + consulta({ ...lista.filtros, formato: f })}
+            formatos={['pdf', 'csv', 'excel']}
+            nombre="ventas"
+          />
+        ) : null}
       </div>
 
       <Tarjeta plana>

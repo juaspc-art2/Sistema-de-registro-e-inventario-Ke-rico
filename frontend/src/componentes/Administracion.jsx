@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { api, fechaHora, hoy } from '../api.js';
+import { api, fechaCorta, fechaHora, hoy } from '../api.js';
 import { useSesion } from '../contexto/Sesion.jsx';
 import Exportar from './Exportar.jsx';
 import { useListado } from '../ganchos/useListado.js';
@@ -468,9 +468,12 @@ function Configuracion() {
   const [editados, setEditados] = useState({});
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState('');
+  const [estado, setEstado] = useState(null);
 
   useEffect(() => {
     api.get('/sistema/configuracion').then(setValores).catch((e) => setError(e.message));
+    // El estado es informativo: si no llega, la configuración se puede editar igual
+    api.get('/sistema/estado').then(setEstado).catch(() => {});
   }, []);
 
   const guardar = async () => {
@@ -531,6 +534,24 @@ function Configuracion() {
           </Tarjeta>
         )
       ))}
+
+      {estado ? (
+        <Tarjeta titulo="Estado del sistema" sub={'Hora del servidor: ' + fechaHora(estado.hora_servidor)}>
+          <div className="rejilla-metricas">
+            <Metrica etiqueta="Versión" valor={estado.version} tono="neutro" />
+            <Metrica etiqueta="PHP" valor={estado.php} tono="neutro" />
+            <Metrica etiqueta="Base de datos" valor={String(estado.bd).split('-')[0]} tono="neutro" />
+            <Metrica etiqueta="Zona horaria" valor={String(estado.zona_horaria).split('/').pop().replace(/_/g, ' ')} tono="neutro" />
+            <Metrica etiqueta="Sesiones abiertas" valor={String(estado.sesiones_activas)} tono="info" />
+            <Metrica
+              etiqueta="Último respaldo"
+              valor={estado.ultimo_respaldo ? fechaCorta(estado.ultimo_respaldo) : 'Ninguno'}
+              tono={estado.respaldo_pendiente ? 'error' : 'exito'}
+              nota={estado.respaldo_pendiente ? 'Hay un respaldo pendiente' : 'Al día'}
+            />
+          </div>
+        </Tarjeta>
+      ) : null}
     </>
   );
 }

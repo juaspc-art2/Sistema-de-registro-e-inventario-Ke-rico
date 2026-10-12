@@ -92,7 +92,19 @@ export function ProveedorSesion({ children }) {
     const eventos = ['click', 'keydown', 'mousemove', 'scroll', 'touchstart'];
     eventos.forEach((e) => window.addEventListener(e, registrar, { passive: true }));
 
+    // El servidor mide la inactividad por peticiones y la página por movimiento. Mientras la persona siga
+    // activa se le avisa al servidor cada pocos minutos: así no cierra una sesión que aquí sigue viva
+    // (por ejemplo, mientras se arma una venta larga sin consultar nada)
+    const cadaLatido = Math.max(1, Math.min(5, minutosSesion / 3)) * 60000;
+    let ultimoLatido = Date.now();
+
     temporizador.current = setInterval(() => {
+      const ahora = Date.now();
+      if (ahora - ultimaActividad.current < 60000 && ahora - ultimoLatido >= cadaLatido) {
+        ultimoLatido = ahora;
+        api.get('/auth/sesion').catch(() => {});
+      }
+
       const inactivo = (Date.now() - ultimaActividad.current) / 60000;
       if (inactivo >= minutosSesion) {
         limpiar('La sesión se cerró automáticamente tras ' + minutosSesion + ' minutos de inactividad.');
